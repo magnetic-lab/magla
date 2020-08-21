@@ -1,0 +1,6 @@
+*.pyc
+debug.py
+magla_facility_repo/*
+venv/*
+wenv/*
+.vscode/*

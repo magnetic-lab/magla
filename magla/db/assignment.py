@@ -1,0 +1,17 @@
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+
+from .. import __base__
+
+
+class Assignment(__base__):
+    __tablename__ = "assignments"
+    __table_args__ = {'extend_existing': True}
+    __entity_name__ = "Assignment"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    shot_version_id = Column(Integer, ForeignKey("shot_versions.id"))
+
+    shot_version = relationship("ShotVersion")
+    user = relationship("User", uselist=False, back_populates="assignments")
