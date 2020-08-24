@@ -17,10 +17,10 @@ import magla
 user = magla.User()
 
 # to get the project settings associated to the user via their most recent assignment:
-project_settings = user.assignments[-1].shot_version.shot.project.custom_settings
+project_settings = user.assignments[-1].shot_version.shot.project.settings
 
 #the above can also be shortened to:
-project_settings = user.assignments[-1].project.custom_settings
+project_settings = user.assignments[-1].project.settings
 ```
 Comparing the above examples to the diagrom below and you can see the connective routes that can be traversed based on Magla's schema relationships:
 <img src="media/ERD.png">
@@ -51,7 +51,7 @@ user = r.create_user(getpass.getuser())
 
 # create Facility
 facility = r.create_facility("test_facility",
-	custom_settings={"tool_install_directory_label": "{tool_version.tool.name}_{tool_version.string}"})
+	settings={"tool_install_directory_label": "{tool_version.tool.name}_{tool_version.string}"})
 ```
 The above creates a new `Postgres` column in the 'facilities' table and returns a `MaglaFacility` object pre-populated with data in the '<MaglaEntity>.data' property.
 
@@ -78,7 +78,7 @@ Project settings are sent in as a dictionary which is stored as `JSONB` in `Post
 ```python
 # create Project
 project_test = r.create_project("test_project", "/mnt/projects/test_project",
-	custom_settings={
+	settings={
 		"project_directory": "/mnt/projects/{project.name}",
 		"project_directory_tree": [
 			{"shots": []},
