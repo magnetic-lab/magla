@@ -15,7 +15,7 @@ r = magla.Root()
 
 # create Facility
 facility = r.create_facility("test_facility",
-	custom_settings={
+	settings={
 	 "tool_install_directory_label": "{tool_version.tool.name}_{tool_version.string}"
 	})
 
@@ -23,8 +23,8 @@ facility = r.create_facility("test_facility",
 current_machine = r.create_machine(facility.id)
 
 # create Project
-project_test = r.create_project("test_project", "/mnt/projects/test_project",
-	custom_settings={
+test_project = r.create_project("test_project", "/mnt/projects/test_project",
+	settings={
 	    "project_directory": "/mnt/projects/{project.name}",
 	    "project_directory_tree": [
             {"shots": []},
@@ -47,7 +47,7 @@ project_test = r.create_project("test_project", "/mnt/projects/test_project",
 	})
 
 # create Shot
-shot = r.create_shot(project_id=project_test.id, name="test_shot")
+shot = r.create_shot(project_id=test_project.id, name="test_shot")
 
 # create User
 user = r.create_user(getpass.getuser())
@@ -66,4 +66,5 @@ natron_2_3_15 = r.create_tool(
     version_string="2.3.15",
     file_extension=".ntp")
 
-magla.Tool("natron").start()
+test_project.build_timeline()
+# magla.Tool("natron").start()

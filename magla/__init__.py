@@ -29,8 +29,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.pool import NullPool
-
-# TODO: this DB connection stuff needs to move to its new home
 __credentials__ = {
     "username": getenv("POSTGRES_USERNAME"),
     "password": getenv("POSTGRES_PASSWORD"),
@@ -63,6 +61,7 @@ from .core import Root
 from .core import Context
 from .core import Shot
 from .core import ShotVersion
+from .core import Timeline
 from .core import Tool
 from .core import ToolAlias
 from .core import ToolConfig
@@ -79,6 +78,7 @@ Entity.__types__ = {
 	"Context": Context,
 	"Shot": Shot,
 	"ShotVersion": ShotVersion,
+ 	"Timeline": Timeline,
 	"Tool": Tool,
 	"ToolAlias": ToolAlias,
 	"ToolConfig": ToolConfig,

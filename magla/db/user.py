@@ -21,3 +21,4 @@ class User(BASE):
     context = relationship("Context", uselist=False, back_populates="user")
     assignments = relationship("Assignment", back_populates="user")
     directories = relationship("Directory", back_populates="user")
+    timelines = relationship("Timeline", back_populates="user")

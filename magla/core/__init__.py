@@ -13,6 +13,7 @@ from .root import MaglaRoot as Root
 from .context import MaglaContext as Context
 from .shot import MaglaShot as Shot
 from .shot_version import MaglaShotVersion as ShotVersion
+from .timeline import MaglaTimeline as Timeline
 from .tool import MaglaTool as Tool
 from .tool_alias import MaglaToolAlias as ToolAlias
 from .tool_config import MaglaToolConfig as ToolConfig

@@ -50,6 +50,14 @@ class MaglaShot(MaglaEntity):
     @property
     def otio(self):
         return self.data.otio
+    
+    @property
+    def track_index(self):
+        return self.data.track_index
+    
+    @property
+    def start_time_in_parent(self):
+        return self.data.start_time_in_parent
 
     # SQAlchemy relationship back-references
     @property
@@ -84,7 +92,7 @@ class MaglaShot(MaglaEntity):
         return os.path.join(
             self.project.directory.path,
             "shots",
-            self.project.custom_settings["shot_directory"].format(shot=self))
+            self.project.settings["shot_directory"].format(shot=self))
 
     @property
     def latest_num(self):

@@ -39,8 +39,8 @@ class MaglaFacility(MaglaEntity):
         return self.data.name
 
     @property
-    def custom_settings(self):
-        return self.data.custom_settings
+    def settings(self):
+        return self.data.settings
 
     @property
     def magla_dir(self):

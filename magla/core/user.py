@@ -76,6 +76,13 @@ class MaglaUser(MaglaEntity):
         if r == None:
             return None
         return [self.from_record(a) for a in r]
+    
+    @property
+    def timelines(self):
+        r = self.data.record.timelines
+        if r == None:
+            return None
+        return [self.from_record(a) for a in r]
 
     #### MaglaUser-specific methods ________________________________________________________________
     @staticmethod

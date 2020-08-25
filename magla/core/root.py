@@ -17,6 +17,7 @@ from .orm import MaglaORM
 from .project import MaglaProject
 from .shot import MaglaShot
 from .shot_version import MaglaShotVersion
+from .timeline import MaglaTimeline
 from .tool import MaglaTool
 from .tool_alias import MaglaToolAlias
 from .tool_version import MaglaToolVersion
@@ -120,7 +121,7 @@ class MaglaRoot(object):
             install_directory = cls.create(MaglaDirectory, {
                 "path": install_dir,
                 "machine_id": machine.id,
-                "label": machine.facility.custom_settings["tool_install_directory_label"].format(
+                "label": machine.facility.settings["tool_install_directory_label"].format(
                     tool_version=tool_version),
                 "tree": {
                     "exe": exe_path
@@ -140,21 +141,32 @@ class MaglaRoot(object):
         return cls.create(MaglaFacility, data)
 
     @classmethod
-    def create_project(cls, project_name, project_path=None, **kwargs):
-        data = {
+    def create_project(cls, project_name, project_path, settings):
+        # create `projects` entry
+        new_project = cls.create(MaglaProject, {
             "name": project_name,
-            "otio": otio_to_dict(otio.schema.Timeline(name=project_name))
-        }
-        data.update(kwargs)
-        new_project = cls.create(MaglaProject, data)
+            "settings": settings
+        })
+        # create `timelines` entry
+        new_timeline = cls.create(MaglaTimeline, {
+            "label": "Timeline for `project_id`: {0}".format(new_project.id),
+            "otio": otio.schema.Timeline(name=new_project.name)
+        })
+        # set project's `timeline_id` relationship
+        new_project.data.timeline_id = new_timeline.id
         # generate the `shot_version` path from `custom_project_settings`
-        project_settings_project_dir = new_project.custom_settings["project_directory"]
-        new_project.data.directory_id = cls.create(MaglaDirectory, {
+        project_settings_project_dir = new_project.settings["project_directory"]
+        # create `directories` entry
+        new_directory = cls.create(MaglaDirectory, {
             "path": project_path or project_settings_project_dir.format(project=new_project),
-            "tree": data.get("custom_settings", []).get("project_directory_tree", []),
+            "tree": settings.get("project_directory_tree", []),
             "machine_id": MaglaMachine().id
-        }).id
-        new_project.data.push()
+        })
+        # set project's `directory_id` relationship
+        new_project.data.directory_id = new_directory.id
+        # push changes to DB
+        new_project.data.push()\
+        # build the local project tree structure
         new_project.directory.make_tree()
         return new_project
 
@@ -167,10 +179,10 @@ class MaglaRoot(object):
             "otio": otio_to_dict(otio.schema.Clip(name=name))
         })
         # generate the `shot` path from `custom_project_settings`
-        project_settings_shot_dir = new_shot.project.custom_settings["shot_directory"]
+        project_settings_shot_dir = new_shot.project.settings["shot_directory"]
         new_shot.data.directory_id = cls.create(MaglaDirectory, {
             "path": project_settings_shot_dir.format(shot=new_shot),
-            "tree": project.custom_settings.get("shot_directory_tree", []),
+            "tree": project.settings.get("shot_directory_tree", []),
             "machine_id": MaglaMachine().id
         }).id
         # do not use len(new_shot.versions) - too slow!
@@ -194,7 +206,7 @@ class MaglaRoot(object):
             "otio": otio_to_dict(external_reference)
         })
         # generate the `shot_version` path from `custom_project_settings`
-        project_settings_shot_version_dir = shot.project.custom_settings["shot_version_directory"]
+        project_settings_shot_version_dir = shot.project.settings["shot_version_directory"]
         new_shot_version.data.directory_id = cls.create(MaglaDirectory, {
             "path": project_settings_shot_version_dir.format(shot_version=new_shot_version),
             "machine_id": MaglaMachine().id

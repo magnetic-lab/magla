@@ -50,6 +50,10 @@ class MaglaDirectory(MaglaEntity):
     @property
     def tree(self):
         return self.data.tree
+    
+    @property
+    def bookmarks(self):
+        return self.data.bookmarks
 
     #### SQAlchemy relationship back-references
     @property

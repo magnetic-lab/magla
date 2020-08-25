@@ -95,7 +95,7 @@ class MaglaShotVersion(MaglaEntity):
         return self.from_record(r)
 
     def tool_path(self):
-        tool_path = self.project.custom_settings.get(
+        tool_path = self.project.settings.get(
             "shot_version_tool_directory", "").format(tool=self)
         return os.path.join(self.path, tool_path)
 
@@ -103,8 +103,8 @@ class MaglaShotVersion(MaglaEntity):
         return os.path.join(
             self.project.path,
             "shots",
-            self.project.custom_settings["shot_directory"].format(
+            self.project.settings["shot_directory"].format(
                 shot=self.shot),
-            self.project.custom_settings["shot_version_directory"].format(
+            self.project.settings["shot_version_directory"].format(
                 shot_version=self),
         )

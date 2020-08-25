@@ -26,7 +26,6 @@ class MaglaProject(MaglaEntity):
         if isinstance(data, str):
             data = {"name": data}
         super(MaglaProject, self).__init__(self.SCHEMA, data or dict(kwargs))
-        self.__populate_clips(self.shots)
 
     @property
     def id(self):
@@ -37,12 +36,15 @@ class MaglaProject(MaglaEntity):
         return self.data.name
 
     @property
-    def otio(self):
-        return self.data.otio
+    def timeline(self):
+        r = self.data.record.timeline
+        if not r:
+            return None
+        return self.from_record(r)
 
     @property
-    def custom_settings(self):
-        return self.data.custom_settings
+    def settings(self):
+        return self.data.settings
 
     # SQAlchemy relationship back-references
     @property
@@ -73,7 +75,17 @@ class MaglaProject(MaglaEntity):
             return None
         return [self.from_record(a) for a in r]
 
-    # MaglaProject-specific methods _____________________________________________________________
+    # MaglaProject-specific methods ________________________________________________________________
+    @property
+    def otio(self):
+        if not self.timeline:
+            return None
+        return self.timeline.otio
+    
+    def build_timeline(self, shots=None):
+        shots = shots or self.shots
+        return self.timeline.build(shots)
+
     def shot(self, name):
         return MaglaShot(project_id=self.data.id, name=name)
 
@@ -95,12 +107,3 @@ class MaglaProject(MaglaEntity):
     
     def export_otio(self, export_dir):
         write_to_file(self.otio, export_dir, "fcp_xml")
-
-    def _append_otio_clip(self, otio_clip):
-        
-        self.otio.tracks.append(otio_clip)
-        self.data.push()
-        
-    def __populate_clips(self, shots):
-        for shot in shots:
-            self.data.otio.tracks.append(shot.otio)

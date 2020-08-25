@@ -9,6 +9,7 @@ from .context import Context
 from .settings_2d import Settings2D
 from .shot import Shot
 from .shot_version import ShotVersion
+from .timeline import Timeline
 from .tool import Tool
 from .tool_alias import ToolAlias
 from .tool_config import ToolConfig

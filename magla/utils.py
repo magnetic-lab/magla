@@ -10,7 +10,6 @@ import opentimelineio as otio
 def all_otio_to_dict(dict_):
     for k, v in dict_.items():
         if isinstance(v, otio.core.SerializableObjectWithMetadata):
-            print("found otio: {}".format(v))
             dict_[k] = otio_to_dict(v)
         elif isinstance(v, dict):
             dict_[k] = all_otio_to_dict(v)

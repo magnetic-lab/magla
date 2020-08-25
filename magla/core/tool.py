@@ -109,10 +109,11 @@ class MaglaTool(MaglaEntity):
         user = user or MaglaEntity.type("User")()
         tool_config = tool_config \
             or MaglaEntity.type("ToolConfig").from_user_context(self.id, user.context)
+        # if not tool config, open latest installation of tool with empty scene.
         if not tool_config:
             machine = MaglaEntity.type("Machine")()
             MaglaToolStartError("No tool config!")
-            return subprocess.Popen([self.latest.installation(machine.id).directory.tree["exe"]])
+            return subprocess.Popen([self.latest.installation(machine.id).directory.bookmarks["exe"]])
         user = user or MaglaEntity.type("User")()
         env_ = tool_config.get_tool_env()
         

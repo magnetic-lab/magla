@@ -16,6 +16,7 @@ class Directory(__base__):
     label = Column(String)
     path = Column(String)
     tree = Column(JSONB)
+    bookmarks = Column(JSONB)
 
     machine = relationship("Machine", uselist=False, back_populates="directories")
     user = relationship("User", uselist=False, back_populates="directories")

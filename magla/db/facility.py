@@ -14,6 +14,6 @@ class Facility(__base__):
     name = Column(String)
     repo_dir = Column(String)
     magla_dir = Column(String)
-    custom_settings = Column(JSONB)
+    settings = Column(JSONB)
 
     machines = relationship("Machine", back_populates="facility")

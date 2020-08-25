@@ -116,6 +116,8 @@ def launch_target(target, env):
     return
 
 if __name__ == "__main__":
+    import sys
+    import json
     parser = argparse.ArgumentParser()
     grp = parser.add_mutually_exclusive_group()  # this ensures only one arg can be used at a time
     grp.add_argument(
@@ -142,4 +144,4 @@ if __name__ == "__main__":
     
     # generate int representing target
     target_choice = (args.server, args.python, args.nuke, args.environ).index(True)  
-    main(target_choice)
+    sys.stdout.write(json.dumps(main(target_choice)))

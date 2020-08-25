@@ -14,12 +14,12 @@ class Project(__base__):
     id = Column(Integer, primary_key=True)
     settings_2d_id = Column(Integer, ForeignKey("settings_2d.id"))
     directory_id = Column(Integer, ForeignKey("directories.id"))
+    timeline_id = Column(Integer, ForeignKey("timelines.id"))
     name = Column(String)
     path = Column(String)
-    otio = Column(JSONB)
-    custom_settings = Column(JSONB)
+    settings = Column(JSONB)
 
-
+    timeline = relationship("Timeline")
     settings_2d = relationship("Settings2D")
     shots = relationship("Shot", back_populates="project")
     tool_configs = relationship("ToolConfig", back_populates="project")
