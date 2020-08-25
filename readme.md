@@ -2,6 +2,8 @@
   <img src="media/magla_business_card_large.png">
 </p>
 
+![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
+
 ## Magnetic-Lab Pipeline API for Content Creators
 
 Magla is an effort to bring the magic of large-scale professional visual effects pipelines to small-scale studios and freelancers - for free. Magla features a backend designed to re-enforce the contextual relationships between things in a visual effects pipeline - a philosophy which is at the core of Magla's design. The idea is that with any given `MaglaEntity` one can traverse through all the related `entities` as they exist in the DB. This is achieved with a `Postgres` + `SQLAlchemy` combination allowing for an excellent object-oriented interface with powerful SQL queries and relationships behind it.
