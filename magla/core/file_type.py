@@ -57,4 +57,4 @@ class MaglaFileType(MaglaEntity):
         r = self.data.record.tool_versions
         if not r:
             raise MaglaFileTypeError("No 'tool_versionss' record found for {}!".format(self))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)

@@ -66,7 +66,12 @@ natron_2_3_15 = r.create_tool(
     version_string="2.3.15",
     file_extension=".ntp")
 
-# current process for building and exporting otio json
+# use `all` method to retrieve list of all entity records by entity type.
+r.all(magla.User)
+r.all(magla.ShotVersion)
+r.all(magla.Directory)
+
+#### Current process for building and exporting `otio` `json` ####
 t = test_project.timeline
 # current process is sending list of `MaglaShot` objects to `build` method
 t.build(test_project.shots)

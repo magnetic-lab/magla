@@ -40,21 +40,21 @@ class MaglaContext(MaglaEntity):
         r = self.data.record.machine
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def user(self):
         r = self.data.record.user
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
     
     @property
     def assignment(self):
         r = self.data.record.assignment
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
     
     # MaglaContext-specific methods ________________________________________________________________
     @property

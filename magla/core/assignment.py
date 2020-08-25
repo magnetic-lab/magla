@@ -37,14 +37,14 @@ class MaglaAssignment(MaglaEntity):
         r = self.data.record.shot_version
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def user(self):
         r = self.data.record.user
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
     
     @property
     def shot(self):

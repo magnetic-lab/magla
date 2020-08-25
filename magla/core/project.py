@@ -45,21 +45,21 @@ class MaglaProject(MaglaEntity):
         r = self.data.record.timeline
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def directory(self):
         r = self.data.record.directory
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def settings_2d(self):
         r = self.data.record.settings_2d
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def shots(self):

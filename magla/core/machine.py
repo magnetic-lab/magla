@@ -55,7 +55,7 @@ class MaglaMachine(MaglaEntity):
         r = self.data.record.facility
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def directories(self):

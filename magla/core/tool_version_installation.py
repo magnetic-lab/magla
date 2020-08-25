@@ -55,14 +55,14 @@ class MaglaToolVersionInstallation(MaglaEntity):
         r = self.data.record.directory
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def tool_version(self):
         r = self.data.record.tool_version
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     #### MaglaToolVersionInstallation-specific methods _____________________________________________
     @property

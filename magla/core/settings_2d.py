@@ -54,4 +54,4 @@ class MaglaSettings2D(MaglaEntity):
         r = self.data.record.project
         if not r:
             raise MaglaSettings2DError("No 'projects' record found for {}!".format(self.nickname))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)

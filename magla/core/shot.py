@@ -65,14 +65,14 @@ class MaglaShot(MaglaEntity):
         r = self.data.record.directory
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def project(self):
         r = self.data.record.project
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def versions(self):  # TODO: this is heavy.. need to optomize entity instantiation

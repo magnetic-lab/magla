@@ -46,7 +46,7 @@ class MaglaToolConfig(MaglaEntity):
         if not r:
             raise MaglaToolConfigError(
                 "No 'projects' record found for {}!".format(self))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def tool_version(self):
@@ -54,7 +54,7 @@ class MaglaToolConfig(MaglaEntity):
         if not r:
             raise MaglaToolConfigError(
                 "No 'tool_version' record found for {}!".format(self))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
     
     @property
     def tool(self):
@@ -62,7 +62,7 @@ class MaglaToolConfig(MaglaEntity):
         if not r:
             raise MaglaToolConfigError(
                 "No 'tool' record found for {}!".format(self))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     #### MaglaToolConfig-specific methods __________________________________________________________
     @property

@@ -74,7 +74,7 @@ class MaglaTool(MaglaEntity):
         if not r:
             raise MaglaToolError(
                 "No 'configs' record found for {}!".format(self))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
     
     @property
     def versions(self):

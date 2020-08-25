@@ -62,7 +62,7 @@ class MaglaTimeline(MaglaEntity):
         r = self.data.record.user
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     # MaglaTimeline-specific methods ______________________________________________________________
     def build(self, shots):

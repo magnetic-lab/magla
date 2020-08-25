@@ -62,14 +62,14 @@ class MaglaShotVersion(MaglaEntity):
         r = self.data.record.directory
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def assignment(self):
         r = self.data.record.assignment
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def shot(self):
@@ -77,7 +77,7 @@ class MaglaShotVersion(MaglaEntity):
         if not r:
             raise MaglaShotVersionError(
                 "No 'shots' record found for {}!".format(self))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     # MaglaShot-specific methods ________________________________________________________________
     @property
@@ -92,7 +92,7 @@ class MaglaShotVersion(MaglaEntity):
         if not r:
             raise MaglaShotVersionError(
                 "No 'projects' record found for {}!".format(self.shot.record))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     def tool_path(self):
         tool_path = self.project.settings.get(

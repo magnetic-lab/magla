@@ -61,7 +61,7 @@ class MaglaUser(MaglaEntity):
         r = self.data.record.context
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def assignments(self):

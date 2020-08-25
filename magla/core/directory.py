@@ -61,14 +61,14 @@ class MaglaDirectory(MaglaEntity):
         r = self.data.record.machine
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     @property
     def user(self):
         r = self.data.record.user
         if not r:
             return None
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
 
     # MaglaDirectory-specific methods ______________________________________________________________
     def open(self):

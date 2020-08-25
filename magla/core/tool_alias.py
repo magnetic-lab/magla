@@ -38,4 +38,4 @@ class MaglaToolAlias(MaglaEntity):
         r = self.data.record.tool_version
         if not r:
             raise MaglaToolAliasError("No 'tool_versions' record found for {}!".format(self))
-        return self.from_record(r)
+        return MaglaEntity.from_record(r)
