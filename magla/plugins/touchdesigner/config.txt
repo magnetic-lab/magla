@@ -1,3 +1,0 @@
-startup_scripts_dir E:\projects\magnetic_lab_api\facility_repo\tools\mugunghwa-tdsummit\touchdesigner\python
-log_name test_results.txt
-

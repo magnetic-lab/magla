@@ -66,8 +66,6 @@ natron_2_3_15 = r.create_tool(
     version_string="2.3.15",
     file_extension=".ntp")
 
-magla.Tool("natron").start()
-
 # current process for building and exporting otio json
 t = test_project.timeline
 # current process is sending list of `MaglaShot` objects to `build` method

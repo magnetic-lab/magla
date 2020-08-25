@@ -55,14 +55,6 @@ def main(target):
             "The 'MAGLA_CONFIG' env variable: {0} doesn't exist or is not a file.".format(
                 env["MAGLA_CONFIG"]))
 
-    env["MAGLA_PATHS"] = os.path.join(
-        env["MAGLA_FACILITY_REPO"], "config", "paths.yaml")
-    # validate file exists
-    if not os.path.isfile(env["MAGLA_PATHS"]):
-        raise InvalidConfigPathError(
-            "The 'MAGLA_PATHS' env variable: {0} doesn't exist or is not a file.".format(
-                env["MAGLA_PATHS"]))
-
     # inject dependencies
     dependencies = os.pathsep.join(
         [
