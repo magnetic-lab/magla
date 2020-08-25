@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="media/magla_business_card_large.png">
+  <img src="media/magla_banner.png">
 </p>
 
 ![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
