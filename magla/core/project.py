@@ -36,17 +36,17 @@ class MaglaProject(MaglaEntity):
         return self.data.name
 
     @property
+    def settings(self):
+        return self.data.settings
+
+    # SQAlchemy relationship back-references
+    @property
     def timeline(self):
         r = self.data.record.timeline
         if not r:
             return None
         return self.from_record(r)
 
-    @property
-    def settings(self):
-        return self.data.settings
-
-    # SQAlchemy relationship back-references
     @property
     def directory(self):
         r = self.data.record.directory

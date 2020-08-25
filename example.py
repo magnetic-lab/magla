@@ -58,7 +58,7 @@ assignment = r.create_assignment(
     user_id=user.id
 )
 
-# # create Tool, ToolVersion, ToolVersionInstallation, FileType
+# create Tool, ToolVersion, ToolVersionInstallation, FileType
 natron_2_3_15 = r.create_tool(
     tool_name="natron",
     install_dir="/opt/Natron-2.3.15",
@@ -66,5 +66,16 @@ natron_2_3_15 = r.create_tool(
     version_string="2.3.15",
     file_extension=".ntp")
 
-test_project.build_timeline()
-# magla.Tool("natron").start()
+magla.Tool("natron").start()
+
+# current process for building and exporting otio json
+t = test_project.timeline
+# current process is sending list of `MaglaShot` objects to `build` method
+t.build(test_project.shots)
+# `MaglaShot` objects include a 'track_index' and 'start_time_in_parent' property which are
+#   external to `opentimlineio` but used by `magla` for automatic building. This current
+#   implementation is pretty impermanent and may change as there are many different ways to
+#   implement `opentimelineio` functionality that meet magla's design spec.
+tr = list(t.otio.tracks)
+clip = tr[-1]
+t.otio.to_json_file("test_project.json")

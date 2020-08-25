@@ -72,33 +72,35 @@ class MaglaTimeline(MaglaEntity):
     def insert_shot(self, shot):
         # build tracks for given shot
         track_index = shot.track_index or 1
-        if len(self.otio.tracks) < (track_index):
-            for i in range(len(self.otio.tracks) - 1, track_index):
+        num_tracks = len(self.otio.tracks)
+        if num_tracks < (track_index):
+            for i in range(num_tracks, track_index):
                 self.otio.tracks.append(otio.schema.Track(name="background"))
-        track = self.otio.tracks[track_index]
-        t = list(track)
+
         # if there's no placement information place it at the end of current last clip.
-        if not shot.start_time_in_parent:
+        if shot.start_time_in_parent == None:
+            track = self.otio.tracks[track_index-1]
             shot.data.start_time_in_parent = int(track.available_range().duration.value)
             shot.data.push()
-        self.__insert_shot(track, shot)
+        self.__insert_shot(shot)
             
-    def __append_shot(self, track, shot):
-        if len(track) > 0:
-            gap_start = track.children[-1].range_in_parent().end_time_exclusive()
+    def __append_shot(self, shot):
+        track_index = shot.track_index or 1
+        if len(self.otio.tracks[track_index-1]) > 0:
+            last_clip = self.otio.tracks[track_index-1].children[-1]
+            gap_start = last_clip.range_in_parent().end_time_exclusive()
+            gap_duration = shot.start_time_in_parent - gap_start
+            gap = otio.schema.Gap(duration=otio.opentime.RationalTime(gap_duration))
+            self.otio.tracks[track_index-1].extend([gap, shot.otio])
         else:
-            gap_start = 0
-            
-        gap_duration = shot.start_time_in_parent - gap_start
-        gap = otio.schema.Gap(duration=otio.opentime.RationalTime(gap_duration))
-        track.extend([gap, shot.otio])
-        return track
+            self.otio.tracks[track_index-1].append(shot.otio)
     
-    def __insert_shot(self, track, shot):
-        track_length = track.available_range().duration.value
-        if track_length <= shot.start_time_in_parent:
-            # easy just append a gap and our clip
-            track = self.__append_shot(track, shot)
+    def __insert_shot(self, shot):
+        track_index = shot.track_index or 1
+        track = self.otio.tracks[track_index-1]
+        if track.available_range().duration.value <= shot.start_time_in_parent:
+            # easy just append a gap + our clip
+            self.__append_shot(shot)
         else:
             # insert clip at it's `shot.start_time_in_parent` while splitting the `Gap`
             gap = track.child_at_time(shot.start_time_in_parent)
@@ -119,10 +121,11 @@ class MaglaTimeline(MaglaEntity):
                 duration=new_gap_duration)
             
             # insert our shot clip
-            track.insert(track.index(gap) + 1, shot.otio)
+            self.otio.tracks[track_index].insert(track.index(gap) + 1, shot.otio)
             
             # append spacer gap if needed
-            spacer_gap_duration = gap_duration - (new_gap_duration + shot.otio.source_range.duration)
-            track.insert(track.index(gap) + 1, otio.schema.Gap(
+            spacer_gap_duration = gap_duration \
+                                - (new_gap_duration + shot.otio.source_range.duration)
+            self.otio.tracks[track_index].insert(track.index(gap) + 1, otio.schema.Gap(
                 duration=otio.opentime.RationalTime(spacer_gap_duration, gap.duration.rate)))
             
