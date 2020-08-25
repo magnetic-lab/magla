@@ -1,14 +1,4 @@
-"""This script simulates launching magla in a controlled production environment.
-
-Before running magla Flask server or Client it is expected that:
-    - the magla module is available in PYTHONPATH
-    - environment variable MAGLA_CONFIG is set as a valid path to a json config (see README)
-
-This scripts automates the above tasks then launches the given python target.
-
-Default logging directory: ./logging_output
-Default client ui: ./magla_client/ui.py
-"""
+"""This script simulates launching magla in a controlled production environment."""
 import argparse
 import os
 import platform
