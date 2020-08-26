@@ -16,5 +16,4 @@ class Tool(__base__):
     metadata_ = Column(JSONB)
 
     versions = relationship("ToolVersion", back_populates="tool")
-    tool_configs = relationship("ToolConfig", back_populates="tool")
     aliases = relationship("ToolAlias", back_populates="tool")

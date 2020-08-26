@@ -20,6 +20,7 @@ from .shot_version import MaglaShotVersion
 from .timeline import MaglaTimeline
 from .tool import MaglaTool
 from .tool_alias import MaglaToolAlias
+from .tool_config import MaglaToolConfig
 from .tool_version import MaglaToolVersion
 from .tool_version_installation import MaglaToolVersionInstallation
 from .user import MaglaUser
@@ -197,20 +198,30 @@ class MaglaRoot(object):
     def create_shot_version(cls, shot, num):
         # TODO: need to implement Directory object to give us 'media_reference_url'
         media_reference_url = shot.path
-        external_reference = otio.schema.ExternalReference(
-            target_url=media_reference_url)
+        external_reference = otio.schema.ExternalReference(target_url=media_reference_url)
         shot.otio.media_reference = external_reference
         new_shot_version = cls.create(MaglaShotVersion, {
             "shot_id": shot.id,
             "num": num,
             "otio": otio_to_dict(external_reference)
         })
-        # generate the `shot_version` path from `custom_project_settings`
+
         project_settings_shot_version_dir = shot.project.settings["shot_version_directory"]
+        tree = shot.project.settings["shot_version_directory_tree"]
+        # create bookmarks_dict for each tool_config associated with this project
+        bookmarks_dict = dict()
+        for tool_config in shot.project.tool_configs:
+            tool_subdir_name = "{tool_name}_{tool_version}".format(
+                tool_name=tool_config.tool.name,
+                tool_version=tool_config.tool_version.string)
+            tree.append({tool_subdir_name: tool_config.directory_tree})
+            
         new_shot_version.data.directory_id = cls.create(MaglaDirectory, {
             "path": project_settings_shot_version_dir.format(shot_version=new_shot_version),
-            "machine_id": MaglaMachine().id
+            "machine_id": MaglaMachine().id,
+            "tree": tree
         }).id
+
         new_shot_version.data.push()
         new_shot_version.directory.make_tree()
         return new_shot_version
@@ -270,6 +281,24 @@ class MaglaRoot(object):
             "shot_version_id": shot_version_id,
             "user_id": user_id
         })
+        
+    @classmethod
+    def create_tool_config(cls, tool_version_id, project_id, directory_tree=None, **kwargs):
+        directory_tree = directory_tree or []
+        project_settings = MaglaProject(id=project_id)
+        tool_version = MaglaToolVersion(id=tool_version_id)
+        directory = cls.create(MaglaDirectory, {
+            "label": "{tool_name}_{tool_version} shot version subdirectory.".format(
+                tool_name=tool_version.tool.name,
+                tool_version=tool_version.string),
+            "tree": directory_tree
+        })
+        data = {
+            "tool_version_id": tool_version_id,
+            "project_id": project_id
+        }
+        data.update(dict(kwargs))
+        return cls.create(MaglaToolConfig, data)
 
     @classmethod
     def version_up(cls, shot_id, num):

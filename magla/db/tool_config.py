@@ -13,11 +13,11 @@ class ToolConfig(__base__):
 
     id = Column(Integer, primary_key=True)
     project_id = Column(Integer, ForeignKey("projects.id"))
-    tool_id = Column(Integer, ForeignKey("tools.id"))
     tool_version_id = Column(Integer, ForeignKey("tool_versions.id"))
+    directory_id = Column(Integer, ForeignKey("directories.id"))
     env = Column(JSONB)
     copy_dict = Column(JSONB)
 
     project = relationship("Project", uselist=False, back_populates="tool_configs")
-    tool = relationship("Tool", uselist=False, back_populates="tool_configs")
     tool_version = relationship("ToolVersion", uselist=False, back_populates="tool_config")
+    directory = relationship("Directory", uselist=False)
