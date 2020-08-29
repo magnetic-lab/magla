@@ -30,8 +30,10 @@ class MaglaShot(MaglaEntity):
         if isinstance(data, str):
             data = {"name": data}
         super(MaglaShot, self).__init__(self.SCHEMA, data or dict(kwargs))
-        self.otio.media_reference = self.versions[-1].otio if self.versions \
-            else otio.schema.MissingReference()
+        if self.versions:
+            self.otio.media_reference = self.versions[-1].otio
+        else:
+            self.otio.media_reference = otio.schema.MissingReference()
 
     @property
     def id(self):
@@ -86,13 +88,6 @@ class MaglaShot(MaglaEntity):
         if not isinstance(num, int):
             num = int(num)  # TODO exception handling needed here
         return MaglaShotVersion(shot_id=self.data.id, num=num)
-    
-    @property
-    def path(self):
-        return os.path.join(
-            self.project.directory.path,
-            "shots",
-            self.project.settings["shot_directory"].format(shot=self))
 
     @property
     def latest_num(self):

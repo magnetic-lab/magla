@@ -1,27 +1,4 @@
-"""MagLa API for Content Creators.
-
-MagLa is an effort to consolidate several industry-standard implementations
-required to run a smooth and effective VFX production pipeline.
-
-Main goals of Magla:
-	- Tool and application wrappers/launchers which inject customizations based
-	  on current show/project context settings per user.
-	- Asset-tracking and management using existing open-source tools and
-	  libraries like [Gaffer](https://github.com/GafferHQ/gaffer) and
-	  [Shotgun](https://github.com/shotgunsoftware/python-api).
-	- Local per-user development and deployment overrides during production -
-	  for testing and deploying code to specific users without altering the
-	  rest of the project.
-	- Ingesting assets and data from external sources like 3rd-party VFX
-	  vendors.
-
-
-TODO:
-	- when remote users launch tools, ToolConfig objects will have to download the required files
-	  in the background.
-	- MagLa Root users should have ability to choose where entity types are stored both locally
-	  and/or on 3rd party cloud services(google drive).
-"""
+"""MagLa API for Content Creators."""
 __version__ = "0.1.0"
 
 from os import getenv

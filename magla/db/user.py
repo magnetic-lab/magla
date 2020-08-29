@@ -3,10 +3,8 @@ from sqlalchemy.orm import relationship
 
 from .. import __base__
 
-BASE = __base__
 
-
-class User(BASE):
+class User(__base__):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "User"

@@ -26,14 +26,6 @@ class MaglaShotVersion(MaglaEntity):
     def __init__(self, data=None, *args, **kwargs):
         super(MaglaShotVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
 
-    def __repr__(self):
-        return "<MaglaShotVersion: id={id}, shot_name={shot}, num={num}, path={path}>".format(
-            id=self.data.id,
-            shot=self.shot.name,
-            num=self.num,
-            path=self.directory
-        )
-
     @property
     def id(self):
         return self.data.id

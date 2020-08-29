@@ -20,7 +20,17 @@ class MaglaToolConfigError(MaglaError):
 
 
 class MaglaToolConfig(MaglaEntity):
-    """"""
+    """Manage relationships between `projects`, `tool_versions`, and `directories` tables.
+    
+    Primary roles:
+        -   Associate a `Project` with a particular `ToolVersion`.
+        -   Define the custom `Directory.tree` structure associated with the `ToolVersion` inside
+            `ShotVersion.directory` folders.
+            
+    Each `Project` should define one `ToolConfig` for each `Tool` <--> `ToolVersion` designated for
+    use. A `Directory` is also defined which will be used to auto-create the `ToolVersion`'s
+    sub-directory-tree whithin the shot directory structure..
+    """
     SCHEMA = ToolConfig
 
     def __init__(self, data=None, *args, **kwargs):
@@ -44,27 +54,30 @@ class MaglaToolConfig(MaglaEntity):
     def project(self):
         r = self.data.record.project
         if not r:
-            raise MaglaToolConfigError(
-                "No 'projects' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
 
     @property
     def tool_version(self):
         r = self.data.record.tool_version
         if not r:
-            raise MaglaToolConfigError(
-                "No 'tool_version' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
     
     @property
-    def tool(self):
-        r = self.data.record.tool
+    def directory(self):
+        r = self.data.record.directory
         if not r:
-            raise MaglaToolConfigError(
-                "No 'tool' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
 
     #### MaglaToolConfig-specific methods __________________________________________________________
+    @property
+    def tool(self):
+        if not self.tool_version:
+            return None
+        return self.tool_version.tool
+
     @property
     def PYTHONPATH(self):
         pass

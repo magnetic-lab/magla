@@ -1,10 +1,18 @@
-import uuid
+"""Creation and Deletion gateway interface for `magla` `Entity`'s.
+    
+    You may use this file as is for creation, or customize it at your will. All we're doing here is
+    creating DB entries directly through the `SQLAlchemy` `Session` object in the order necessary
+    for child relationship id retrieval.
+    
+"""
 import os
+import uuid
 from pprint import pformat
 
 import opentimelineio as otio
 
-from ..utils import record_to_dict, all_otio_to_dict, dict_to_otio, otio_to_dict
+from ..utils import (all_otio_to_dict, dict_to_otio, otio_to_dict,
+                     record_to_dict)
 from .assignment import MaglaAssignment
 from .context import MaglaContext
 from .data import MaglaData, NoRecordFoundError
@@ -166,7 +174,7 @@ class MaglaRoot(object):
         # set project's `directory_id` relationship
         new_project.data.directory_id = new_directory.id
         # push changes to DB
-        new_project.data.push()\
+        new_project.data.push()
         # build the local project tree structure
         new_project.directory.make_tree()
         return new_project
@@ -181,46 +189,55 @@ class MaglaRoot(object):
         })
         # generate the `shot` path from `custom_project_settings`
         project_settings_shot_dir = new_shot.project.settings["shot_directory"]
-        new_shot.data.directory_id = cls.create(MaglaDirectory, {
+        new_directory = cls.create(MaglaDirectory, {
             "path": project_settings_shot_dir.format(shot=new_shot),
             "tree": project.settings.get("shot_directory_tree", []),
             "machine_id": MaglaMachine().id
-        }).id
+        })
+        new_shot.data.directory_id = new_directory.id
+        new_shot.data.push()
         # do not use len(new_shot.versions) - too slow!
         if new_shot.latest_num < 1:
             # create initial template version 0
             cls.create_shot_version(new_shot, 0)
-        new_shot.data.push()
         new_shot.directory.make_tree()
         return new_shot
 
     @classmethod
     def create_shot_version(cls, shot, num):
-        # TODO: need to implement Directory object to give us 'media_reference_url'
-        media_reference_url = shot.path
-        external_reference = otio.schema.ExternalReference(target_url=media_reference_url)
-        shot.otio.media_reference = external_reference
+        # create new shot version
         new_shot_version = cls.create(MaglaShotVersion, {
             "shot_id": shot.id,
-            "num": num,
-            "otio": otio_to_dict(external_reference)
+            "num": num
         })
 
-        project_settings_shot_version_dir = shot.project.settings["shot_version_directory"]
+        # First we must retrieve and append all tool subtree information for current `Project`
         tree = shot.project.settings["shot_version_directory_tree"]
-        # create bookmarks_dict for each tool_config associated with this project
-        bookmarks_dict = dict()
+        bookmarks = shot.project.settings["shot_version_bookmarks"]
         for tool_config in shot.project.tool_configs:
             tool_subdir_name = "{tool_name}_{tool_version}".format(
                 tool_name=tool_config.tool.name,
                 tool_version=tool_config.tool_version.string)
-            tree.append({tool_subdir_name: tool_config.directory_tree})
-            
-        new_shot_version.data.directory_id = cls.create(MaglaDirectory, {
-            "path": project_settings_shot_version_dir.format(shot_version=new_shot_version),
+            tree.append({tool_subdir_name: tool_config.directory.tree})
+
+        # then create a `Directory` record
+        new_directory = cls.create(MaglaDirectory, {
+            "path": shot.project.settings["shot_version_directory"].format(
+                shot_version=new_shot_version),
             "machine_id": MaglaMachine().id,
-            "tree": tree
-        }).id
+            "tree": tree,
+            "bookmarks": bookmarks
+        })
+        new_shot_version.data.directory_id = new_directory.id
+        # TODO: need to streamline data pushing, this is too many pushes
+	new_shot_version.data.push()
+
+        # now we can set the `media_reference`
+        ref = new_directory.bookmarks["representations"]["png_sequence"].format(
+            shot_version=new_shot_version
+        )
+        new_shot_version.data.otio = otio.schema.ExternalReference(
+            target_url=ref)
 
         new_shot_version.data.push()
         new_shot_version.directory.make_tree()
@@ -281,21 +298,27 @@ class MaglaRoot(object):
             "shot_version_id": shot_version_id,
             "user_id": user_id
         })
-        
+
     @classmethod
     def create_tool_config(cls, tool_version_id, project_id, directory_tree=None, **kwargs):
         directory_tree = directory_tree or []
-        project_settings = MaglaProject(id=project_id)
+        project = MaglaProject(id=project_id)
         tool_version = MaglaToolVersion(id=tool_version_id)
+        tool_subdir_name = "{tool_name}_{tool_version}".format(
+            tool_name=tool_version.tool.name,
+            tool_version=tool_version.string)
+        # create MaglaDirectory for the tool's shot_version subdirectory
         directory = cls.create(MaglaDirectory, {
             "label": "{tool_name}_{tool_version} shot version subdirectory.".format(
                 tool_name=tool_version.tool.name,
                 tool_version=tool_version.string),
+            "path": os.path.join(project.directory.path, project.settings["shot_version_directory"], tool_subdir_name),
             "tree": directory_tree
         })
         data = {
             "tool_version_id": tool_version_id,
-            "project_id": project_id
+            "project_id": project_id,
+            "directory_id": directory.id
         }
         data.update(dict(kwargs))
         return cls.create(MaglaToolConfig, data)
