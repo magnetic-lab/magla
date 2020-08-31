@@ -39,6 +39,22 @@ Breakdown of `MaglaEntity` types and their associated `opentimelineio.schema` ty
 in the Magla ecosystem `ShotVersion`'s are considered sacred and only one can be current at any given time, even new assignments result in new versions. For this reson they are used as the actual `ExternalReference` of the shot `Clip` -  so only the latest versions of shots are used as meda references. Each time you instantiate a `MaglaProject` object it builds its otio data off of current production data and thus is always up-to-date and **requires no actual timeline file to  be archived on disk or kept track of**.
 
 ### Example Initial Setup
+All creation and deletion methods are in `magla.Root`, so this is primarily a demonstration of
+using the creation methods in the optimal order.
+
+Each creation method will return the created `MaglaEntity` or in the case that a record already
+exists, creation will abort and return the found record instead. To instead return an
+`EntityAlreadyExistsError`, you must call the `magla.Root.create` method directly and pass the
+'return_existing=False` parameter.
+    example:
+    ```
+    magla.Root().create(magla.User, {"nickname": "foo"}, return_existing=False)
+    ```
+
+This functionality is demonstrated below where the name of the shot being created is set to
+increment - meaning that running this script repeatedly will result in new shot and directory
+tree structures under the same project.
+
 ```python
 import magla
 
@@ -57,49 +73,57 @@ The above creates a new `Postgres` column in the 'facilities' table and returns 
 ```python
 # create a Machine
 current_machine = r.create_machine()
-
-# create User
-jacob = r.create_user("jacob")
-```
-
-For relational tables the creation method will usually need more than one arg for each child SQL table.
-The below creates `Tool`, `ToolVersion`, `ToolVersionInstallation`, and `FileType` entities which are related via foreign keys in `Postgres`.
-```python
-natron_2_3_15 = r.create_tool(
-	tool_name="natron",
-	install_dir="/opt/Natron-2.3.15",
-	exe_path="/opt/Natron-2.3.15/bin/natron",
-	version_string="2.3.15",
-	file_extension=".ntp")
 ```
 
 Project settings are sent in as a dictionary which is stored as `JSONB` in `Postgres`. At runtime a `MaglaEntity` object gets injected and python's string formatting can be used to access the objects many attributes for custom naming.
 ```python
-# create Project
-project_test = r.create_project("test_project", "/mnt/projects/test_project",
-	settings={
-		"project_directory": "/mnt/projects/{project.name}",
-		"project_directory_tree": [
-			{"shots": []},
-			{"audio": []},
-			{"preproduction": [
-				{"mood": []},
-				{"reference": []},
-				{"edit": []}]
-			}],
-		"shot_directory": "{shot.project.directory.path}/shots/{shot.name}",
-		"shot_directory_tree": [
-			{"__current": [
-				{"h265": []},
-				{"png": []},
-				{"webm": []}]
-			}],
-		"shot_version_directory": "{shot_version.shot.directory}/{shot_version.full_name}",
-		"shot_version_tool_directory": "{tool_version.tool.name}/{tool_version.string}",
-		"shot_version_tool_file_name": "{shot_version.full_name}{tool_version.file_extension}"})
+# Create 2D settings template
+settings_2d = r.create(magla.Settings2D, {
+    "label": "Full 4K @30FPS",
+    "width": 4096,
+    "height": 2048,
+    "rate": 30
+})
 
-# create Shot
-shot = r.create_shot(project_id=project_test.id, name="test_shot")
+# Create Project
+test_project = r.create_project("test", "/mnt/projects/test",
+    settings={
+        "project_directory": "/mnt/projects/{project.name}",
+        "project_directory_tree": [
+            {"shots": []},
+            {"audio": []},
+            {"preproduction": [
+                {"mood": []},
+                {"reference": []},
+                {"edit": []}]
+            }],
+        "frame_sequence_re": r"(\w+\W)(\#+)(.+)",  # (prefix)(frame-padding)(suffix)
+        "shot_directory": "{shot.project.directory.path}/shots/{shot.name}",
+        "shot_directory_tree": [
+            {"_current": [
+                {"h265": []},
+                {"png": []},
+                {"webm": []}]
+            }],
+        "shot_version_directory": "{shot_version.shot.directory.path}/{shot_version.num}",
+        "shot_version_directory_tree": [
+            {"_out": [
+                {"exr": []},
+                {"png": []}]
+            }],
+        "shot_version_bookmarks": {
+            "representations": {
+                "png_sequence": "{shot_version.directory.path}/_out/png/{shot_version.full_name}.####.png"
+            }
+        }
+    },
+    settings_2d_id=settings_2d.id
+    )
+
+# Create Shot with incrementing name
+shot = r.create_shot(project_id=test_project.id, name="shot{:02d}".format(
+    len(test_project.shots))
+)
 
 # create Assignment
 assignment = r.create_assignment(
@@ -110,12 +134,58 @@ assignment = r.create_assignment(
 magla.Tool("natron").start()
 ```
 
+For relational tables the creation method will usually need more than one arg for each child SQL table.
+The below creates `Tool`, `ToolVersion`, `ToolVersionInstallation`, and `FileType` entities which are related via foreign keys in `Postgres`.
+```python
+# Create Tool, ToolVersion, ToolVersionInstallation, FileType
+natron_2_3_15 = r.create_tool(
+    tool_name="natron",
+    install_dir="/opt/Natron-2.3.15",
+    exe_path="/opt/Natron-2.3.15/bin/natron",
+    version_string="2.3.15",
+    file_extension=".ntp")
+
+# Create ToolConfig in order to have tool-specific subdirs and launch settings
+tool_config = r.create_tool_config(
+    tool_version_id=natron_2_3_15.id,
+    project_id=test_project.id,
+    directory_tree=[
+        {"_in": [
+            {"plate": []},
+            {"subsets": []}
+        ]},
+        {"_out": [
+            {"exr": []},
+            {"png": []},
+            {"subsets": []}]
+         }]
+)
+```
+
+To query all entities of a type:
+```python
+# use `all` method to retrieve list of all entity records by entity type.
+r.all(magla.User)
+r.all(magla.ShotVersion)
+r.all(magla.Directory)
+```
+### Building and exporting timelines
+```python
+t = test_project.timeline
+# current process for generating timelines is sending list of `MaglaShot` objects to `build` method
+t.build(test_project.shots)
+# `MaglaShot` objects include a 'track_index' and 'start_time_in_parent' property which are
+#  external to `opentimlineio` but used by `magla` for automatic building. This implementation
+#  may change.
+t.otio.to_json_file("test_project.json")
+```
+
 ## Magla Roadmap
 <p>
 <img src="media/magla.png">
 </p>
 
-- Asset-tracking and management integration with existing tools and libraries like [Shotgun](https://github.com/shotgunsoftware/python-api), [Avalon](https://github.com/getavalon/core), and [Prism](https://github.com/RichardFrangenberg/Prism).
+- Asset-tracking and management integration with existing tools and libraries.
 - Complete control over code-deployment and version-locking for nearly any entity-type with hierarchical inheritence of `MaglaDependency` objects. 
 - Abstract away the movement of individual files as much as possible so users can feel like they are working and building with blocks.
 - `Pyside` UI's for Magla core and mainstreamn DCC apps like Nuke and Maya. UI's **must** be timeline-centric in nature, highly visual, utilizing many subtle visual ques to denote underlying data.
