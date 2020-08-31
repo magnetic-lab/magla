@@ -46,10 +46,10 @@ Each creation method will return the created `MaglaEntity` or in the case that a
 exists, creation will abort and return the found record instead. To instead return an
 `EntityAlreadyExistsError`, you must call the `magla.Root.create` method directly and pass the
 'return_existing=False` parameter.
-    example:
-    ```
-    magla.Root().create(magla.User, {"nickname": "foo"}, return_existing=False)
-    ```
+example:
+```
+magla.Root().create(magla.User, {"nickname": "foo"}, return_existing=False)
+```
 
 This functionality is demonstrated below where the name of the shot being created is set to
 increment - meaning that running this script repeatedly will result in new shot and directory
