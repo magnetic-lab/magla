@@ -61,6 +61,9 @@ import magla
 # instantiate a MaglaRoot object. Creation and deletion must be done via the MaglaRoot class.
 r = magla.Root()
 
+# create a Machine
+current_machine = r.create_machine()
+
 # create User
 user = r.create_user(getpass.getuser())
 
@@ -70,12 +73,7 @@ facility = r.create_facility("test_facility",
 ```
 The above creates a new `Postgres` column in the 'facilities' table and returns a `MaglaFacility` object pre-populated with data in the '<MaglaEntity>.data' property.
 
-```python
-# create a Machine
-current_machine = r.create_machine()
-```
-
-Project settings are sent in as a dictionary which is stored as `JSONB` in `Postgres`. At runtime a `MaglaEntity` object gets injected and python's string formatting can be used to access the objects many attributes for custom naming.
+Project settings are sent in as a dictionary which is stored as `JSONB` in `Postgres`. At runtime a `MaglaEntity` object gets injected and Python's native string formatting can be used to access the object's relationships and attributes for custom naming.
 ```python
 # Create 2D settings template
 settings_2d = r.create(magla.Settings2D, {
@@ -134,7 +132,7 @@ assignment = r.create_assignment(
 magla.Tool("natron").start()
 ```
 
-For relational tables the creation method will usually need more than one arg for each child SQL table.
+For relational tables the creation method will usually need more than one arg for each child `SQL` table.
 The below creates `Tool`, `ToolVersion`, `ToolVersionInstallation`, and `FileType` entities which are related via foreign keys in `Postgres`.
 ```python
 # Create Tool, ToolVersion, ToolVersionInstallation, FileType
