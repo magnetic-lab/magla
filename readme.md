@@ -76,6 +76,7 @@ The above creates a new `Postgres` column in the 'facilities' table and returns 
 Project settings are sent in as a dictionary which is stored as `JSONB` in `Postgres`. At runtime a `MaglaEntity` object gets injected and Python's native string formatting can be used to access the object's relationships and attributes for custom naming.
 ```python
 # Create 2D settings template
+# a custom creation method doesn't exist for this entity type so the 'create' method is used directly.
 settings_2d = r.create(magla.Settings2D, {
     "label": "Full 4K @30FPS",
     "width": 4096,
