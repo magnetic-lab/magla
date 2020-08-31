@@ -54,36 +54,21 @@ class MaglaToolConfig(MaglaEntity):
     def project(self):
         r = self.data.record.project
         if not r:
-<<<<<<< Updated upstream
             return None
-=======
-            raise MaglaToolConfigError(
-                "No 'projects' record found for {}!".format(self))
->>>>>>> Stashed changes
         return MaglaEntity.from_record(r)
 
     @property
     def tool_version(self):
         r = self.data.record.tool_version
         if not r:
-<<<<<<< Updated upstream
             return None
-=======
-            raise MaglaToolConfigError(
-                "No 'tool_version' record found for {}!".format(self))
->>>>>>> Stashed changes
         return MaglaEntity.from_record(r)
     
     @property
     def directory(self):
         r = self.data.record.directory
         if not r:
-<<<<<<< Updated upstream
             return None
-=======
-            raise MaglaToolConfigError(
-                "No 'tool' record found for {}!".format(self))
->>>>>>> Stashed changes
         return MaglaEntity.from_record(r)
 
     #### MaglaToolConfig-specific methods __________________________________________________________

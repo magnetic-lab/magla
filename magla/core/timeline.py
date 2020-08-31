@@ -66,15 +66,9 @@ class MaglaTimeline(MaglaEntity):
 
     # MaglaTimeline-specific methods ______________________________________________________________
     def build(self, shots):
-        new_shots = []
+        shots = sorted(shots, key=lambda shot: shot.id)
         for shot in shots:
-            if not shot.start_time_in_parent:
-                new_shots.append(shot)
-                continue
             self.insert_shot(shot)
-        
-        for new_shot in new_shots:
-            self.insert_shot(new_shot)
         
     def insert_shot(self, shot):
         # build tracks for given shot
