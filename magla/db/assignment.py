@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from .. import __base__
+from ..db.orm import MaglaORM
 
 
-class Assignment(__base__):
+class Assignment(MaglaORM.BASE):
     __tablename__ = "assignments"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Assignment"

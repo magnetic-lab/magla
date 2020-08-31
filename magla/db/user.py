@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from .. import __base__
+from ..db.orm import MaglaORM
 
 
-class User(__base__):
+class User(MaglaORM.BASE):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "User"

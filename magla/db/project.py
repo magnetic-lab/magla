@@ -2,11 +2,11 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
-from .. import __base__
+from ..db.orm import MaglaORM
 # from .toolconfig import ToolConfig
 
 
-class Project(__base__):
+class Project(MaglaORM.BASE):
     __tablename__ = "projects"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Project"

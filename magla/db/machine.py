@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from .. import __base__
+from ..db.orm import MaglaORM
 
 
-class Machine(__base__):
+class Machine(MaglaORM.BASE):
     __tablename__ = "machines"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Machine"

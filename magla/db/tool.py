@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
-from .. import __base__
+from ..db.orm import MaglaORM
 
 
-class Tool(__base__):
+class Tool(MaglaORM.BASE):
     __tablename__ = "tools"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Tool"

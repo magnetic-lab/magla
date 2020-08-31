@@ -1,39 +1,55 @@
 # -*- coding: utf-8 -*-
-"""A class to manage the execution of tools and log output from their processes."""
-import getpass
-import logging
-import os
+"""Assignments connect `MaglaUser` to `MaglaShotVersion`. 
 
-from .errors import MaglaError
-from .data import MaglaData
-from .entity import MaglaEntity
-from .user import MaglaUser
-
+In the `magla` ecosystem versions are considered sacred and can never be assigned to multiple
+users, overwritten or changed in any substantial way. For this reason, `MaglaAssignment`'s have the
+added responsibility of versioning up the assigned shot.
+"""
 from ..db.assignment import Assignment
+from .entity import MaglaEntity
+from .errors import MaglaError
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 class MaglaAssignmentError(MaglaError):
     """An error accured preventing MaglaAssignment to continue."""
 
 
 class MaglaAssignment(MaglaEntity):
-    """"""
+    """Provide an interface for manipulating `assignments` tables."""
     SCHEMA = Assignment
 
-    def __init__(self, data=None, *args, **kwargs):
-        """"""
-        super(MaglaAssignment, self).__init__(self.SCHEMA, data or dict(kwargs))
+    def __init__(self, data, *args, **kwargs):
+        """Initialize with given data.
+
+        Parameters
+        ----------
+        data : dict
+            Data to query for matching backend record
+        """
+        super(MaglaAssignment, self).__init__(
+            self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
-    #### SQAlchemy relationship back-references
+    # SQAlchemy relationship back-references
+
     @property
     def shot_version(self):
+        """Retrieve related `MaglaShotVersion` object.
+
+        Returns
+        -------
+        magla.core.shot_version.MaglaShotVersion
+            The `MaglaShotVersion` that was initially created for this assignment
+        """
         r = self.data.record.shot_version
         if not r:
             return None
@@ -41,16 +57,37 @@ class MaglaAssignment(MaglaEntity):
 
     @property
     def user(self):
+        """Retrieve related `MaglaUser` object.
+
+        Returns
+        -------
+        magla.core.user.MaglaUser
+            The `MaglaUser` this assignment belongs to
+        """
         r = self.data.record.user
         if not r:
             return None
         return MaglaEntity.from_record(r)
-    
+
+    # MaglaAssignment-specific methods
     @property
     def shot(self):
+        """Shortcut method to retrieve related `MaglaShot` object.
+
+        Returns
+        -------
+        magla.core.shot.MaglaShot
+            The related `MaglaShot`
+        """
         return self.shot_version.shot
-    
+
     @property
     def project(self):
+        """Shortcut method to retrieve related `MaglaProject` object.
+
+        Returns
+        -------
+        magla.core.project.MaglaProject
+            The related `MaglaProject`
+        """
         return self.shot.project
-  

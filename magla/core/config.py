@@ -1,3 +1,4 @@
+"""Basic config reader for future config loading implementations."""
 import os
 import yaml
 import json
@@ -6,7 +7,7 @@ from .errors import ConfigPathError, ConfigReadError
 
 
 class MaglaConfig(object):
-    """An interface for interacting with the num2vid config.json.
+    """An interface for interacting with a `config.json`.
 
     :attr _path: path to the current instance's config json.
     :type _path: str

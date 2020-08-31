@@ -1,15 +1,16 @@
-"""This script is an example of how to create a magla ecosystem from the ground up.
+"""This script is an example of how to create a basic magla ecosystem from the ground up.
 
 All creation and deletion methods are in `magla.Root`, so this is primarily a demonstration of
-using the creation methods in the optimal order.
+using the creation methods in the optimal ordemagla.Root.
 
 Each creation method will return the created `MaglaEntity` or in the case that a record already
 exists, creation will abort and return the found record instead. To instead return an
 `EntityAlreadyExistsError`, you must call the `magla.Root.create` method directly and pass the
-'return_existing=False` parameter.
+'return_existing=False` parametemagla.Root.
+
     example:
     ```
-    magla.Root().create(magla.User, {"nickname": "foo"}, return_existing=False)
+    magla.Root.create(magla.User, {"nickname": "foo"}, return_existing=False)
     ```
 
 This functionality is demonstrated below where the name of the shot being created is set to
@@ -23,19 +24,18 @@ import sys
 import random
 import string
 
-r = magla.Root()
 
 # Create Facility
-facility = r.create_facility("test_facility",
+facility = magla.Root.create_facility("test_facility",
     settings={
         "tool_install_directory_label": "{tool_version.tool.name}_{tool_version.string}"}
     )
 
 # Create Machine
-current_machine = r.create_machine(facility.id)
+current_machine = magla.Root.create_machine(facility.id)
 
 # Create 2D settings template
-settings_2d = r.create(magla.Settings2D, {
+settings_2d = magla.Root.create(magla.Settings2D, {
     "label": "Full 4K @30FPS",
     "width": 4096,
     "height": 2048,
@@ -43,7 +43,7 @@ settings_2d = r.create(magla.Settings2D, {
 })
 
 # Create Project
-test_project = r.create_project("test", "/mnt/projects/test",
+test_project = magla.Root.create_project("test", "/mnt/projects/test",
     settings={
         "project_directory": "/mnt/projects/{project.name}",
         "project_directory_tree": [
@@ -78,21 +78,21 @@ test_project = r.create_project("test", "/mnt/projects/test",
     )
 
 # Create Shot
-shot = r.create_shot(project_id=test_project.id, name="shot{:02d}".format(
+shot = magla.Root.create_shot(project_id=test_project.id, name="shot{:02d}".format(
     len(test_project.shots))
 )
 
 # Create User
-user = r.create_user(getpass.getuser())  # `magla` user nickname must match the OS's user name
+user = magla.Root.create_user(getpass.getuser())  # `magla` user nickname must match the OS's user name
 
 # Create Assignment
-assignment = r.create_assignment(
+assignment = magla.Root.create_assignment(
     shot_id=shot.data.id,
     user_id=user.id
 )
 
 # Create Tool, ToolVersion, ToolVersionInstallation, FileType
-natron_2_3_15 = r.create_tool(
+natron_2_3_15 = magla.Root.create_tool(
     tool_name="natron",
     install_dir="/opt/Natron-2.3.15",
     exe_path="/opt/Natron-2.3.15/bin/natron",
@@ -100,7 +100,7 @@ natron_2_3_15 = r.create_tool(
     file_extension=".ntp")
 
 # Create ToolConfig in order to have tool-specific subdirs and launch settings
-tool_config = r.create_tool_config(
+tool_config = magla.Root.create_tool_config(
     tool_version_id=natron_2_3_15.id,
     project_id=test_project.id,
     directory_tree=[
@@ -116,9 +116,9 @@ tool_config = r.create_tool_config(
 )
 
 # use `all` method to retrieve list of all entity records by entity type.
-r.all(magla.User)
-r.all(magla.ShotVersion)
-r.all(magla.Directory)
+magla.Root.all(magla.User)
+magla.Root.all(magla.ShotVersion)
+magla.Root.all(magla.Directory)
 
 # Building and exporting timelines
 t = test_project.timeline

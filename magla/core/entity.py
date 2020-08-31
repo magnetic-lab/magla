@@ -4,10 +4,10 @@ from os import environ
 from os import path as osp
 from pprint import pprint
 
-from .. import __session__
+from ..db import MaglaORM
 from ..utils import dict_to_record, record_to_dict
-from .errors import MaglaError
 from .data import MaglaData, MaglaDataError
+from .errors import MaglaError
 
 
 class MaglaEntityError(MaglaError):
@@ -28,11 +28,9 @@ class MaglaEntity(object):
     """
     _config_path = environ["MAGLA_CONFIG"]
 
-    def __init__(self, record, data=None, **kwargs):
-        if not data:
-            data = {}
+    def __init__(self, record, data, **kwargs):
         if not isinstance(data, MaglaData):
-            data = MaglaData(record, data, __session__)
+            data = MaglaData(record, data, MaglaORM.SESSION)
         if kwargs:
             # if kwargs were supplied add them as k/v pairs to data
                 for k, v in dict(kwargs).items():

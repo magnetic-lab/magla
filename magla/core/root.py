@@ -1,17 +1,17 @@
-"""Creation and Deletion gateway interface for `magla` `Entity`'s.
+"""Creation and Deletion gateway interface for `Entity` records.
     
-    You may use this file as is for creation, or customize it at your will. All we're doing here is
-    creating DB entries directly through the `SQLAlchemy` `Session` object in the order necessary
-    for child relationship id retrieval.
-    
+You may use this file as is for creation, or customize your own creation methods. All we're doing
+here is creating and commiting `SQLAlchemy` objects to `MaglaORM.SESSION` using compound custom
+creation methods for convenience.
 """
 import os
+import re
 import uuid
 from pprint import pformat
-import re
 
 import opentimelineio as otio
 
+from ..db import MaglaORM
 from ..utils import (all_otio_to_dict, dict_to_otio, otio_to_dict,
                      record_to_dict)
 from .assignment import MaglaAssignment
@@ -22,7 +22,6 @@ from .entity import MaglaEntity
 from .errors import MaglaError
 from .facility import MaglaFacility
 from .machine import MaglaMachine
-from .orm import MaglaORM
 from .project import MaglaProject
 from .shot import MaglaShot
 from .shot_version import MaglaShotVersion
@@ -44,23 +43,12 @@ class MaglaRootError(MaglaError):
     """An error accured preventing MaglaRoot to continue."""
 
 
-class DeleteUserError(MaglaRootError):
-    """Could not create requested user."""
-
-
 class EntityAlreadyExistsError(MaglaRootError):
     """Requested user already exists."""
 
 
-class CreateProjectError(MaglaRootError):
-    """Invalid Argument"""
-
-
-class CreateError(MaglaRootError):
-    """Invalid Argument"""
-
-
 class MaglaRoot(object):
+    """Permissions-aware interface for creation and deletion within `magla`."""
 
     CREDENTIALS = ""
     DB = MaglaORM(None)
@@ -71,19 +59,34 @@ class MaglaRoot(object):
 
     @classmethod
     def all(cls, entity):
+        """Retrieve all records for given `Entity`-type.
+
+        Parameters
+        ----------
+        entity : magla.core.entity.Entity
+            Entity type to query.
+
+        Returns
+        -------
+        list
+            List of `MaglaEntity` objects
+        """
         return cls.DB.all(entity)
 
     @classmethod
-    def delete_user(cls, arg1):
-        user = MaglaUser(arg1) if isinstance(arg1, str) else arg1
-        if not isinstance(user, MaglaUser):
-            raise DeleteUserError("Invalid argumement. Must be {0} or {1}.".format(
-                str, MaglaUser))
-        user.session.delete(user.schema)
-        user.session.commit()
-
-    @classmethod
     def create_machine(cls, facility_id):
+        """Create record for new `MaglaMachine` type.
+
+        Parameters
+        ----------
+        facility_id : int
+            The `id` of the `MaglaFacility` this machine belongs to.
+
+        Returns
+        -------
+        magla.core.machine.MaglaMachine
+            `MaglaMachine` object populated with newly created backend data
+        """
         return cls.create(MaglaMachine, {
             "uuid": str(uuid.UUID(int=uuid.getnode())),
             "facility_id": MaglaFacility(id=facility_id).data.id
@@ -98,6 +101,33 @@ class MaglaRoot(object):
             version_string,
             file_extension,
             machine_id=None):
+        """Create record for new `MaglaTool`and associated types.
+        
+        associated types created:
+            - `MaglaToolVersion`
+            - `MaglaToolVersionInstallation`
+            - `MaglaDirectory`
+
+        Parameters
+        ----------
+        tool_name : str
+            Name of the new tool
+        install_dir : str
+            Path to the installation directory of the tool
+        exe_path : str
+            Path to the executeable of the tool
+        version_string : str
+            String representing the version of the tool
+        file_extension : str
+            Extension associated with the tool's executeable (beginning with '.')
+        machine_id : int, optional
+            The `id` of the `MaglaMachine` to install tool on, by default None (current machine)
+
+        Returns
+        -------
+        magla.core.machine.MaglaMachine
+            `MaglaMachine` object populated with newly created backend data
+        """
         # check if given `tool_name` already exists
         try:
             tool_obj = MaglaTool(name=tool_name)
@@ -145,6 +175,18 @@ class MaglaRoot(object):
 
     @classmethod
     def create_facility(cls, data, **kwargs):
+        """Create record for new `MaglaFacility` type.
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary containing new facility data
+
+        Returns
+        -------
+        magla.core.facility.Facility
+            `MaglaFacility` object populated with newly created backend data
+        """
         if isinstance(data, basestring):
             data = {"name": data}
         data.update(kwargs)
@@ -152,6 +194,26 @@ class MaglaRoot(object):
 
     @classmethod
     def create_project(cls, project_name, project_path, settings, **kwargs):
+        """Create record for new `MaglaProject and associated types.
+        
+        associated types created:
+            - `MaglaTimeline`
+            - `MaglaDirectory`
+
+        Parameters
+        ----------
+        project_name : str
+            Name for new project
+        project_path : str
+            Path (on server) to the project's directory
+        settings : dict
+            A dictionary of settings (see 'example.py')
+
+        Returns
+        -------
+        magla.core.project.MaglaProject
+            `MaglaProject` object populated with newly created backend data
+        """
         data = {
             "name": project_name,
             "settings": settings
@@ -184,6 +246,24 @@ class MaglaRoot(object):
 
     @classmethod
     def create_shot(cls, project_id, name):
+        """Create record for new `MaglaShot` and associated types.
+        
+        associated types created:
+            - `MaglaDirectory`
+            - `MaglaShotVersion`
+
+        Parameters
+        ----------
+        project_id : int
+            `MaglaProject` this shot belongs to
+        name : str
+            Name of new shot
+
+        Returns
+        -------
+        magla.core.shot.MaglaShot
+            `MaglaShot` object populated with newly created backend data
+        """
         project = MaglaProject(id=project_id)
         new_shot = cls.create(MaglaShot, {
             "project_id": project.id,
@@ -208,6 +288,23 @@ class MaglaRoot(object):
 
     @classmethod
     def create_shot_version(cls, shot, num):
+        """Create record for new `MaglaShotVersion` and associated types.
+        
+        associated types created:
+            - `MaglaDirectory`
+
+        Parameters
+        ----------
+        shot : magla.core.shot.MaglaShot
+            Parent `MaglaShot` object
+        num : int
+            Version-number to create
+
+        Returns
+        -------
+        magla.core.shot_version.MaglaShotVersion
+            `MaglaShotVersion` object populated with newly created backend data
+        """
         # create new shot version
         new_shot_version = cls.create(MaglaShotVersion, {
             "shot_id": shot.id,
@@ -267,6 +364,18 @@ class MaglaRoot(object):
 
     @classmethod
     def create_user(cls, data):
+        """Create new record for `MaglaUser` type.
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary containing new user data
+
+        Returns
+        -------
+        magla.core.user.MaglaUser
+            `MaglaUser` object populated with newly created backend data
+        """
         if isinstance(data, basestring):
             data = {"nickname": data}
         new_user = cls.create(MaglaUser, data)
@@ -289,6 +398,27 @@ class MaglaRoot(object):
 
     @classmethod
     def create(cls, entity, data=None, return_existing=True):
+        """Wrapper for `MaglaORM.create` with configurable return signature.
+
+        Parameters
+        ----------
+        entity : magla.core.entity.MaglaEntity
+            A `MaglaEntity` object with an associated schema
+        data : dict, optional
+            Dictionary containing initial creation data, by default None
+        return_existing : bool, optional
+            Flag for whether or not to return already-existing records, by default True.
+
+        Returns
+        -------
+        magla.core.entity.Entity
+            `MaglaEntity` object populated with newly created backend data
+
+        Raises
+        ------
+        EntityAlreadyExistsError
+            Entity with given data already exists
+        """
         data = data or {}
         data = all_otio_to_dict(data)
         query_result = cls.DB.query(entity).filter_by(**data).first()
@@ -298,22 +428,25 @@ class MaglaRoot(object):
             raise EntityAlreadyExistsError("{0} already exists on DB:\n".format(
                 entity.__class__.__name__)
             )
-        new_record = cls.DB.create(entity, data)
-        return entity.from_record(new_record)
-
-    @classmethod
-    def db(cls):
-        return cls.DB
-
-    @classmethod
-    def delete_users(cls, users):
-        if not isinstance(users, list):
-            raise DeleteUserError("Must provide {0} as argument.".format(list))
-        for user in users:
-            cls.delete_user(user)
+        return cls.DB.create(entity, data)
 
     @classmethod
     def create_assignment(cls, shot_id, user_id):
+        """Create new record for `MaglaAssignment` type.
+
+        Parameters
+        ----------
+        shot_id : int
+            Target shot to create new assignment for. A new version will be created and used as the
+            assigned version.
+        user_id : int
+            Target `MaglaUser` to assign to
+
+        Returns
+        -------
+        magla.core.assignment.MaglaAssignment
+            `MaglaAssignment` object populated with newly created backend data
+        """
         shot_version_id = MaglaShot(
             id=shot_id).version_up(cls.version_up).data.id
         return cls.create(MaglaAssignment, {
@@ -323,6 +456,45 @@ class MaglaRoot(object):
 
     @classmethod
     def create_tool_config(cls, tool_version_id, project_id, directory_tree=None, **kwargs):
+        """Create new record for `MaglaToolConfig` type.
+
+        Parameters
+        ----------
+        tool_version_id : int
+            Target tool version to associate this configuration to
+        project_id : int
+            Target `MaglaProject` to create this configuration for
+        directory_tree : list, optional
+            A description of a directory tree using nested dicts and lists, by default None
+            
+            example:
+            ```
+            [
+                {"shots": []},
+                {"audio": []},
+                {"preproduction": [
+                    {"mood": []},
+                    {"reference": []},
+                    {"edit": []}]
+                }
+            ]
+            ```
+            
+            results in following tree-structure:
+            ```
+            shots
+            audio
+            preproduction
+                |_mood
+                |_reference
+                |_edit
+            ```
+
+        Returns
+        -------
+        magla.core.tool_config.ToolConfig
+            `ToolConfig` object populated with newly created backend data
+        """
         directory_tree = directory_tree or []
         project = MaglaProject(id=project_id)
         tool_version = MaglaToolVersion(id=tool_version_id)
@@ -347,4 +519,20 @@ class MaglaRoot(object):
 
     @classmethod
     def version_up(cls, shot_id, num):
+        """Create a new `MaglaShotVersion` from latest.
+        
+        This method is a callback not meant to be called directly
+
+        Parameters
+        ----------
+        shot_id : int
+            Target `MaglaShot`
+        num : int
+            Version-number to create
+
+        Returns
+        -------
+        magla.core.shot_version.MaglaShotVersion
+            `MaglaShotVersion` object populated with newly created backend data
+        """
         return cls.create_shot_version(MaglaShot(id=shot_id), num)

@@ -8,7 +8,6 @@ from .entity import MaglaEntity as Entity
 from .facility import MaglaFacility as Facility
 from .file_type import MaglaFileType as FileType
 from .machine import MaglaMachine as Machine
-from .orm import MaglaORM as ORM
 from .project import MaglaProject as Project
 from .root import MaglaRoot as Root
 from .settings_2d import MaglaSettings2D as Settings2D

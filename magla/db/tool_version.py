@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
-from .. import __base__
+from ..db.orm import MaglaORM
 
 
-class ToolVersion(__base__):
+class ToolVersion(MaglaORM.BASE):
     __tablename__ = "tool_versions"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "ToolVersion"

@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
-from .. import __base__
+from ..db.orm import MaglaORM
 
 
-class Directory(__base__):
+class Directory(MaglaORM.BASE):
     __tablename__ = "directories"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Directory"

@@ -48,7 +48,7 @@ exists, creation will abort and return the found record instead. To instead retu
 'return_existing=False` parameter.
     example:
     ```
-    magla.Root().create(magla.User, {"nickname": "foo"}, return_existing=False)
+    magla.Root.create(magla.User, {"nickname": "foo"}, return_existing=False)
     ```
 
 This functionality is demonstrated below where the name of the shot being created is set to

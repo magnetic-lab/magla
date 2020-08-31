@@ -2,10 +2,10 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from .user import User
-from .. import __base__
+from ..db.orm import MaglaORM
 
 
-class Context(__base__):
+class Context(MaglaORM.BASE):
     __tablename__ = "contexts"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Context"
