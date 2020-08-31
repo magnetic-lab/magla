@@ -43,7 +43,7 @@ All creation and deletion methods are in `magla.Root`, so this is primarily a de
 using the creation methods in the optimal order.
 
 Each creation method will return the created `MaglaEntity` or in the case that a record already
-exists, creation will abort and return the found record instead. To instead return an
+exists, creation will abort and return the found record instead. To instead throw an
 `EntityAlreadyExistsError`, you must call the `magla.Root.create` method directly and pass the
 'return_existing=False` parameter.
 example:
