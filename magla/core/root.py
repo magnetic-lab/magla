@@ -8,6 +8,7 @@
 import os
 import uuid
 from pprint import pformat
+import re
 
 import opentimelineio as otio
 
@@ -150,12 +151,14 @@ class MaglaRoot(object):
         return cls.create(MaglaFacility, data)
 
     @classmethod
-    def create_project(cls, project_name, project_path, settings):
-        # create `projects` entry
-        new_project = cls.create(MaglaProject, {
+    def create_project(cls, project_name, project_path, settings, **kwargs):
+        data = {
             "name": project_name,
             "settings": settings
-        })
+        }
+        data.update(dict(kwargs))
+        # create `projects` entry
+        new_project = cls.create(MaglaProject, data)
         # create `timelines` entry
         new_timeline = cls.create(MaglaTimeline, {
             "label": "Timeline for `project_id`: {0}".format(new_project.id),
@@ -230,15 +233,34 @@ class MaglaRoot(object):
         })
         new_shot_version.data.directory_id = new_directory.id
         # TODO: need to streamline data pushing, this is too many pushes
-	new_shot_version.data.push()
+        new_shot_version.data.push()
 
         # now we can set the `media_reference`
-        ref = new_directory.bookmarks["representations"]["png_sequence"].format(
+        reference = new_directory.bookmarks["representations"]["png_sequence"].format(
             shot_version=new_shot_version
         )
-        new_shot_version.data.otio = otio.schema.ExternalReference(
-            target_url=ref)
+        
+        # construct an opentimelineio.schema.ImageSequenceReference using project settings
+        regex = shot.project.settings["frame_sequence_re"]
+        match = re.match(regex, os.path.basename(reference))
+        # `frame_sequence_re` groups must comform to `opentimelineio` prefix/padding/suffix format
+        prefix, padding, suffix = match.groups()
+        previous_shot_version_num = new_shot_version.num - 1 if new_shot_version.num else 0
+        previous_shot_otio = shot.version(previous_shot_version_num).otio
 
+        # if there's no previous otio data to go from default to a still frame
+        new_shot_version.data.otio = previous_shot_otio or otio.schema.ImageSequenceReference(
+            available_range=otio.opentime.TimeRange(
+                start_time=otio.opentime.RationalTime(1, shot.project.settings_2d.rate),
+                duration=otio.opentime.RationalTime(1, shot.project.settings_2d.rate)
+            )
+        )
+        # apply sequence details using project settings
+        new_shot_version.data.otio.target_url_base = os.path.dirname(reference)
+        new_shot_version.data.otio.name_prefix = prefix
+        new_shot_version.data.otio.name_suffix = suffix
+        new_shot_version.data.otio.frame_zero_padding = padding.count("#")
+        new_shot_version.data.otio.rate = shot.project.settings_2d.rate
         new_shot_version.data.push()
         new_shot_version.directory.make_tree()
         return new_shot_version

@@ -36,6 +36,7 @@ from .core import Machine
 from .core import Project
 from .core import Root
 from .core import Context
+from .core import Settings2D
 from .core import Shot
 from .core import ShotVersion
 from .core import Timeline
@@ -53,6 +54,7 @@ Entity.__types__ = {
 	"Machine": Machine,
 	"Project": Project,
 	"Context": Context,
+	"Settings2D": Settings2D,
 	"Shot": Shot,
 	"ShotVersion": ShotVersion,
  	"Timeline": Timeline,

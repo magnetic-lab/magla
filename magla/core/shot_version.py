@@ -85,6 +85,8 @@ class MaglaShotVersion(MaglaEntity):
             raise MaglaShotVersionError(
                 "No 'projects' record found for {}!".format(self.shot.record))
         return MaglaEntity.from_record(r)
+<<<<<<< Updated upstream
+=======
 
     def tool_path(self):
         tool_path = self.project.settings.get(
@@ -100,3 +102,4 @@ class MaglaShotVersion(MaglaEntity):
             self.project.settings["shot_version_directory"].format(
                 shot_version=self),
         )
+>>>>>>> Stashed changes

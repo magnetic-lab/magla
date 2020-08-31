@@ -11,6 +11,7 @@ from .machine import MaglaMachine as Machine
 from .orm import MaglaORM as ORM
 from .project import MaglaProject as Project
 from .root import MaglaRoot as Root
+from .settings_2d import MaglaSettings2D as Settings2D
 from .shot import MaglaShot as Shot
 from .shot_version import MaglaShotVersion as ShotVersion
 from .timeline import MaglaTimeline as Timeline

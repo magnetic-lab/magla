@@ -12,6 +12,7 @@ class Settings2D(__base__):
     __entity_name__ = "Settings2D"
 
     id = Column(Integer, primary_key=True)
+    label = Column(String)
     width = Column(Integer)
     height = Column(Integer)
     rate = Column(Float)
