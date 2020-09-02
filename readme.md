@@ -43,12 +43,12 @@ All creation and deletion methods are in `magla.Root`, so this is primarily a de
 using the creation methods in the optimal order.
 
 Each creation method will return the created `MaglaEntity` or in the case that a record already
-exists, creation will abort and return the found record instead. To instead return an
+exists, creation will abort and return the found record instead. To instead throw an
 `EntityAlreadyExistsError`, you must call the `magla.Root.create` method directly and pass the
 'return_existing=False` parameter.
     example:
     ```
-    magla.Root.create(magla.User, {"nickname": "foo"}, return_existing=False)
+    magla.Root().create(magla.User, {"nickname": "foo"}, return_existing=False)
     ```
 
 This functionality is demonstrated below where the name of the shot being created is set to
@@ -61,6 +61,9 @@ import magla
 # instantiate a MaglaRoot object. Creation and deletion must be done via the MaglaRoot class.
 r = magla.Root()
 
+# create a Machine
+current_machine = r.create_machine()
+
 # create User
 user = r.create_user(getpass.getuser())
 
@@ -70,14 +73,10 @@ facility = r.create_facility("test_facility",
 ```
 The above creates a new `Postgres` column in the 'facilities' table and returns a `MaglaFacility` object pre-populated with data in the '<MaglaEntity>.data' property.
 
-```python
-# create a Machine
-current_machine = r.create_machine()
-```
-
-Project settings are sent in as a dictionary which is stored as `JSONB` in `Postgres`. At runtime a `MaglaEntity` object gets injected and python's string formatting can be used to access the objects many attributes for custom naming.
+Project settings are sent in as a dictionary which is stored as `JSONB` in `Postgres`. At runtime a `MaglaEntity` object gets injected and Python's native string formatting can be used to access the object's relationships and attributes for custom naming.
 ```python
 # Create 2D settings template
+# a custom creation method doesn't exist for this entity type so the 'create' method is used directly.
 settings_2d = r.create(magla.Settings2D, {
     "label": "Full 4K @30FPS",
     "width": 4096,
@@ -134,7 +133,7 @@ assignment = r.create_assignment(
 magla.Tool("natron").start()
 ```
 
-For relational tables the creation method will usually need more than one arg for each child SQL table.
+For relational tables the creation method will usually need more than one arg for each child `SQL` table.
 The below creates `Tool`, `ToolVersion`, `ToolVersionInstallation`, and `FileType` entities which are related via foreign keys in `Postgres`.
 ```python
 # Create Tool, ToolVersion, ToolVersionInstallation, FileType
