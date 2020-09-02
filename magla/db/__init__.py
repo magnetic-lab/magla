@@ -1,3 +1,4 @@
+"""Database module containing ORM interface and SQLAlchemy mapped entity class definitions."""
 from .assignment import Assignment
 from .context import Context
 from .dependency import Dependency

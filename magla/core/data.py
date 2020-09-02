@@ -1,25 +1,4 @@
-"""MaglaData objects are the universal data transportation and syncing device of `magla`.
-
-The MaglaData object serves as the common transport of data within magla. `MaglaData` inherits from
-the `MuteableMapping` class giving it unique dot-notated access qualities.
-
-    example:
-    ```
-    # getting
-    data["key"]
-    data.key
-    
-    # setting
-    data["key"] = "new_value"
-    data.key = "new_value"
-    
-    # traditional dict methods also available
-    data.update({"key":"new_value"})
-    ```
-
-In addition `MaglaData` objects have direct access to the `SQLAlchemy` session to sync and validate
-their data with what's on record.
-"""
+"""MaglaData objects are the universal data transportation and syncing device of `magla`."""
 import sys
 from collections import MutableMapping
 from pprint import pformat
@@ -40,6 +19,26 @@ class NoRecordFoundError(MaglaDataError):
 
 class CustomDict(MutableMapping):
     """A dictionary that applies an arbitrary key-altering function before accessing the keys.
+
+    The MaglaData object serves as the common transport of data within magla. `MaglaData` inherits
+    from the `MuteableMapping` class giving it unique dot-notated access qualities.
+
+    example:
+        ```
+        # getting
+        data["key"]
+        data.key
+        
+        # setting
+        data["key"] = "new_value"
+        data.key = "new_value"
+        
+        # traditional dict methods also available
+        data.update({"key":"new_value"})
+        ```
+
+    In addition `MaglaData` objects have direct access to the `SQLAlchemy` session to sync and
+    validate their data with what's on record.
 
     Attributes
     ----------

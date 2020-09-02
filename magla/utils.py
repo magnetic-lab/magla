@@ -1,3 +1,4 @@
+"""Utility functions."""
 import os
 import json
 import platform
@@ -8,6 +9,18 @@ import opentimelineio as otio
 
 
 def all_otio_to_dict(dict_):
+    """Traverse through a dictionary recursively converting otio to dict.
+
+    Parameters
+    ----------
+    dict_ : dict
+        The target dictionary to convert
+
+    Returns
+    -------
+    dict
+        Dict with all otio objects converted to dict
+    """
     for k, v in dict_.items():
         if isinstance(v, otio.core.SerializableObjectWithMetadata):
             dict_[k] = otio_to_dict(v)
@@ -16,19 +29,74 @@ def all_otio_to_dict(dict_):
     return dict_
 
 def otio_to_dict(otio):
+    """Convert given `opentimelineio.schema.SerializeableObject` object to dict.
+
+    Parameters
+    ----------
+    otio : opentimelineio.schema.SerializeableObject
+        The `opentimelineio` object to convert
+
+    Returns
+    -------
+    dict
+        Dict representing the given `opentimelineio.schema.SerializeableObject`
+    """
     if isinstance(otio, dict):
         return otio
     return json.loads(otio.to_json_string(indent=-1))
 
 def dict_to_otio(dict_):
+    """Convert a previously converted dict back to an `opentimelineio.schema.SerializeableObject`.
+
+    Parameters
+    ----------
+    dict_ : dict
+        The dict to convert
+
+    Returns
+    -------
+    opentimelineio.schema.SerializeableObject
+        The object created from given dict
+
+    Raises
+    ------
+    Exception
+        Raised if bad argument given.
+    """
     if not is_otio_dict(dict_):
         raise Exception("Must provide valid otio dict.")
     return otio.adapters.read_from_string(json.dumps(dict_))
 
 def is_otio_dict(dict_):
+    """Determine if given dict can be converted to an `opentimelineio.schema.SerializeableObject`
+
+    Parameters
+    ----------
+    dict_ : dict
+        Dict to check
+
+    Returns
+    -------
+    bool
+        True if can be converted, False if not
+    """
     return isinstance(dict_, dict) and "OTIO_SCHEMA" in dict_
 
-def record_to_dict(schema, convert_otio=True):
+def record_to_dict(record, convert_otio=True):
+    """Convert given `sqlalchemy.ext.declarative.api.Base` mapped entity to dict.
+
+    Parameters
+    ----------
+    record : sqlalchemy.ext.declarative.api.Base
+        The `SQAlchemy` record to convert
+    convert_otio : bool, optional
+        Flag whether or not to also convert back to an object, by default True
+
+    Returns
+    -------
+    dict
+        Dict representation of given record
+    """
     dict_ = {}
     "this method needs to retrieve dict from a mapped entity object."
     for c in list(schema.__table__.c):
@@ -38,12 +106,23 @@ def record_to_dict(schema, convert_otio=True):
         dict_[c.name] = val
     return dict_
 
-def attr_to_dict(inst_attr):
-    dict_ = {}
-    inst_attr
-    return dict_
+def dict_to_record(record, data, convert_otio=True):
+    """Convert given dict to `SQLAlchemy` record.
 
-def dict_to_record(schema, data, convert_otio=True):
+    Parameters
+    ----------
+    record : sqlalchemy.ext.declarative.api.Base
+        Class for record to create
+    data : dict
+        Dict containing data to use in conversion
+    convert_otio : bool, optional
+        Flag whether or not to convert previously converted dict back to object, by default True
+
+    Returns
+    -------
+    sqlalchemy.ext.declarative.api.Base
+        Instantiated record containing populated with given data
+    """
     for key, val in data.items():
         if convert_otio and (isinstance(val, otio.core.SerializableObject)):
             val = otio_to_dict(val)
@@ -51,6 +130,13 @@ def dict_to_record(schema, data, convert_otio=True):
     return schema
 
 def open_directory_location(target_path):
+    """Open given target path using current operating system.
+
+    Parameters
+    ----------
+    target_path : str
+        Path to open
+    """
     if sys.platform=='win32':
         subprocess.Popen(['start', target_path], shell= True)
     elif sys.platform=='darwin':

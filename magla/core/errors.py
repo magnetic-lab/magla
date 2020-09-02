@@ -1,3 +1,4 @@
+"""Root exception definitions for `magla` as well as associated logging logic."""
 import logging
 
 

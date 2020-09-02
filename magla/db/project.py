@@ -1,9 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
-# from .toolconfig import ToolConfig
 
 
 class Project(MaglaORM.BASE):

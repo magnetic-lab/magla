@@ -5,7 +5,7 @@ import logging
 import os
 import subprocess
 
-from maglapath import MaglaPath
+
 
 from ..db.tool import Tool
 from .errors import MaglaError

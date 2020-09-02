@@ -1,22 +1,16 @@
-import logging
-import json
-import os
-import shutil
+"""Shots are a collection of versions of `subsets` used in the creation of a final `representation`.
 
+It is important to note that a `MaglaShot` object by itself should rarely be accessed except when
+assigning, or if `subsets` need to be managed. The actual content making up the shot is contained
+in individual `MaglaShotVersion` directories.
+"""
 import opentimelineio as otio
 
+from ..db.shot import Shot
 from ..utils import dict_to_otio
-from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
-from ..db.shot import Shot
 from .shot_version import MaglaShotVersion
-from .directory import MaglaDirectory
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class MaglaShotError(MaglaError):
@@ -24,9 +18,17 @@ class MaglaShotError(MaglaError):
 
 
 class MaglaShot(MaglaEntity):
+    """Provide an interface for shot properties and assignment."""
     SCHEMA = Shot
 
     def __init__(self, data=None, *args, **kwargs):
+        """Initialize with given data.
+
+        Parameters
+        ----------
+        data : dict
+            Data to query for matching backend record
+        """
         if isinstance(data, str):
             data = {"name": data}
         super(MaglaShot, self).__init__(self.SCHEMA, data or dict(kwargs))
@@ -37,33 +39,69 @@ class MaglaShot(MaglaEntity):
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
 
     @property
     def name(self):
+        """Retrieve name from data.
+
+        Returns
+        -------
+        str
+            Name of the shot
+        """
         return self.data.name
 
     @property
-    def full_name(self):
-        return "{project_name}_{shot_name}".format(
-            project_name=self.project.name,
-            shot_name=self.name)
+    def otio(self):
+        """Retrieve otio from data.
+
+        Returns
+        -------
+        opentimelineio.schema.Clip
+            The `Clip` object for this shot
+        """
+        return self.data.otio
 
     @property
-    def otio(self):
-        return self.data.otio
-    
-    @property
     def track_index(self):
+        """Retrieve track_index from data.
+
+        Returns
+        -------
+        int
+            The index of the `opentimelineio.schema.Track` object this shot belongs to
+        """
         return self.data.track_index
-    
+
     @property
     def start_time_in_parent(self):
+        """Retrieve start_time_in_parent from data.
+
+        Returns
+        -------
+        int
+            Frame number in the timeline that this shot populates inserts itself at
+        """
         return self.data.start_time_in_parent
 
     # SQAlchemy relationship back-references
     @property
     def directory(self):
+        """Shortcut method to retrieve related `MaglaDirectory` back-reference.
+
+        Returns
+        -------
+        magla.core.directory.MaglaDirectory
+            The `MaglaDirectory` for this project
+        """
         r = self.data.record.directory
         if not r:
             return None
@@ -71,6 +109,13 @@ class MaglaShot(MaglaEntity):
 
     @property
     def project(self):
+        """Shortcut method to retrieve related `MaglaProject` back-reference.
+
+        Returns
+        -------
+        magla.core.project.MaglaProject
+            The `MaglaProject` for this shot
+        """
         r = self.data.record.project
         if not r:
             return None
@@ -78,6 +123,13 @@ class MaglaShot(MaglaEntity):
 
     @property
     def versions(self):  # TODO: this is heavy.. need to optomize entity instantiation
+        """Shortcut method to retrieve related `MaglaShotVersion` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.shot_version.MaglaShotVersion
+            The `MaglaShotVersion` for this project
+        """
         r = self.data.record.versions
         if r == None:
             return []
@@ -85,25 +137,76 @@ class MaglaShot(MaglaEntity):
 
     # MaglaShot-specific methods ________________________________________________________________
     def version(self, num):
+        """Retrieve a specific `MaglaShotVersion by its version number int.
+
+        Parameters
+        ----------
+        num : int
+            The version number integer of the target shot version
+
+        Returns
+        -------
+        magla.core.shot_version.MaglaShotVersion
+            The `MaglaShotVersion` object retrieved or None
+        """
         if not isinstance(num, int):
             num = int(num)  # TODO exception handling needed here
         return MaglaShotVersion(shot_id=self.data.id, num=num)
 
     @property
+    def full_name(self):
+        """Convenience method for prefixing the shot's name with the project's name
+
+        Returns
+        -------
+        str
+            Shot name prefixed with project name
+
+            Example:
+                ```
+                project_name_shot_name
+                ```
+        """
+        return "{project_name}_{shot_name}".format(
+            project_name=self.project.name,
+            shot_name=self.name)
+
+    @property
     def latest_num(self):
+        """Retrieve the version number integer of the latest version of this shot.
+
+        Returns
+        -------
+        int
+            The version number of the latest version
+        """
         return self._data.record.versions[-1].num if self._data.record.versions else 0
 
     def version_up(self, magla_root_callback):
+        """Create a new `MaglaShotVersion` record by incrementing from the latest version.\
+
+        Since creation and deletion must go through magla.Root, we use a callback to perform the
+        actual creation logic.
+
+        Parameters
+        ----------
+        magla_root_callback : magla.Root.version_up
+            The version up method from magla.Root with creation privilege
+
+        Returns
+        -------
+        magla.core.shot_version.MaglaShotVersion
+            The newly created `MaglaShotVersion` object
+        """
         new_version = magla_root_callback(self.id, self.latest_num + 1)
         return new_version
-    
-    def set_media_reference(self, shot_version):
-        self._otio.media_reference = shot_version._otio
-            
-    def _set_otio_media_reference(self, otio_external_reference):
-        self.otio.media_reference = otio_external_reference
-        self.data.push()
-        return self.otio
 
-    def __populate_external_reference(self, shot_version):
-        self.otio.external_reference = shot_version.otio
+    def set_media_reference(self, shot_version):
+        """Apply given `MaglaShotVersion`'s media reference to the `Clip`.
+
+        Parameters
+        ----------
+        shot_version : magla.shot_version.MaglaShotVersion
+            The `MaglaShotVersion` to use as the current media reference
+        """
+        self._otio.media_reference = shot_version._otio

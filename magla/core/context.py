@@ -12,8 +12,6 @@ import getpass
 import logging
 import os
 
-from maglapath import MaglaPath
-
 from ..db.context import Context
 from .data import MaglaData
 from .entity import MaglaEntity
@@ -53,7 +51,7 @@ class MaglaContext(MaglaEntity):
     # SQAlchemy relationship back-references
     @property
     def machine(self, j=None):
-        """Retrieve related `MaglaMachine` object.
+        """Retrieve related `MaglaMachine` back-reference.
 
         Returns
         -------
@@ -67,7 +65,7 @@ class MaglaContext(MaglaEntity):
 
     @property
     def user(self):
-        """Retrieve related `MaglaUser` object.
+        """Retrieve related `MaglaUser` back-reference.
 
         Returns
         -------
@@ -81,7 +79,7 @@ class MaglaContext(MaglaEntity):
 
     @property
     def assignment(self):
-        """Retrieve related `MaglaAssignment` object.
+        """Retrieve related `MaglaAssignment` back-reference.
 
         Returns
         -------
@@ -96,7 +94,7 @@ class MaglaContext(MaglaEntity):
     # MaglaContext-specific methods ________________________________________________________________
     @property
     def project(self):
-        """Shortcut method to retrieve related `MaglaProject` object.
+        """Shortcut method to retrieve related `MaglaProject` back-reference.
 
         Returns
         -------
@@ -109,7 +107,7 @@ class MaglaContext(MaglaEntity):
 
     @property
     def shot(self):
-        """Shortcut method to retrieve related `MaglaShot` object.
+        """Shortcut method to retrieve related `MaglaShot` back-reference.
 
         Returns
         -------
@@ -122,7 +120,7 @@ class MaglaContext(MaglaEntity):
 
     @property
     def shot_version(self):
-        """Shortcut method to retrieve related `MaglaShotVersion` object.
+        """Shortcut method to retrieve related `MaglaShotVersion` back-reference.
 
         Returns
         -------

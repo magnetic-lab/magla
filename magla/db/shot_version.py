@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -14,9 +14,8 @@ class ShotVersion(MaglaORM.BASE):
     shot_id = Column(Integer, ForeignKey("shots.id"))
     directory_id = Column(Integer, ForeignKey("directories.id"))
     num = Column(Integer)
-    file_extension = Column(String)
     otio = Column(JSONB)
-    
+
     assignment = relationship("Assignment", uselist=False, back_populates="shot_version")
     shot = relationship("Shot", uselist=False, back_populates="versions")
     directory = relationship("Directory")

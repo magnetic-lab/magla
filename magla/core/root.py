@@ -27,7 +27,6 @@ from .shot import MaglaShot
 from .shot_version import MaglaShotVersion
 from .timeline import MaglaTimeline
 from .tool import MaglaTool
-from .tool_alias import MaglaToolAlias
 from .tool_config import MaglaToolConfig
 from .tool_version import MaglaToolVersion
 from .tool_version_installation import MaglaToolVersionInstallation
@@ -51,7 +50,7 @@ class MaglaRoot(object):
     """Permissions-aware interface for creation and deletion within `magla`."""
 
     CREDENTIALS = ""
-    DB = MaglaORM(None)
+    DB = MaglaORM()
 
     @classmethod
     def __repr__(cls):

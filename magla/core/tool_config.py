@@ -24,34 +24,67 @@ class MaglaToolConfig(MaglaEntity):
     
     Primary roles:
         -   Associate a `Project` with a particular `ToolVersion`.
-        -   Define the custom `Directory.tree` structure associated with the `ToolVersion` inside
-            `ShotVersion.directory` folders.
+        -   Define the directory structure to be used for tool-specific shot version files
             
     Each `Project` should define one `ToolConfig` for each `Tool` <--> `ToolVersion` designated for
     use. A `Directory` is also defined which will be used to auto-create the `ToolVersion`'s
-    sub-directory-tree whithin the shot directory structure..
+    sub-directory-tree whithin the shot directory structure.
     """
     SCHEMA = ToolConfig
 
     def __init__(self, data=None, *args, **kwargs):
-        """"""
+        """Initialize with given data.
+
+        Parameters
+        ----------
+        data : dict
+            Data to query for matching backend record
+        """
         super(MaglaToolConfig, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
 
     @property
     def env(self):
+        """Retrieve env from data.
+
+        Returns
+        -------
+        dict
+            dictionary representing the custom environment to inject when launching the tool
+        """
         return self.data.env or {}
 
     @property
     def copy_dict(self):
+        """Retrieve copy_dict from data.
+
+        Returns
+        -------
+        dict
+            Dictionary containing source and destination paths to be copied to local work folder
+        """
         return self.data.copy_dict
 
     #### SQAlchemy relationship back-references
     @property
     def project(self):
+        """Shortcut method to retrieve related `MaglaProject` back-reference.
+
+        Returns
+        -------
+        magla.core.project.MaglaProject
+            The `MaglaProject` this tool config belongs to
+        """
         r = self.data.record.project
         if not r:
             return None
@@ -59,6 +92,13 @@ class MaglaToolConfig(MaglaEntity):
 
     @property
     def tool_version(self):
+        """Shortcut method to retrieve related `MaglaToolVersion` back-reference.
+
+        Returns
+        -------
+        magla.core.tool_version.MaglaToolVersion
+            The `MaglaToolVersion` that this tool config is assigned
+        """
         r = self.data.record.tool_version
         if not r:
             return None
@@ -66,6 +106,13 @@ class MaglaToolConfig(MaglaEntity):
     
     @property
     def directory(self):
+        """Shortcut method to retrieve related `MaglaDirectory` back-reference.
+
+        Returns
+        -------
+        magla.core.directory.MaglaDirectory
+            The `MaglaDirectory` definiing how this tool will be represented within shot folders
+        """
         r = self.data.record.directory
         if not r:
             return None
@@ -74,19 +121,35 @@ class MaglaToolConfig(MaglaEntity):
     #### MaglaToolConfig-specific methods __________________________________________________________
     @property
     def tool(self):
+        """Shortcut method to retrieve related `MaglaToolVersion` back-reference.
+
+        Returns
+        -------
+        magla.core.tool_version.MaglaToolVersion
+            The `MaglaTool` this config is related to
+        """
         if not self.tool_version:
             return None
         return self.tool_version.tool
 
     @property
     def PYTHONPATH(self):
+        """The `PYTHONPATH` environment to be appended to the tool's launch process."""
         pass
 
     @property
     def PATH(self):
+        """The `PATH` environment variable to be appended to the tool's launch process."""
         pass
 
     def get_tool_env(self):
+        """Generate an environment dict from this tool config.
+
+        Returns
+        -------
+        dict
+            Dictionary of the environment to use for this tool's launch process
+        """
         # add the correct version of MagLa API to PYTHONPATH
         env_ = dict(os.environ)
 
@@ -104,6 +167,20 @@ class MaglaToolConfig(MaglaEntity):
     
     @classmethod
     def from_user_context(cls, tool_id, context):
+        """Retrieve the `MaglaToolConfig` associated to given `MaglaContext`.
+
+        Parameters
+        ----------
+        tool_id : id
+            The id of the `MaglaTool` with a related tool config
+        context : magla.core.context.MaglaContext
+            The `MaglaContext` which would give us access to project -> tool_config
+
+        Returns
+        -------
+        magla.core.tool_config.MaglaToolConfig
+            The retrieved `MaglaToolConfig` or None
+        """
         a = context.assignment
         # check for assignment context
         if a:

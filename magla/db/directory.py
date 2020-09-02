@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -20,4 +20,3 @@ class Directory(MaglaORM.BASE):
 
     machine = relationship("Machine", uselist=False, back_populates="directories")
     user = relationship("User", uselist=False, back_populates="directories")
-

@@ -1,30 +1,23 @@
-from os import environ
-
-from .config import MaglaConfig
-from .data import MaglaData, MaglaDataError
+from ..db import Facility
 from .entity import MaglaEntity
 from .errors import MaglaError
-from ..db import Facility
 
 
 class MaglaFacilityError(MaglaError):
-    pass
+    """An error accured preventing MaglaFacility to continue."""
 
 
 class MaglaFacility(MaglaEntity):
-    """Responsible for maintaining all details of the current working environment config.
-
-    This class is intended to be used directly through the terminal by
-    users, and also by pipeline tools to configure themselves (such as
-    applications like Maya setting the project folders).
-    """
+    """Provide an interface for Facility-level administrative tasks."""
     SCHEMA = Facility
 
     def __init__(self, data=None, *args, **kwargs):
-        """Initialize with given data, otherwise use new data object for current environment.
+        """Initialize with given data.
 
-        :param data: the MaglaData object to create this instance from.
-        :type  data: magla.MaglaData
+        Parameters
+        ----------
+        data : dict
+            Data to query for matching backend record
         """
         if isinstance(data, str):
             data = {"name": data}
@@ -32,38 +25,49 @@ class MaglaFacility(MaglaEntity):
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
     
     @property
     def name(self):
+        """Retrieve name from data.
+
+        Returns
+        -------
+        str
+            Name of the facility
+        """
         return self.data.name
 
     @property
     def settings(self):
+        """Retrieve settings from data.
+
+        Returns
+        -------
+        dict
+            Settings for the facility
+        """
         return self.data.settings
-
-    @property
-    def magla_dir(self):
-        return self.data.dir
-
-    @property
-    def repo_dir(self):
-        return self.data.repo_dir
 
     ##### SQAlchemy relationship back-references
     @property
     def machines(self):
+        """Shortcut method to retrieve related `MaglaMachine` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.machine.MaglaMachine
+            The `MaglaMachine` records for this facility
+        """
         r = self.data.record.machines
         if r == None:
-            raise MaglaToolVersionError(
+            raise MaglaFacilityError(
                 "No 'machines' record found for {}!".format(self))
         return [self.from_record(a) for a in r]
-
-    #### MaglaFacility-specific methods ____________________________________________________________
-    @classmethod
-    def set_facility_repo_dir(cls, facility_repo_path):
-        return facility_repo_path
-
-    @classmethod
-    def set_projects_dir(cls, projects_root_path):
-        return projects_root_path

@@ -4,17 +4,16 @@ import getpass
 import logging
 import os
 
-from maglapath import MaglaPath
-
-from .errors import MaglaError
+from ..db.tool_version import ToolVersion
 from .data import MaglaData
 from .entity import MaglaEntity
-from ..db.tool_version import ToolVersion
+from .errors import MaglaError
 
 try:
     basestring
 except NameError:
     basestring = str
+
 
 class MaglaToolVersionError(MaglaError):
     """An error accured preventing MaglaToolVersion to continue."""
@@ -26,7 +25,8 @@ class MaglaToolVersion(MaglaEntity):
 
     def __init__(self, data=None, *args, **kwargs):
         """"""
-        super(MaglaToolVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaToolVersion, self).__init__(
+            self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):
@@ -35,7 +35,7 @@ class MaglaToolVersion(MaglaEntity):
     @property
     def string(self):
         return self.data.string
-    
+
     @property
     def file_extension(self):
         return self.data.file_extension  # TODO: use MaglaFileType instead
@@ -80,10 +80,11 @@ class MaglaToolVersion(MaglaEntity):
             raise MaglaToolVersionError(
                 "No 'aliases' record found for {}!".format(self))
         return [self.from_record(a) for a in r]
-    
+
     # MaglaToolVersion-specific methods ____________________________________________________________
     def installation(self, machine_id):
-        matches = [i for i in self.installations if i.directory.machine.id == machine_id]
+        matches = [
+            i for i in self.installations if i.directory.machine.id == machine_id]
         if matches:
             matches = matches[0]
         else:

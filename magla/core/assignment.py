@@ -43,7 +43,7 @@ class MaglaAssignment(MaglaEntity):
 
     @property
     def shot_version(self):
-        """Retrieve related `MaglaShotVersion` object.
+        """Retrieve related `MaglaShotVersion` back-reference.
 
         Returns
         -------
@@ -57,7 +57,7 @@ class MaglaAssignment(MaglaEntity):
 
     @property
     def user(self):
-        """Retrieve related `MaglaUser` object.
+        """Retrieve related `MaglaUser` back-reference.
 
         Returns
         -------
@@ -72,7 +72,7 @@ class MaglaAssignment(MaglaEntity):
     # MaglaAssignment-specific methods
     @property
     def shot(self):
-        """Shortcut method to retrieve related `MaglaShot` object.
+        """Shortcut method to retrieve related `MaglaShot` back-reference.
 
         Returns
         -------
@@ -83,7 +83,7 @@ class MaglaAssignment(MaglaEntity):
 
     @property
     def project(self):
-        """Shortcut method to retrieve related `MaglaProject` object.
+        """Shortcut method to retrieve related `MaglaProject` back-reference.
 
         Returns
         -------

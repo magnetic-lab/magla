@@ -1,3 +1,4 @@
+"""Core module for `magla`"""
 from .assignment import MaglaAssignment as Assignment
 from .config import MaglaConfig as Config
 from .context import MaglaContext as Context

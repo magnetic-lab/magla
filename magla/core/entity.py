@@ -1,12 +1,9 @@
-import json
-import logging
-from os import environ
-from os import path as osp
-from pprint import pprint
+"""Entity is the root class connecting `core` objects to their backend equivilent."""
+from pprint import pformat
 
 from ..db import MaglaORM
 from ..utils import dict_to_record, record_to_dict
-from .data import MaglaData, MaglaDataError
+from .data import MaglaData
 from .errors import MaglaError
 
 
@@ -19,16 +16,26 @@ class BadArgumentError(MaglaEntityError):
 
 
 class MaglaEntity(object):
-    """General wrapper for all Magla object types.
-
-    Any interfacing with backend (db or filesystem) should go here.
-
-    MaglaEntity objects are responsible for managing MaglaData objects and
-    syncing with database.
+    """General wrapper for `magla` object types, responsible for interfacing with backend.
+    
+    This class should be subclassed and never instantiated on its own.
     """
-    _config_path = environ["MAGLA_CONFIG"]
 
     def __init__(self, record, data, **kwargs):
+        """Initialize with record definition, data, and supplimental kwargs as key-value pairs.
+
+        Parameters
+        ----------
+        record : [type]
+            [description]
+        data : [type]
+            [description]
+
+        Raises
+        ------
+        BadArgumentError
+            [description]
+        """
         if not isinstance(data, MaglaData):
             data = MaglaData(record, data, MaglaORM.SESSION)
         if kwargs:
@@ -44,9 +51,20 @@ class MaglaEntity(object):
         self._data = data
 
     def __str__(self):
-        """Display self as list of contained keys."""
+        """Overwrite the default string representation.
+
+        Returns
+        -------
+        str
+            Display entity type with list of key/values contained in its data.
+            
+            example:
+                ```
+                <EntityType: key1=value1, key2=value2, key3={"subkey1": "subvalue1"}>
+                ```
+        """
         data = self._data.dict()
-        entity_type = self.__class__.__name__
+        entity_type = self.data.record.__class__.__name__
         keys_n_vals = ["{0}={1}".format(*tup) for tup in data.items()]
 
         return "<{entity_type}: {keys_n_vals}>".format(
@@ -58,6 +76,23 @@ class MaglaEntity(object):
     
     @classmethod
     def from_record(cls, record_obj, **kwargs):
+        """Instantiate a sub-entity matching the properties of given record object.
+
+        Parameters
+        ----------
+        record_obj : sqlalchemy.ext.declarative.api.Base
+            A `SQLAlchemy` mapped entity record containing data directly from backend
+
+        Returns
+        -------
+        magla.core.entity.MaglaEntity
+            Sub-classed `MaglaEntity` object (defined in 'magla/db/')
+
+        Raises
+        ------
+        BadArgumentError
+            An invalid argument was given.
+        """
         if not record_obj:
             raise BadArgumentError("'{}' is not a valid record instance.".format(record_obj))
         # get modeul from magla here
@@ -66,19 +101,43 @@ class MaglaEntity(object):
         return entity_type(x, **kwargs)
 
     def dict(self):
+        """Return dictionary representation of this entity.
+
+        Returns
+        -------
+        dict
+            A dictionary representation of this entity with all current properties.
+        """
         return self._data.dict()
 
-    def orm(self):
-        return self._data.SCHEMA[0](**self._data)
-
     def pprint(self):
-        """"""
-        pprint(self.dict(), width=1)
+        """Return a 'pretty-printed' string representation of this entity."""
+        return pformat(self.dict(), width=1)
 
     @property
     def data(self):
+        """Retrieve `MaglaData` object for this entity.
+
+        Returns
+        -------
+        magla.core.data.MaglaData
+            The `MaglaData` object containing all data for this entity as well as a direct
+            connection to related backend table.
+        """
         return self._data
 
     @classmethod
     def type(cls, name):
+        """Return the class definition of the current entity type.
+
+        Parameters
+        ----------
+        name : str
+            The name of the entity to retrieve
+
+        Returns
+        -------
+        magla.core.entity.Entity
+            The sub-classed entity (defined in 'magla/db/')
+        """
         return cls.__types__[name]

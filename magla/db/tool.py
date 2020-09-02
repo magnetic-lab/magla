@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
 
@@ -16,4 +16,3 @@ class Tool(MaglaORM.BASE):
     metadata_ = Column(JSONB)
 
     versions = relationship("ToolVersion", back_populates="tool")
-    aliases = relationship("ToolAlias", back_populates="tool")

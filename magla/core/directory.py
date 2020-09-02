@@ -4,75 +4,17 @@
 There should never be any hard-coded paths anywhere except by users via settings. If something
 relies on accessing local directories then a `MaglaDirectory` record must first be created and
 associated.
-
-`MaglaDirectory` objects are intended to represent a root location and encompass all children
-contained within rather than behaving in a hierarchal fashion.
-
-Structure of a `MaglaDirectory` object:
-
-    label
-    -----
-        A descriptive comment about this directory
-    
-    path
-    ----
-        The path to the root of the directory
-    
-    tree
-    ----
-        A description of a directory tree using nested dicts and lists
-            
-        example:
-            ```
-            [
-                {"shots": []},
-                {"audio": []},
-                {"preproduction": [
-                    {"mood": []},
-                    {"reference": []},
-                    {"edit": []}]
-                }
-            ]
-            ```
-        
-        results in following tree-structure:
-            ```
-            shots
-            audio
-            preproduction
-                |_mood
-                |_reference
-                |_edit
-            ```
-    
-    bookmarks
-    ---------
-        A dictionary to store locations within the directory (such as executeables, configs, etc).
-        Python string formatting can be utilized as shown below.
-    
-        example:
-        ```
-        shot_version_bookmarks = {
-            "ocio": "_in/color/{shot_version.full_name}.ocio",
-            "luts": "_in/color/luts",
-            "representations": {
-                "png_sequence": "_out/png/{shot_version.full_name}.####.png",
-                "youtube_mov": "_out/png/{shot_version.full_name}.mov",
-                "exr_sequence": "_out/png/{shot_version.full_name}.####.exr"
-            }
-        ```
 """
 import getpass
 import logging
 import os
 
-from .errors import MaglaError
+from ..db.directory import Directory
+from ..utils import open_directory_location
 from .data import MaglaData
 from .entity import MaglaEntity
+from .errors import MaglaError
 from .user import MaglaUser
-
-from ..utils import open_directory_location
-from ..db.directory import Directory
 
 try:
     basestring
@@ -84,7 +26,65 @@ class MaglaDirectoryError(MaglaError):
 
 
 class MaglaDirectory(MaglaEntity):
-    """Provide an interface for interacting with local filesystem."""
+    """Provide an interface for interacting with local filesystem.
+    
+    `MaglaDirectory` objects are intended to represent a root location and encompass all children
+    contained within rather than behaving in a hierarchal fashion.
+
+    Structure of a `MaglaDirectory` object:
+
+        label
+        -----
+            A descriptive comment about this directory
+        
+        path
+        ----
+            The path to the root of the directory
+        
+        tree
+        ----
+            A description of a directory tree using nested dicts and lists
+                
+            example:
+                ```
+                [
+                    {"shots": []},
+                    {"audio": []},
+                    {"preproduction": [
+                        {"mood": []},
+                        {"reference": []},
+                        {"edit": []}]
+                    }
+                ]
+                ```
+            
+            results in following tree-structure:
+                ```
+                shots
+                audio
+                preproduction
+                    |_mood
+                    |_reference
+                    |_edit
+                ```
+        
+        bookmarks
+        ---------
+            A dictionary to store locations within the directory (such as executeables, configs, etc).
+            Python string formatting can be utilized as shown below.
+        
+            example:
+            ```
+            shot_version_bookmarks = {
+                "ocio": "_in/color/{shot_version.full_name}.ocio",
+                "luts": "_in/color/luts",
+                "representations": {
+                    "png_sequence": "_out/png/{shot_version.full_name}.####.png",
+                    "youtube_mov": "_out/png/{shot_version.full_name}.mov",
+                    "exr_sequence": "_out/png/{shot_version.full_name}.####.exr"
+                }
+            ```
+    """
     SCHEMA = Directory
 
     def __init__(self, data=None, *args, **kwargs):
@@ -161,7 +161,7 @@ class MaglaDirectory(MaglaEntity):
     #### SQAlchemy relationship back-references
     @property
     def machine(self):
-        """Retrieve related `MaglaMachine` object.
+        """Retrieve related `MaglaMachine` back-reference.
 
         Returns
         -------
@@ -175,7 +175,7 @@ class MaglaDirectory(MaglaEntity):
 
     @property
     def user(self):
-        """Retrieve related `MaglaUser` object.
+        """Retrieve related `MaglaUser` back-reference.
 
         Returns
         -------
@@ -219,4 +219,3 @@ class MaglaDirectory(MaglaEntity):
                     continue
             if v:
                 self._recursive_make_tree(root=os.path.join(root, k), sub_tree=v)
-        

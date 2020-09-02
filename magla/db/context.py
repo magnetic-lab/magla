@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from .user import User
 from ..db.orm import MaglaORM
+from .user import User
 
 
 class Context(MaglaORM.BASE):

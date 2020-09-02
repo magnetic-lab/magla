@@ -1,14 +1,7 @@
-import getpass
-
-from .data import MaglaData
+"""FileType's serve as a centralized definition for all file types in your ecosystem."""
+from ..db.file_type import FileType
 from .entity import MaglaEntity
 from .errors import MaglaError
-from ..db.file_type import FileType
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class MaglaFileTypeError(MaglaError):
@@ -16,19 +9,16 @@ class MaglaFileTypeError(MaglaError):
 
 
 class MaglaFileType(MaglaEntity):
-    """Responsible for maintaining all details of the current working environment config.
-
-    This class is intended to be used directly through the terminal by
-    file_types, and also by pipeline tools to configure themselves (such as
-    applications like Maya setting the project folders).
-    """
+    """Provide an interface to access information about this type of file."""
     SCHEMA = FileType
     
     def __init__(self, data=None, **kwargs):
-        """Validate the given data if any before calling super(), then default to current file_type.
+        """Initialize with given data.
 
-        :param data: data dict or nickname of the MaglaFileType to instantiate.
-        :type  data: str|dict|MaglaData
+        Parameters
+        ----------
+        data : dict
+            Data to query for matching backend record
         """
         if (not data and not kwargs):
             data = {"nickname": MaglaFileType.current()}
@@ -37,24 +27,59 @@ class MaglaFileType(MaglaEntity):
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
 
     @property
     def name(self):
+        """Retrieve name from data.
+
+        Returns
+        -------
+        str
+            Name of the file type
+        """
         return self.data.name
 
     @property
     def extensions(self):
+        """Retrieve extensions from data.
+
+        Returns
+        -------
+        list
+            A list of extensions related to this file type
+        """
         return self.data.extensions
 
     @property
     def description(self):
+        """Retrieve description from data.
+
+        Returns
+        -------
+        str
+            Description of the file type
+        """
         return self.data.description
 
     # SQAlchemy relationship back-references
     @property
     def tool_versions(self):
+        """Shortcut method to retrieve related `MaglaToolVersions` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.tool_version.MaglaToolVersions
+            The `MaglaToolVersion` records which can read this file type
+        """
         r = self.data.record.tool_versions
         if not r:
-            raise MaglaFileTypeError("No 'tool_versionss' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)

@@ -4,7 +4,7 @@ import getpass
 import logging
 import os
 
-from maglapath import MaglaPath
+
 
 from .data import MaglaData
 from .errors import MaglaError

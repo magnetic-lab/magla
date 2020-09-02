@@ -1,14 +1,9 @@
+"""Users are associated with operating system user accounts."""
 import getpass
 
-from .data import MaglaData
+from ..db.user import User
 from .entity import MaglaEntity
 from .errors import MaglaError
-from ..db.user import User
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class MaglaUserError(MaglaError):
@@ -16,19 +11,16 @@ class MaglaUserError(MaglaError):
 
 
 class MaglaUser(MaglaEntity):
-    """Responsible for maintaining all details of the current working environment config.
-
-    This class is intended to be used directly through the terminal by
-    users, and also by pipeline tools to configure themselves (such as
-    applications like Maya setting the project folders).
-    """
+    """Provide interface to user details and privileges."""
     SCHEMA = User
     
     def __init__(self, data=None, **kwargs):
-        """Validate the given data if any before calling super(), then default to current user.
+        """Initialize with given data.
 
-        :param data: data dict or nickname of the MaglaUser to instantiate.
-        :type  data: str|dict|MaglaData
+        Parameters
+        ----------
+        data : dict
+            Data to query for matching backend record
         """
         if (not data and not kwargs):
             data = {"nickname": MaglaUser.current()}
@@ -36,28 +28,70 @@ class MaglaUser(MaglaEntity):
         super(MaglaUser, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
-    def nickname(self):
-        return self.data.nickname
-
-    @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
 
     @property
+    def nickname(self):
+        """Retrieve nickname from data.
+
+        Returns
+        -------
+        str
+            Unique nickname for this user
+        """
+        return self.data.nickname
+
+    @property
     def first_name(self):
+        """Retrieve first_name from data.
+
+        Returns
+        -------
+        str
+            first_name of this user
+        """
         return self.data.first_name
 
     @property
     def last_name(self):
+        """Retrieve last_name from data.
+
+        Returns
+        -------
+        str
+            last_name of this user
+        """
         return self.data.last_name
 
     @property
     def email(self):
+        """Retrieve email from data.
+
+        Returns
+        -------
+        str
+            email of this user
+        """
         return self.data.email
 
     # SQAlchemy relationship back-references
     @property
     def context(self):
+        """Shortcut method to retrieve related `MaglaContext` back-reference.
+
+        Returns
+        -------
+        magla.core.context.MaglaContext
+            The unique `MaglaContext` for this user.
+        """
         r = self.data.record.context
         if not r:
             return None
@@ -65,6 +99,13 @@ class MaglaUser(MaglaEntity):
 
     @property
     def assignments(self):
+        """Shortcut method to retrieve related `MaglaAssignment` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.assignment.MaglaAssignment
+            The currently active `MaglaAssignment` for this user if one is set
+        """
         r = self.data.record.assignments
         if r == None:
             return None
@@ -72,6 +113,15 @@ class MaglaUser(MaglaEntity):
     
     @property
     def directories(self):
+        """Shortcut method to retrieve related `MaglaDirectory` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.directory.MaglaDirectory
+            A list of private `MaglaDirectory` objects for this user. These could be custom local
+            working directories, or sandbox-like directories - any place on a filesystem where
+            `magla` functionality is desired.
+        """
         r = self.data.record.directories
         if r == None:
             return None
@@ -79,6 +129,13 @@ class MaglaUser(MaglaEntity):
     
     @property
     def timelines(self):
+        """Shortcut method to retrieve related `MaglaTimeline` back-reference list.
+
+        Returns
+        -------
+        magla.core.timeline.MaglaTimeline
+            A list of private `MaglaTimeline` objects saved by this user
+        """
         r = self.data.record.timelines
         if r == None:
             return None
@@ -87,9 +144,28 @@ class MaglaUser(MaglaEntity):
     #### MaglaUser-specific methods ________________________________________________________________
     @staticmethod
     def current():
+        """Retrieve a `MaglaUser` object for the currently logged in user.
+
+        Returns
+        -------
+        magla.core.user.MaglaUser
+            The current `MaglaUser`
+        """
         return getpass.getuser()
     
     def directory(self, label):
+        """Retrieve one of this user's private `MaglaDirectory` objects by label.
+
+        Parameters
+        ----------
+        label : str
+            The label for the directory to retrieve
+
+        Returns
+        -------
+        magla.core.directory.MaglaDirectory
+            The retrieved `MaglaDirectory`
+        """
         for d in self.directories:
             if d.label == label:
                 return d

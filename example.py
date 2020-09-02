@@ -1,12 +1,12 @@
 """This script is an example of how to create a basic magla ecosystem from the ground up.
 
 All creation and deletion methods are in `magla.Root`, so this is primarily a demonstration of
-using the creation methods in the optimal ordemagla.Root.
+using the creation methods in the optimal order.
 
 Each creation method will return the created `MaglaEntity` or in the case that a record already
 exists, creation will abort and return the found record instead. To instead return an
 `EntityAlreadyExistsError`, you must call the `magla.Root.create` method directly and pass the
-'return_existing=False` parametemagla.Root.
+'return_existing=False` parameter
 
     example:
     ```
@@ -17,13 +17,13 @@ This functionality is demonstrated below where the name of the shot being create
 increment - meaning that running this script repeatedly will result in new shot and directory
 tree structures under the same project.
 """
-import magla
 import getpass
 import os
-import sys
 import random
 import string
+import sys
 
+import magla
 
 # Create Facility
 facility = magla.Root.create_facility("test_facility",
