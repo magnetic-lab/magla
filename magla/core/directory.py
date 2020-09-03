@@ -197,6 +197,22 @@ class MaglaDirectory(MaglaEntity):
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
         self._recursive_make_tree(self.path, self.tree or [])
+        
+    def bookmark(self, name):
+        """Retrieve and convert given bookmark to absolute path.
+
+        Parameters
+        ----------
+        name : str
+            The bookmark key name
+
+        Returns
+        -------
+        str
+            The absolute path of the bookmark, or the if it does not exist an absolute path is
+            created using the name as the relative path.
+        """
+        return os.path.join(self.path, self.bookmarks.get(name, name))
                 
     def _recursive_make_tree(self, root, sub_tree):
         """Recursively create the directory tree.

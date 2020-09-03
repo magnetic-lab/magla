@@ -182,6 +182,9 @@ class MaglaShot(MaglaEntity):
         """
         return self._data.record.versions[-1].num if self._data.record.versions else 0
 
+    def latest(self):
+        return self.version(self.latest_num)
+
     def version_up(self, magla_root_callback):
         """Create a new `MaglaShotVersion` record by incrementing from the latest version.\
 
