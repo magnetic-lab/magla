@@ -10,8 +10,8 @@ relationships behind it.
 """
 from .core import (Assignment, Config, Context, Data, Dependency, Directory,
                    Entity, Facility, FileType, Machine, Project, Root,
-                   Settings2D, Shot, ShotVersion, Timeline, Tool, ToolAlias,
-                   ToolConfig, ToolVersion, ToolVersionInstallation, User)
+                   Settings2D, Shot, ShotVersion, Timeline, Tool, ToolConfig,
+		   ToolVersion, ToolVersionInstallation, User)
 
 # register all sub-entities here
 Entity.__types__ = {
@@ -26,7 +26,6 @@ Entity.__types__ = {
 	"ShotVersion": ShotVersion,
  	"Timeline": Timeline,
 	"Tool": Tool,
-	"ToolAlias": ToolAlias,
 	"ToolConfig": ToolConfig,
 	"ToolVersion": ToolVersion,
 	"ToolVersionInstallation": ToolVersionInstallation,

@@ -16,7 +16,6 @@ from .shot import MaglaShot as Shot
 from .shot_version import MaglaShotVersion as ShotVersion
 from .timeline import MaglaTimeline as Timeline
 from .tool import MaglaTool as Tool
-from .tool_alias import MaglaToolAlias as ToolAlias
 from .tool_config import MaglaToolConfig as ToolConfig
 from .tool_version import MaglaToolVersion as ToolVersion
 from .tool_version_installation import \

@@ -13,7 +13,6 @@ from .shot import Shot
 from .shot_version import ShotVersion
 from .timeline import Timeline
 from .tool import Tool
-from .tool_alias import ToolAlias
 from .tool_config import ToolConfig
 from .tool_version import ToolVersion
 from .tool_version_installation import ToolVersionInstallation

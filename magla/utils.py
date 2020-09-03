@@ -99,8 +99,8 @@ def record_to_dict(record, convert_otio=True):
     """
     dict_ = {}
     "this method needs to retrieve dict from a mapped entity object."
-    for c in list(schema.__table__.c):
-        val = getattr(schema, c.name)
+    for c in list(record.__table__.c):
+        val = getattr(record, c.name)
         if convert_otio and is_otio_dict(val):
             val = dict_to_otio(val)
         dict_[c.name] = val
@@ -126,8 +126,8 @@ def dict_to_record(record, data, convert_otio=True):
     for key, val in data.items():
         if convert_otio and (isinstance(val, otio.core.SerializableObject)):
             val = otio_to_dict(val)
-        setattr(schema, key, val)
-    return schema
+        setattr(record, key, val)
+    return record
 
 def open_directory_location(target_path):
     """Open given target path using current operating system.

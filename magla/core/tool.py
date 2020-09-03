@@ -118,13 +118,13 @@ class MaglaTool(MaglaEntity):
         env_ = tool_config.get_tool_env()
         
         # tool exe
-        cmd_list = [tool_config.tool_version.installation(user.context.machine.id).exe_path]
+        cmd_list = [tool_config.tool_version.installation(user.context.machine.id).directory.bookmarks["exe"]]
         
         # shot version exe
         if not shot_version_id:
-            # check if the user has a matching shot and project set in their context
+            # check if the user has a matching shot_version and project set in their context
             if (not user.context.assignment) or \
-                    (not user.context.assignment.shot.project == tool_config.project):
+                    (user.context.assignment.shot.project.id != tool_config.project.id):
                 # check if user has any assignments for the tool_config project
                 valid_assignments = [a for a in user.assignments \
                     if a.project.id == tool_config.project.id]
@@ -134,15 +134,17 @@ class MaglaTool(MaglaEntity):
                     cmd_list.extend(list(*args))
                     return subprocess.Popen(cmd_list, shell=True, env=env_)
                 # valid assignment(s) found
-                shot_version_id = valid_assignments[-1].id  # TODO: automate this selection
+                shot_version_id = valid_assignments[-1].shot_version_id  # TODO: automate this selection
             else:
                 # valid shot context found
-                shot_version_id = user.context.shot.id
+                shot_version_id = user.context.shot_version.id
 
         shot_version = MaglaEntity.type("ShotVersion")(id=shot_version_id)
         # create the path to the current tools's exe inside the shot version directory
         file_name = shot_version.full_name  # file names are always full names
-        tool_subdir = os.path.join(shot_version.path, self.name)
+        tool_subdir = os.path.join(shot_version.directory.path, self.name)
+        if not os.path.isdir(tool_subdir):
+            os.makedirs(tool_subdir)
         ext = None
         for f in os.listdir(tool_subdir):
             if os.path.splitext(f)[0] == file_name:
@@ -166,13 +168,3 @@ class MaglaTool(MaglaEntity):
     def post_startup(self):
         """Perform any custom python scripts then any copy operations."""
         pass
-
-    def executeable(self):
-        """Get the path to the tool executeable for the current context settings."""
-        # get the path to the exe by combining version number and relative path
-        executeable = os.path.join(
-            MaglaPath.resolve("<{}_root>".format(self.name())),
-            str(self.version),
-            self.__tool.get("exe_relpath", "")
-        )
-        return executeable

@@ -7,7 +7,6 @@ creation methods for convenience.
 import os
 import re
 import uuid
-from pprint import pformat
 
 import opentimelineio as otio
 
@@ -31,11 +30,6 @@ from .tool_config import MaglaToolConfig
 from .tool_version import MaglaToolVersion
 from .tool_version_installation import MaglaToolVersionInstallation
 from .user import MaglaUser
-
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class MaglaRootError(MaglaError):
@@ -162,7 +156,7 @@ class MaglaRoot(object):
                 "machine_id": machine.id,
                 "label": machine.facility.settings["tool_install_directory_label"].format(
                     tool_version=tool_version),
-                "tree": {
+                "bookmarks": {
                     "exe": exe_path
                 }
             })
@@ -186,7 +180,7 @@ class MaglaRoot(object):
         magla.core.facility.Facility
             `MaglaFacility` object populated with newly created backend data
         """
-        if isinstance(data, basestring):
+        if isinstance(data, str):
             data = {"name": data}
         data.update(kwargs)
         return cls.create(MaglaFacility, data)
@@ -264,20 +258,23 @@ class MaglaRoot(object):
             `MaglaShot` object populated with newly created backend data
         """
         project = MaglaProject(id=project_id)
-        new_shot = cls.create(MaglaShot, {
-            "project_id": project.id,
-            "name": name,
-            "otio": otio_to_dict(otio.schema.Clip(name=name))
-        })
-        # generate the `shot` path from `custom_project_settings`
-        project_settings_shot_dir = new_shot.project.settings["shot_directory"]
-        new_directory = cls.create(MaglaDirectory, {
-            "path": project_settings_shot_dir.format(shot=new_shot),
-            "tree": project.settings.get("shot_directory_tree", []),
-            "machine_id": MaglaMachine().id
-        })
-        new_shot.data.directory_id = new_directory.id
-        new_shot.data.push()
+        try:
+            new_shot = MaglaShot(name=name)
+        except NoRecordFoundError:
+            new_shot = new_shot = cls.create(MaglaShot, {
+                "project_id": project.id,
+                "name": name,
+                "otio": otio_to_dict(otio.schema.Clip(name=name))
+            })
+            # generate the `shot` path from `custom_project_settings`
+            project_settings_shot_dir = new_shot.project.settings["shot_directory"]
+            new_directory = cls.create(MaglaDirectory, {
+                "path": project_settings_shot_dir.format(shot=new_shot),
+                "tree": project.settings.get("shot_directory_tree", []),
+                "machine_id": MaglaMachine().id
+            })
+            new_shot.data.directory_id = new_directory.id
+            new_shot.data.push()
         # do not use len(new_shot.versions) - too slow!
         if new_shot.latest_num < 1:
             # create initial template version 0
@@ -375,7 +372,7 @@ class MaglaRoot(object):
         magla.core.user.MaglaUser
             `MaglaUser` object populated with newly created backend data
         """
-        if isinstance(data, basestring):
+        if isinstance(data, str):
             data = {"nickname": data}
         new_user = cls.create(MaglaUser, data)
         # create default home directory for user
@@ -447,7 +444,7 @@ class MaglaRoot(object):
             `MaglaAssignment` object populated with newly created backend data
         """
         shot_version_id = MaglaShot(
-            id=shot_id).version_up(cls.version_up).data.id
+            id=shot_id).version_up(cls.version_up).id
         return cls.create(MaglaAssignment, {
             "shot_version_id": shot_version_id,
             "user_id": user_id
