@@ -50,7 +50,7 @@ class MaglaContext(MaglaEntity):
 
     # SQAlchemy relationship back-references
     @property
-    def machine(self, j=None):
+    def machine(self):
         """Retrieve related `MaglaMachine` back-reference.
 
         Returns
