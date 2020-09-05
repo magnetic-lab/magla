@@ -4,18 +4,14 @@ import getpass
 import logging
 import os
 import subprocess
-
-
+import sys
+from pprint import pformat
 
 from ..db.tool import Tool
-from .errors import MaglaError
 from .data import MaglaData
 from .entity import MaglaEntity
+from .errors import MaglaError
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 class MaglaToolError(MaglaError):
     """An error accured preventing MaglaTool to continue."""
@@ -26,10 +22,11 @@ class MaglaToolNameNotFound(MaglaError):
     def __init__(self, name):
         super(MaglaToolNameNotFound, self).__init__()
 
-        text_block = "<MaglaToolNameNotFound: The tool '{}' was not found!>".format(name)
+        text_block = "<MaglaToolNameNotFound: The tool '{}' was not found!>".format(
+            name)
         self.message = text_block
-        
-        
+
+
 class MaglaToolStartError(MaglaError):
     def __init__(self, *args, **kwargs):
         super(MaglaToolStartError, self).__init__(*args, **kwargs)
@@ -50,11 +47,11 @@ class MaglaTool(MaglaEntity):
         if isinstance(data, str):
             data = {"name": data}
         super(MaglaTool, self).__init__(self.SCHEMA, data or dict(kwargs))
-    
+
     @property
     def id(self):
         return self.data.id
-        
+
     @property
     def name(self):
         return self.data.name
@@ -66,8 +63,8 @@ class MaglaTool(MaglaEntity):
     @property
     def metadata(self):
         return self.data.metadata
-    
-    ##### SQAlchemy relationship back-references
+
+    # SQAlchemy relationship back-references
     @property
     def tool_configs(self):
         r = self.data.record.tool_configs
@@ -75,7 +72,7 @@ class MaglaTool(MaglaEntity):
             raise MaglaToolError(
                 "No 'configs' record found for {}!".format(self))
         return MaglaEntity.from_record(r)
-    
+
     @property
     def versions(self):
         r = self.data.record.versions
@@ -92,7 +89,7 @@ class MaglaTool(MaglaEntity):
                 "No 'aliases' record found for {}!".format(self))
         return [self.from_record(a) for a in r]
 
-    #### MaglaTool-specific methods ________________________________________________________________
+    # MaglaTool-specific methods ________________________________________________________________
     @property
     def configs(self):
         return self.tool_configs
@@ -100,12 +97,12 @@ class MaglaTool(MaglaEntity):
     @property
     def latest(self):
         return self.versions[-1]
-    
+
     @property
     def default_version(self):
         return self.latest
 
-    def start(self, tool_config=None, user=None, shot_version_id=None, *args):
+    def start(self, tool_config=None, user=None, assignment=None, *args):
         user = user or MaglaEntity.type("User")()
         tool_config = tool_config \
             or MaglaEntity.type("ToolConfig").from_user_context(self.id, user.context)
@@ -116,49 +113,29 @@ class MaglaTool(MaglaEntity):
             return subprocess.Popen([self.latest.installation(machine.id).directory.bookmarks["exe"]])
         user = user or MaglaEntity.type("User")()
         env_ = tool_config.get_tool_env()
-        
-        # tool exe
-        cmd_list = [tool_config.tool_version.installation(user.context.machine.id).directory.bookmarks["exe"]]
-        
-        # shot version exe
-        if not shot_version_id:
-            # check if the user has a matching shot_version and project set in their context
-            if (not user.context.assignment) or \
-                    (user.context.assignment.shot.project.id != tool_config.project.id):
-                # check if user has any assignments for the tool_config project
-                valid_assignments = [a for a in user.assignments \
-                    if a.project.id == tool_config.project.id]
-                if not valid_assignments:
-                    # should have output set to project-sandbox directory in facility_repo
-                    self.pre_startup()
-                    cmd_list.extend(list(*args))
-                    return subprocess.Popen(cmd_list, shell=True, env=env_)
-                # valid assignment(s) found
-                shot_version_id = valid_assignments[-1].shot_version_id  # TODO: automate this selection
-            else:
-                # valid shot context found
-                shot_version_id = user.context.shot_version.id
 
-        shot_version = MaglaEntity.type("ShotVersion")(id=shot_version_id)
-        # create the path to the current tools's exe inside the shot version directory
-        file_name = shot_version.full_name  # file names are always full names
-        tool_subdir = os.path.join(shot_version.directory.path, self.name)
-        if not os.path.isdir(tool_subdir):
-            os.makedirs(tool_subdir)
-        ext = None
-        for f in os.listdir(tool_subdir):
-            if os.path.splitext(f)[0] == file_name:
-                ext = os.path.splitext(f)[1]
-                file_name = file_name + ext
-        
-        # if an ext was found, save to db record
-        if ext:
-            tool_config.tool_version.data.file_extension = ext
-            tool_config.tool_version.data.push()
+        # tool exe
+        cmd_list = [tool_config.tool_version.installation(
+            user.context.machine.id).directory.bookmarks["exe"]]
 
         # copy any gizmos, desktops, preferences, etc needed before launching
         self.pre_startup()
-        cmd_list.append(os.path.join(tool_subdir, file_name))
+        assignment = assignment or user.assignments[-1]
+        project_file = tool_config.directory.bookmarks[tool_config.tool_version.full_name].format(
+            shot_version=assignment.shot_version,
+            tool_version=tool_config.tool_version
+        )
+        cmd_list.append(tool_config.directory.bookmark(tool_config.tool_version.full_name).format(
+            shot_version=assignment.shot_version))
+        sys.stdout.write("\n\nStarting {tool.name}:\n{assignment} ...\n\n".format(
+            assignment=pformat({
+              "Project": assignment.shot_version.project.name,
+              "Shot": assignment.shot.name,
+              "Version": assignment.shot_version.num
+            },
+            width=1),
+            tool=tool_config.tool
+        ))
         return subprocess.Popen(cmd_list, shell=False, env=env_)
 
     def pre_startup(self):
