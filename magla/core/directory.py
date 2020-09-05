@@ -188,6 +188,20 @@ class MaglaDirectory(MaglaEntity):
         return MaglaEntity.from_record(r)
 
     # MaglaDirectory-specific methods ______________________________________________________________
+    def bookmark(self, name):
+        """Retrieve and convert given bookmark to absolute path.
+        Parameters
+        ----------
+        name : str
+            The bookmark key name
+        Returns
+        -------
+        str
+            The absolute path of the bookmark, or the if it does not exist an absolute path is
+            created using the name as the relative path.
+        """
+        return os.path.join(self.path, self.bookmarks.get(name, name))
+    
     def open(self):
         """Open the directory location in the os file browser."""
         open_directory_location(self.path)

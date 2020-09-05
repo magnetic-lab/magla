@@ -82,6 +82,10 @@ class MaglaToolVersion(MaglaEntity):
         return [self.from_record(a) for a in r]
 
     # MaglaToolVersion-specific methods ____________________________________________________________
+    @property
+    def full_name(self):
+        return "{this.tool.name}_{this.string}".format(this=self)
+    
     def installation(self, machine_id):
         matches = [
             i for i in self.installations if i.directory.machine.id == machine_id]
@@ -90,3 +94,6 @@ class MaglaToolVersion(MaglaEntity):
         else:
             matches = None
         return matches
+    
+    def start(self):
+        self.tool.start(self.id)
