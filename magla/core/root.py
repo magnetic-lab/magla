@@ -6,6 +6,8 @@ creation methods for convenience.
 """
 import os
 import re
+import shutil
+import sys
 import uuid
 
 import opentimelineio as otio
@@ -65,6 +67,26 @@ class MaglaRoot(object):
             List of `MaglaEntity` objects
         """
         return cls.DB.all(entity)
+    
+    @staticmethod
+    def copy(src, dst):
+        """Perform a filesystem copy on a single file.
+
+        Parameters
+        ----------
+        src : str
+            Path to the source file to copy
+        dst : str
+            Path to the destination file to save as
+        """
+        try:
+            shutil.copy2(src, dst)
+            sys.stdout.write("\n\t{src} --> {dst}".format(
+                src=os.path.basename(src),
+                dst=os.path.basename(dst))
+            )
+        except FileNotFoundError:
+            sys.stdout.write("\n\t{src} not found, skipping..".format(src=os.path.basename(src)))
 
     @classmethod
     def create(cls, entity, data=None, return_existing=True):
@@ -285,10 +307,16 @@ class MaglaRoot(object):
         })
 
         # First we must retrieve and append all tool subtree information for current `Project`
-        tree = shot.project.settings["shot_version_directory_tree"]
-        bookmarks = shot.project.settings["shot_version_bookmarks"]
+        tree = shot.project.settings.get("shot_version_directory_tree", {})
+        bookmarks = shot.project.settings.get("shot_version_bookmarks", {})
         for tool_config in shot.project.tool_configs:
             tool_subdir = tool_config.directory.path.format(shot_version=new_shot_version)
+            tool_config_bookmarks = tool_config.directory.bookmarks
+            tool_config_bookmarks["project_file"] = \
+                tool_config.directory.bookmark("project_file").format(
+                    shot_version=new_shot_version
+                )
+            bookmarks.update(tool_config_bookmarks)
             tree.append({tool_subdir: tool_config.directory.tree})
 
         # apply `ToolConfig` trees
@@ -306,7 +334,7 @@ class MaglaRoot(object):
         new_shot_version.data.push()
 
         # now we can set the `media_reference`
-        reference = new_directory.bookmarks["representations"]["png_sequence"].format(
+        reference = new_directory.bookmarks["png_representation"].format(
             shot_version=new_shot_version
         )
 
@@ -475,14 +503,20 @@ class MaglaRoot(object):
         project = MaglaProject(id=project_id)
         tool_version = MaglaToolVersion(id=tool_version_id)
         tool_subdir = tool_subdir or "{tool_version.full_name}"
+
+        # format the `ToolConfig` tool-specific bookmark keys
+        formatted_keys_dict = {}
+        for key, val in bookmarks.items():
+            formatted_keys_dict[key.format(tool_version=tool_version)] = val
+        bookmarks = formatted_keys_dict
+        
         # create MaglaDirectory for the tool's shot_version subdirectory
         tool_subdir_abspath = os.path.join(
             project.settings["shot_version_directory"],
             tool_subdir.format(tool_version=tool_version, project=project))
         directory = cls.create(MaglaDirectory, {
-            "label": "{tool_name}_{tool_version} shot version subdirectory.".format(
-                tool_name=tool_version.tool.name,
-                tool_version=tool_version.string),
+            "label": "{tool_version.full_name} shot version subdirectory.".format(
+                tool_version=tool_version),
             "path": tool_subdir_abspath,
             "tree": directory_tree,
             "bookmarks": bookmarks
@@ -548,4 +582,49 @@ class MaglaRoot(object):
         magla.core.shot_version.MaglaShotVersion
             `MaglaShotVersion` object populated with newly created backend data
         """
-        return cls.create_shot_version(MaglaShot(id=shot_id), num)
+        shot = MaglaShot(id=shot_id)
+        prev_shot_version = shot.version(num-1)
+        new_shot_version = cls.create_shot_version(shot, num)
+        sys.stdout.write("\n{shot_version.project.name} shot {shot_version.shot.name} v{shot_version.num:03d} created successfully.".format(
+            shot_version=new_shot_version))
+        sys.stdout.write("\nCopying bookmarks...")
+        cls.__copy_directory(
+            src_directory=prev_shot_version.directory,
+            dst_directory=new_shot_version.directory,
+            src_vars={"shot_version": prev_shot_version},
+            dst_vars={"shot_version": new_shot_version})
+        for tool_config in shot.project.tool_configs:
+            cls.__copy_directory(
+                src_directory=tool_config.directory,
+                dst_directory=tool_config.directory,
+                src_vars={
+                    "shot_version": prev_shot_version,
+                    "tool_version": tool_config.tool_version},
+                dst_vars={
+                    "shot_version": new_shot_version,
+                    "tool_version": tool_config.tool_version}
+                )
+        return new_shot_version
+    
+    @classmethod
+    def __copy_directory(cls, src_directory, dst_directory, src_vars=None, dst_vars=None):
+        """Copy source directory bookmarked files to destination directory bookmarked locations.
+
+        Parameters
+        ----------
+        src_directory : magla.core.directory.MaglaDirectory
+            Source directory whos bookmarked contents are to be copied
+        dst_directory : magla.core.directory.MaglaDirectory
+            Destination directory whos bookmarked locations are to be  matched and used
+        src_vars : dict, optional
+            Variables to be used for string-formatting, by default None
+        dst_vars : dict, optional
+            Variables to be used for string-formatting, by default None
+        """
+        for key, val in dst_directory.bookmarks.items():
+            src_preformatted = src_directory.bookmark(key).format(**src_vars)
+            dst_preformatted = dst_directory.bookmark(key).format(**dst_vars)
+            cls.copy(
+                src=src_preformatted.format(**src_vars),
+                dst=dst_preformatted.format(**dst_vars)
+            )

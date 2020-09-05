@@ -121,19 +121,20 @@ class MaglaTool(MaglaEntity):
         # copy any gizmos, desktops, preferences, etc needed before launching
         self.pre_startup()
         assignment = assignment or user.assignments[-1]
-        project_file = tool_config.directory.bookmarks["project_file"].format(
+        project_file = tool_config.directory.bookmarks[tool_config.tool_version.full_name].format(
             shot_version=assignment.shot_version,
             tool_version=tool_config.tool_version
         )
-        cmd_list.append(tool_config.directory.bookmark("project_file").format(
+        cmd_list.append(tool_config.directory.bookmark(tool_config.tool_version.full_name).format(
             shot_version=assignment.shot_version))
-        sys.stdout.write("\n\tStarting:\n{} ...\n\n".format(
-            pformat({
+        sys.stdout.write("\n\nStarting {tool.name}:\n{assignment} ...\n\n".format(
+            assignment=pformat({
               "Project": assignment.shot_version.project.name,
               "Shot": assignment.shot.name,
               "Version": assignment.shot_version.num
             },
-            width=1)
+            width=1),
+            tool=tool_config.tool
         ))
         return subprocess.Popen(cmd_list, shell=False, env=env_)
 
