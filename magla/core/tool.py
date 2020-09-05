@@ -96,45 +96,63 @@ class MaglaTool(MaglaEntity):
 
     @property
     def latest(self):
+        if not self.versions:
+            return None
         return self.versions[-1]
 
     @property
     def default_version(self):
         return self.latest
 
-    def start(self, tool_config=None, user=None, assignment=None, *args):
+    def start(self, tool_version_id=None, tool_config=None, user=None, assignment=None, *args):
+        # establish user whos context to use
         user = user or MaglaEntity.type("User")()
+        
+        # establish which tool config if any, to use
         tool_config = tool_config \
             or MaglaEntity.type("ToolConfig").from_user_context(self.id, user.context)
-        # if not tool config, open latest installation of tool with empty scene.
+
+        # if no tool config can be established, start tool in vanilla mode.
+        tool_version = self.latest
         if not tool_config:
             machine = MaglaEntity.type("Machine")()
-            MaglaToolStartError("No tool config!")
-            return subprocess.Popen([self.latest.installation(machine.id).directory.bookmarks["exe"]])
-        user = user or MaglaEntity.type("User")()
+            return subprocess.Popen([tool_version.installation(machine.id).directory.bookmarks["exe"]])
+        
+        # establish which tool version to launch
+        if tool_version_id:
+            tool_version = MaglaEntity.type("ToolVersion")(id=tool_version_id)
+        elif tool_config:
+            tool_version = tool_config.tool_version
+
+        # establish environment to inject
         env_ = tool_config.get_tool_env()
 
-        # tool exe
-        cmd_list = [tool_config.tool_version.installation(
-            user.context.machine.id).directory.bookmarks["exe"]]
+        # establish path to tool executeable
+        tool_exe = tool_version.installation(
+            user.context.machine.id).directory.bookmarks["exe"]
+        
+        # begin command list to be sent to `subprocess`
+        cmd_list = [tool_exe]
 
         # copy any gizmos, desktops, preferences, etc needed before launching
         self.pre_startup()
         assignment = assignment or user.assignments[-1]
-        project_file = tool_config.directory.bookmarks[tool_config.tool_version.full_name].format(
-            shot_version=assignment.shot_version,
-            tool_version=tool_config.tool_version
-        )
-        cmd_list.append(tool_config.directory.bookmark(tool_config.tool_version.full_name).format(
-            shot_version=assignment.shot_version))
-        sys.stdout.write("\n\nStarting {tool.name}:\n{assignment} ...\n\n".format(
+        
+        # establish the tool-specific project file to be opened
+        project_file = tool_config.directory.bookmark(tool_config.tool_version.full_name).format(
+            shot_version=assignment.shot_version)
+        cmd_list.append(project_file)
+        
+        # TODO: replace with `logging`
+        sys.stdout.write("\n\nStarting {tool.name} {tool_version.string}:\n{assignment} ...\n\n".format(
             assignment=pformat({
               "Project": assignment.shot_version.project.name,
               "Shot": assignment.shot.name,
               "Version": assignment.shot_version.num
             },
             width=1),
-            tool=tool_config.tool
+            tool=tool_config.tool,
+            tool_version=tool_version
         ))
         return subprocess.Popen(cmd_list, shell=False, env=env_)
 

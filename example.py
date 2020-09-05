@@ -43,7 +43,7 @@ settings_2d = magla.Root.create(magla.Settings2D, {
 })
 
 # Create Project
-project_test = magla.Root.create_project("project_test", "/mnt/projects/test",
+test_project = magla.Root.create_project("test_project", "/mnt/projects/test_project",
     settings={
         "project_directory": "/mnt/projects/{project.name}",
         "project_directory_tree": [
@@ -53,15 +53,16 @@ project_test = magla.Root.create_project("project_test", "/mnt/projects/test",
                 {"mood": []},
                 {"reference": []},
                 {"edit": []}]
-            }],
-        "frame_sequence_re": r"(\w+\W)(\#+)(.+)",  # (prefix)(frame-padding)(suffix)
+                }],
+        # (prefix)(frame-padding)(suffix)
+        "frame_sequence_re": r"(\w+\W)(\#+)(.+)",
         "shot_directory": "{shot.project.directory.path}/shots/{shot.name}",
         "shot_directory_tree": [
             {"_current": [
                 {"h265": []},
                 {"png": []},
                 {"webm": []}]
-            }],
+                }],
         "shot_version_directory": "{shot_version.shot.directory.path}/{shot_version.num}",
         "shot_version_directory_tree": [
             {"_in": [
@@ -73,8 +74,8 @@ project_test = magla.Root.create_project("project_test", "/mnt/projects/test",
                     {"exr": []},
                     {"png": []},
                     {"mov": []}]
-                }]
-            }],
+                    }]
+                }],
         "shot_version_bookmarks": {
             "png_representation": "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
         }
@@ -93,7 +94,7 @@ natron_2 = magla.Root.create_tool(
 # Create ToolConfig in order to have tool-specific subdirs and launch settings
 natron_tool_config = magla.Root.create_tool_config(
     tool_version_id=natron_2.id,
-    project_id=project_test.id,
+    project_id=test_project.id,
     tool_subdir="{tool_version.full_name}",
     bookmarks={
         "{tool_version.full_name}": "{shot_version.full_name}.ntp"
@@ -119,7 +120,7 @@ houdini_18 = magla.Root.create_tool(
 
 houdini_tool_config = magla.Root.create_tool_config(
     tool_version_id=houdini_18.id,
-    project_id=project_test.id,
+    project_id=test_project.id,
     tool_subdir="{tool_version.full_name}",
     bookmarks={
         "{tool_version.full_name}": "{shot_version.full_name}.hipnc"
@@ -134,16 +135,26 @@ houdini_tool_config = magla.Root.create_tool_config(
     ]
 )
 
+# create modo tool
 modo_14_1v1 = magla.Root.create_tool(
     tool_name="modo",
     install_dir="/opt/Modo14.1v1",
     exe_path="/opt/Modo14.1v1/modo",
     version_string="14.1v1",
-    file_extension=".lxo")
+    file_extension=".lxo"
+)
+
+# create new modo tool version
+modo_14_1v2 = magla.Root.create_tool_version(
+    tool_id=modo_14_1v1.tool.id,
+    version_string="14.1v2",
+    install_dir="/opt/Modo14.1v2",
+    exe_path="/opt/Modo14.1v2/modo"    
+)
 
 modo_tool_config = magla.Root.create_tool_config(
     tool_version_id=modo_14_1v1.id,
-    project_id=project_test.id,
+    project_id=test_project.id,
     tool_subdir="{tool_version.full_name}",
     bookmarks={
         "{tool_version.full_name}": "{shot_version.full_name}.lxo"
@@ -159,10 +170,12 @@ modo_tool_config = magla.Root.create_tool_config(
 )
 
 # Create Shot
-shot = magla.Root.create_shot(project_id=project_test.id, name="test_shot")
+shot = magla.Root.create_shot(
+    project_id=test_project.id, name="test_shot")
 
 # Create User
-user = magla.Root.create_user(getpass.getuser())  # `magla` user nickname must match the OS's user name
+# `magla` user nickname must match the OS's user name
+user = magla.Root.create_user(getpass.getuser())
 
 # Create Assignment
 assignment = magla.Root.create_assignment(
@@ -180,12 +193,17 @@ magla.Root.all(magla.ShotVersion)
 magla.Root.all(magla.Directory)
 
 # Building and exporting timelines
-t = project_test.timeline
+t = test_project.timeline
 # current process is sending list of `MaglaShot` objects to `build` method
-t.build(project_test.shots)
+t.build(test_project.shots)
 # `MaglaShot` objects include a 'track_index' and 'start_time_in_parent' property which are
 #  external to `opentimlineio` but used by `magla` for automatic building. This implementation
 #  may change.
-t.otio.to_json_file("project_test.json")
+t.otio.to_json_file("test_project.json")
 
+# tools can be launched from `MaglaTool` or `MaglaToolVersion` instances
 houdini_18.tool.start()
+# by calling `start` from the tool, version will be derrived from user's context
+modo_14_1v2.tool.start()
+# alternitively, calling `start` directly from the tool version, that version will override configs
+modo_14_1v2.start()

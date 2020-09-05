@@ -84,10 +84,7 @@ class MaglaToolVersion(MaglaEntity):
     # MaglaToolVersion-specific methods ____________________________________________________________
     @property
     def full_name(self):
-        return "{tool_name}_{tool_version_string}".format(
-            tool_name=self.tool.name,
-            tool_version_string=self.string
-        )
+        return "{this.tool.name}_{this.string}".format(this=self)
     
     def installation(self, machine_id):
         matches = [

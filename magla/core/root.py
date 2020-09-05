@@ -404,48 +404,12 @@ class MaglaRoot(object):
         """
         # check if given `tool_name` already exists
         try:
-            tool_obj = MaglaTool(name=tool_name)
-            tool_id = tool_obj.data.id
+            tool = MaglaTool(name=tool_name)
         except NoRecordFoundError:
-            tool_id = cls.create(MaglaTool, {
+            tool = cls.create(MaglaTool, {
                 "name": tool_name
-            }).data.id
-
-        # check if a `tool_versions` record already exists for given `version_string`
-        try:
-            tool_version = MaglaToolVersion(
-                string=version_string, tool_id=tool_id)
-        except NoRecordFoundError:
-            tool_version = cls.create(MaglaToolVersion, {
-                "string": version_string,
-                "tool_id": tool_id,
-                "file_extension": file_extension
             })
-
-        # check if a `tool_version_installations` record already exists for given `install_dir`
-        try:
-            tool_version_installation = MaglaToolVersionInstallation(
-                directory_id=MaglaDirectory(machine_id=MaglaMachine().id, path=install_dir).id)
-        except NoRecordFoundError:
-            if machine_id:
-                machine = MaglaMachine(id=machine_id)
-            else:
-                machine = MaglaMachine()
-            # create/retrieve a MaglaDirectory object required for record creation
-            install_directory = cls.create(MaglaDirectory, {
-                "path": install_dir,
-                "machine_id": machine.id,
-                "label": machine.facility.settings["tool_install_directory_label"].format(
-                    tool_version=tool_version),
-                "bookmarks": {
-                    "exe": exe_path
-                }
-            })
-            tool_version_installation = cls.create(MaglaToolVersionInstallation, {
-                "tool_version_id": tool_version.id,
-                "directory_id": install_directory.id
-            })
-        return tool_version
+        return cls.create_tool_version(tool.id, version_string, install_dir, exe_path, file_extension)
 
     @classmethod
     def create_tool_config(
@@ -528,6 +492,41 @@ class MaglaRoot(object):
         }
         data.update(dict(kwargs))
         return cls.create(MaglaToolConfig, data)
+    
+    @classmethod
+    def create_tool_version(cls, tool_id, version_string, install_dir, exe_path, file_extension=None):
+        # check if a `tool_versions` record already exists for given `version_string`
+        try:
+            tool_version = MaglaToolVersion(
+                string=version_string, tool_id=tool_id)
+        except NoRecordFoundError:
+            tool_version = cls.create(MaglaToolVersion, {
+                "string": version_string,
+                "tool_id": tool_id,
+                "file_extension": file_extension or MaglaTool(id=tool_id).latest.file_extension,
+            })
+        # check if a `tool_version_installations` record already exists for given `install_dir`
+        try:
+            tool_version_installation = MaglaToolVersionInstallation(
+                directory_id=MaglaDirectory(machine_id=MaglaMachine().id, path=install_dir).id)
+        except NoRecordFoundError:
+            machine = MaglaMachine()
+            # create/retrieve a MaglaDirectory object required for record creation
+            install_directory = cls.create(MaglaDirectory, {
+                "path": install_dir,
+                "machine_id": machine.id,
+                "label": machine.facility.settings["tool_install_directory_label"].format(
+                    tool_version=tool_version),
+                "bookmarks": {
+                    "exe": exe_path
+                }
+            })
+            tool_version_installation = cls.create(MaglaToolVersionInstallation, {
+                "tool_version_id": tool_version.id,
+                "directory_id": install_directory.id
+            })
+
+        return tool_version
 
     @classmethod
     def create_user(cls, data):
@@ -588,12 +587,14 @@ class MaglaRoot(object):
         sys.stdout.write("\n{shot_version.project.name} shot {shot_version.shot.name} v{shot_version.num:03d} created successfully.".format(
             shot_version=new_shot_version))
         sys.stdout.write("\nCopying bookmarks...")
+        # copy shot_version bookmarks
         cls.__copy_directory(
             src_directory=prev_shot_version.directory,
             dst_directory=new_shot_version.directory,
             src_vars={"shot_version": prev_shot_version},
             dst_vars={"shot_version": new_shot_version})
         for tool_config in shot.project.tool_configs:
+            # copy tool_config  bookmarks
             cls.__copy_directory(
                 src_directory=tool_config.directory,
                 dst_directory=tool_config.directory,
