@@ -64,11 +64,15 @@ class MaglaEntity(object):
                 ```
         """
         data = self._data.dict()
+        id_ = self.id
+        if "id" in data:
+            del(data["id"])
         entity_type = self.data.record.__class__.__name__
         keys_n_vals = ["{0}={1}".format(*tup) for tup in data.items()]
 
-        return "<{entity_type}: {keys_n_vals}>".format(
+        return "<{entity_type} {id}: {keys_n_vals}>".format(
             entity_type=entity_type,
+            id=id_,
             keys_n_vals=", ".join(keys_n_vals))
 
     def __repr__(self):

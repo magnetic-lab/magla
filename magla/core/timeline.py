@@ -106,6 +106,8 @@ class MaglaTimeline(MaglaEntity):
         shots = sorted(shots, key=lambda shot: shot.id)
         for shot in shots:
             self.insert_shot(shot)
+        
+        return self
 
     def insert_shot(self, shot):
         """Insert given shot into timeline.

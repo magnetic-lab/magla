@@ -40,8 +40,8 @@ class MaglaProject(MaglaEntity):
     
     Example:
         ```
-        new_project = magla.Root.create_project("project_foo",
-            settings = {
+        project_neptune = magla.Root.create_project("neptune", "/mnt/projects/neptune",
+            settings={
                 "project_directory": "/mnt/projects/{project.name}",
                 "project_directory_tree": [
                     {"shots": []},
@@ -50,28 +50,35 @@ class MaglaProject(MaglaEntity):
                         {"mood": []},
                         {"reference": []},
                         {"edit": []}]
-                    }],
-                "frame_sequence_re": r"(\w+\W)(\#+)(.+)",  # (prefix)(frame-padding)(suffix)
+                        }],
+                # (prefix)(frame-padding)(suffix)
+                "frame_sequence_re": r"(\w+\W)(\#+)(.+)",
                 "shot_directory": "{shot.project.directory.path}/shots/{shot.name}",
-                "shot_directory_tree": [
+                "shot_directory_tree": [],
                     {"_current": [
-                        {"h265": []},
-                        {"png": []},
-                        {"webm": []}]
-                    }],
+                         {"h265": []},
+                         {"png": []},
+                         {"webm": []}]
+                         }],
                 "shot_version_directory": "{shot_version.shot.directory.path}/{shot_version.num}",
                 "shot_version_directory_tree": [
+                    {"_in": [
+                        {"plate": []},
+                        {"subsets": []}
+                    ]},
                     {"_out": [
-                        {"exr": []},
-                        {"png": []}]
-                    }],
+                        {"representations": [
+                            {"exr": []},
+                            {"png": []},
+                            {"mov": []}]
+                            }]
+                        }],
                 "shot_version_bookmarks": {
-                    "representations": {
-                        "png_sequence": "{shot_version.directory.path}/_out/png/{shot_version.full_name}.####.png"
-                    }
+                    "png_representation": "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
                 }
-            }
-        )
+            },
+            settings_2d_id=settings_2d.id
+            )
         ```
     
     Notice the use of string-formatting tokens in some of the strings. For now the above token
@@ -254,6 +261,9 @@ class MaglaProject(MaglaEntity):
             The retrieved `MaglaShot` or None
         """
         return MaglaShot(project_id=self.data.id, name=name)
+    
+    def add_shot(self, name, callback):
+        return callback(project_id=self.id, name=name)
 
     def add_tool_config(self, tool_id, tool_version_id=None, **kwargs):
         """Create a new `MaglaToolConfig` object for this project.

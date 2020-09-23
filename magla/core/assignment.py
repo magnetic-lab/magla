@@ -28,6 +28,12 @@ class MaglaAssignment(MaglaEntity):
         """
         super(MaglaAssignment, self).__init__(
             self.SCHEMA, data or dict(kwargs))
+        
+    def __repr__(self):
+        return "<Assignment {this.id}: {this.shot_version}, {this.user}>".format(this=self)
+        
+    def __str__(self):
+        return self.__repr__()
 
     @property
     def id(self):

@@ -170,3 +170,13 @@ class MaglaUser(MaglaEntity):
             if d.label == label:
                 return d
         return None
+    
+    def permissions(self): 
+        """TODO: make a permissions validation request to external API endpoint.   
+
+        Returns
+        -------
+        dict
+            Permissions dict
+        """
+        return {}

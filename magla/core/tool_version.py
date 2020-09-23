@@ -94,3 +94,6 @@ class MaglaToolVersion(MaglaEntity):
         else:
             matches = None
         return matches
+    
+    def start(self):
+        self.tool.start(self.id)

@@ -8,6 +8,8 @@ associated.
 import getpass
 import logging
 import os
+import shutil
+import sys
 
 from ..db.directory import Directory
 from ..utils import open_directory_location
@@ -249,3 +251,10 @@ class MaglaDirectory(MaglaEntity):
                     continue
             if v:
                 self._recursive_make_tree(root=os.path.join(root, k), sub_tree=v)
+                
+    def delete_tree(self):
+        try:
+            shutil.rmtree(self.path)
+        except OSError:
+            raise
+        sys.stdout.write("Deleted directory tree at: '{0}'".format(self.path))
