@@ -4,3 +4,4 @@ magla_facility_repo/*
 venv/*
 wenv/*
 .vscode/*
+*.orig

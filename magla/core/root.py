@@ -44,18 +44,20 @@ class EntityAlreadyExistsError(MaglaRootError):
 
 class MaglaRoot(object):
     """Permissions-aware interface for creation and deletion within `magla`."""
+
+    CREDENTIALS = ""
     DB = MaglaORM
     
     def __init__(self, *args, **kwargs):
         self._db = self.DB(*args, **kwargs)
         self._permissions = MaglaUser().permissions()
-        
-    @property
-    def db(self):
-        return self._db
 
     def __repr__(self):
         return "<MaglaRoot: database={database}>".format(database=self.db.SESSION.bind.url)
+    
+    @property
+    def db(self):
+        return self._db
 
     def all(self, entity):
         """Retrieve all records for given `Entity`-type.
@@ -400,12 +402,48 @@ class MaglaRoot(object):
         """
         # check if given `tool_name` already exists
         try:
-            tool = MaglaTool(name=tool_name)
+            tool_obj = MaglaTool(name=tool_name)
+            tool_id = tool_obj.data.id
         except NoRecordFoundError:
-            tool = self.create(MaglaTool, {
+            tool_id = self.create(MaglaTool, {
                 "name": tool_name
+            }).data.id
+
+        # check if a `tool_versions` record already exists for given `version_string`
+        try:
+            tool_version = MaglaToolVersion(
+                string=version_string, tool_id=tool_id)
+        except NoRecordFoundError:
+            tool_version = self.create(MaglaToolVersion, {
+                "string": version_string,
+                "tool_id": tool_id,
+                "file_extension": file_extension
             })
-        return self.create_tool_version(tool.id, version_string, install_dir, exe_path, file_extension)
+
+        # check if a `tool_version_installations` record already exists for given `install_dir`
+        try:
+            tool_version_installation = MaglaToolVersionInstallation(
+                directory_id=MaglaDirectory(machine_id=MaglaMachine().id, path=install_dir).id)
+        except NoRecordFoundError:
+            if machine_id:
+                machine = MaglaMachine(id=machine_id)
+            else:
+                machine = MaglaMachine()
+            # create/retrieve a MaglaDirectory object required for record creation
+            install_directory = self.create(MaglaDirectory, {
+                "path": install_dir,
+                "machine_id": machine.id,
+                "label": machine.facility.settings["tool_install_directory_label"].format(
+                    tool_version=tool_version),
+                "bookmarks": {
+                    "exe": exe_path
+                }
+            })
+            tool_version_installation = self.create(MaglaToolVersionInstallation, {
+                "tool_version_id": tool_version.id,
+                "directory_id": install_directory.id
+            })
+        return tool_version
 
     def create_tool_config(
                 self,

@@ -23,7 +23,7 @@ class MaglaFileType(MaglaEntity):
         if (not data and not kwargs):
             data = {"nickname": MaglaFileType.current()}
 
-        super(MaglaFileType, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaFileType, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

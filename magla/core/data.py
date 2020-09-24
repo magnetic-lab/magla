@@ -48,7 +48,7 @@ class CustomDict(MutableMapping):
         User-created keys and values
     """
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters

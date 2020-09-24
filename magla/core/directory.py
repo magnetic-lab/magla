@@ -89,7 +89,7 @@ class MaglaDirectory(MaglaEntity):
     """
     SCHEMA = Directory
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -97,7 +97,7 @@ class MaglaDirectory(MaglaEntity):
         data : dict, optional
             Data to query for matching backend record
         """
-        super(MaglaDirectory, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaDirectory, self).__init__(self.SCHEMA, data, **kwargs)
         
     def __repr__(self):
         return self.path

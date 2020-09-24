@@ -21,7 +21,7 @@ class MaglaShot(MaglaEntity):
     """Provide an interface for shot properties and assignment."""
     SCHEMA = Shot
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -31,7 +31,7 @@ class MaglaShot(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaShot, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaShot, self).__init__(self.SCHEMA, data, **kwargs)
         if self.versions:
             self.otio.media_reference = self.versions[-1].otio
         else:

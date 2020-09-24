@@ -21,7 +21,7 @@ class MaglaEntity(object):
     This class should be subclassed and never instantiated on its own.
     """
 
-    def __init__(self, record, data, **kwargs):
+    def __init__(self, record, data=None, **kwargs):
         """Initialize with record definition, data, and supplimental kwargs as key-value pairs.
 
         Parameters
@@ -36,12 +36,13 @@ class MaglaEntity(object):
         BadArgumentError
             [description]
         """
+        if kwargs:
+            data = data or {}
+            # if kwargs were supplied add them as k/v pairs to data
+            for k, v in dict(kwargs).items():
+                data[k] = v
         if not isinstance(data, MaglaData):
             data = MaglaData(record, data, MaglaORM.SESSION)
-        if kwargs:
-            # if kwargs were supplied add them as k/v pairs to data
-                for k, v in dict(kwargs).items():
-                    data[k] = v
         if not isinstance(data, MaglaData):
             raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
                 "Received: \n\t{received} ({type_received})".format(

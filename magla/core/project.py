@@ -1,6 +1,8 @@
 """Projects dictate the settings associated to content output and creation, as well as serve as the
     defining point for shots, tasks and tools.
 """
+import re
+
 from opentimelineio.adapters import write_to_file
 
 from ..db.project import Project
@@ -106,7 +108,7 @@ class MaglaProject(MaglaEntity):
     """
     SCHEMA = Project
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -116,7 +118,7 @@ class MaglaProject(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaProject, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaProject, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):
@@ -260,6 +262,11 @@ class MaglaProject(MaglaEntity):
         magla.core.shot.MaglaShot
             The retrieved `MaglaShot` or None
         """
+        for shot_name in [s.name for s in self.shots]:
+            match = re.search(re.escape(name), shot_name)
+            if match:
+                name = shot_name
+                break
         return MaglaShot(project_id=self.data.id, name=name)
     
     def add_shot(self, name, callback):

@@ -25,7 +25,7 @@ class MaglaUser(MaglaEntity):
         if (not data and not kwargs):
             data = {"nickname": MaglaUser.current()}
 
-        super(MaglaUser, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaUser, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

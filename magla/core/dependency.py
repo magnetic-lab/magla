@@ -22,7 +22,7 @@ class MaglaDependency(MaglaEntity):
     """Provide an interface for configuring dependency settings."""
     SCHEMA = Dependency
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -30,7 +30,7 @@ class MaglaDependency(MaglaEntity):
         data : dict, optional
             Data to query for matching backend record
         """
-        super(MaglaDependency, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaDependency, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

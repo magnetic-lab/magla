@@ -31,7 +31,7 @@ class MaglaTimeline(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaTimeline, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaTimeline, self).__init__(self.SCHEMA, data, **kwargs)
 
     def __str__(self):
         """Overwrite the default string representation.

@@ -23,10 +23,9 @@ class MaglaToolVersion(MaglaEntity):
     """"""
     SCHEMA = ToolVersion
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """"""
-        super(MaglaToolVersion, self).__init__(
-            self.SCHEMA, data or dict(kwargs))
+        super(MaglaToolVersion, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

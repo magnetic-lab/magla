@@ -27,7 +27,7 @@ class MaglaContext(MaglaEntity):
     """Provide an interface for manipulating `contexts` tables."""
     SCHEMA = Context
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -35,7 +35,7 @@ class MaglaContext(MaglaEntity):
         data : dict, optional
             Data to query for matching backend record
         """
-        super(MaglaContext, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaContext, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):
