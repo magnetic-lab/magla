@@ -22,7 +22,7 @@ class MaglaMachine(MaglaEntity):
     """Provide an interface to perform administrative tasks on a machine."""
     SCHEMA = Machine
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -34,7 +34,7 @@ class MaglaMachine(MaglaEntity):
             data = {"uuid": str(uuid.UUID(int=uuid.getnode()))}
         elif isinstance(data, uuid.UUID) or isinstance(data, str):
             data = {"uuid": str(data)}
-        super(MaglaMachine, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaMachine, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

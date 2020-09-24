@@ -11,7 +11,7 @@ class MaglaFacility(MaglaEntity):
     """Provide an interface for Facility-level administrative tasks."""
     SCHEMA = Facility
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -21,7 +21,7 @@ class MaglaFacility(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaFacility, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaFacility, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

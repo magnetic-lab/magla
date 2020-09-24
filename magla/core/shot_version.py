@@ -14,7 +14,7 @@ class MaglaShotVersion(MaglaEntity):
     """Provide an interface to the `subsets` of this shot version and its filesystem details."""
     SCHEMA = ShotVersion
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -24,6 +24,13 @@ class MaglaShotVersion(MaglaEntity):
         """
         super(MaglaShotVersion, self).__init__(
             self.SCHEMA, data or dict(kwargs))
+        
+    def __repr__(self):
+        return "<ShotVersion {this.id}: full_name={this.full_name}, directory={this.directory}>". \
+            format(this=self)
+        
+    def __str__(self):
+        return self.__repr__()
 
     @property
     def id(self):

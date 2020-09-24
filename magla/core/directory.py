@@ -8,6 +8,8 @@ associated.
 import getpass
 import logging
 import os
+import shutil
+import sys
 
 from ..db.directory import Directory
 from ..utils import open_directory_location
@@ -87,7 +89,7 @@ class MaglaDirectory(MaglaEntity):
     """
     SCHEMA = Directory
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -95,7 +97,7 @@ class MaglaDirectory(MaglaEntity):
         data : dict, optional
             Data to query for matching backend record
         """
-        super(MaglaDirectory, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaDirectory, self).__init__(self.SCHEMA, data, **kwargs)
         
     def __repr__(self):
         return self.path
@@ -211,6 +213,22 @@ class MaglaDirectory(MaglaEntity):
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
         self._recursive_make_tree(self.path, self.tree or [])
+        
+    def bookmark(self, name):
+        """Retrieve and convert given bookmark to absolute path.
+
+        Parameters
+        ----------
+        name : str
+            The bookmark key name
+
+        Returns
+        -------
+        str
+            The absolute path of the bookmark, or the if it does not exist an absolute path is
+            created using the name as the relative path.
+        """
+        return os.path.join(self.path, self.bookmarks.get(name, name))
                 
     def _recursive_make_tree(self, root, sub_tree):
         """Recursively create the directory tree.
@@ -233,3 +251,10 @@ class MaglaDirectory(MaglaEntity):
                     continue
             if v:
                 self._recursive_make_tree(root=os.path.join(root, k), sub_tree=v)
+                
+    def delete_tree(self):
+        try:
+            shutil.rmtree(self.path)
+        except OSError:
+            raise
+        sys.stdout.write("Deleted directory tree at: '{0}'".format(self.path))

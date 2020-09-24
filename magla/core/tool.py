@@ -43,10 +43,10 @@ class MaglaTool(MaglaEntity):
     """
     SCHEMA = Tool
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaTool, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaTool, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

@@ -31,7 +31,7 @@ class MaglaTimeline(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaTimeline, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaTimeline, self).__init__(self.SCHEMA, data, **kwargs)
 
     def __str__(self):
         """Overwrite the default string representation.
@@ -106,6 +106,8 @@ class MaglaTimeline(MaglaEntity):
         shots = sorted(shots, key=lambda shot: shot.id)
         for shot in shots:
             self.insert_shot(shot)
+        
+        return self
 
     def insert_shot(self, shot):
         """Insert given shot into timeline.

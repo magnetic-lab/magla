@@ -33,13 +33,13 @@ class MaglaToolVersionInstallation(MaglaEntity):
     """
     SCHEMA = ToolVersionInstallation
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with a name for the tool
         :param tool_name: name of the tool to initialize
         :type tool_name: str
         :raise MaglaToolVersionInstallationNameNotFound: No tool name, or nicknames found
         """
-        super(MaglaToolVersionInstallation, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaToolVersionInstallation, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):

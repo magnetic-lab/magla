@@ -1,6 +1,8 @@
 """Projects dictate the settings associated to content output and creation, as well as serve as the
     defining point for shots, tasks and tools.
 """
+import re
+
 from opentimelineio.adapters import write_to_file
 
 from ..db.project import Project
@@ -40,8 +42,8 @@ class MaglaProject(MaglaEntity):
     
     Example:
         ```
-        new_project = magla.Root.create_project("project_foo",
-            settings = {
+        project_neptune = magla.Root.create_project("neptune", "/mnt/projects/neptune",
+            settings={
                 "project_directory": "/mnt/projects/{project.name}",
                 "project_directory_tree": [
                     {"shots": []},
@@ -50,28 +52,35 @@ class MaglaProject(MaglaEntity):
                         {"mood": []},
                         {"reference": []},
                         {"edit": []}]
-                    }],
-                "frame_sequence_re": r"(\w+\W)(\#+)(.+)",  # (prefix)(frame-padding)(suffix)
+                        }],
+                # (prefix)(frame-padding)(suffix)
+                "frame_sequence_re": r"(\w+\W)(\#+)(.+)",
                 "shot_directory": "{shot.project.directory.path}/shots/{shot.name}",
-                "shot_directory_tree": [
+                "shot_directory_tree": [],
                     {"_current": [
-                        {"h265": []},
-                        {"png": []},
-                        {"webm": []}]
-                    }],
+                         {"h265": []},
+                         {"png": []},
+                         {"webm": []}]
+                         }],
                 "shot_version_directory": "{shot_version.shot.directory.path}/{shot_version.num}",
                 "shot_version_directory_tree": [
+                    {"_in": [
+                        {"plate": []},
+                        {"subsets": []}
+                    ]},
                     {"_out": [
-                        {"exr": []},
-                        {"png": []}]
-                    }],
+                        {"representations": [
+                            {"exr": []},
+                            {"png": []},
+                            {"mov": []}]
+                            }]
+                        }],
                 "shot_version_bookmarks": {
-                    "representations": {
-                        "png_sequence": "{shot_version.directory.path}/_out/png/{shot_version.full_name}.####.png"
-                    }
+                    "png_representation": "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
                 }
-            }
-        )
+            },
+            settings_2d_id=settings_2d.id
+            )
         ```
     
     Notice the use of string-formatting tokens in some of the strings. For now the above token
@@ -99,7 +108,7 @@ class MaglaProject(MaglaEntity):
     """
     SCHEMA = Project
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -109,7 +118,7 @@ class MaglaProject(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaProject, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaProject, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):
@@ -253,7 +262,15 @@ class MaglaProject(MaglaEntity):
         magla.core.shot.MaglaShot
             The retrieved `MaglaShot` or None
         """
+        for shot_name in [s.name for s in self.shots]:
+            match = re.search(re.escape(name), shot_name)
+            if match:
+                name = shot_name
+                break
         return MaglaShot(project_id=self.data.id, name=name)
+    
+    def add_shot(self, name, callback):
+        return callback(project_id=self.id, name=name)
 
     def add_tool_config(self, tool_id, tool_version_id=None, **kwargs):
         """Create a new `MaglaToolConfig` object for this project.
