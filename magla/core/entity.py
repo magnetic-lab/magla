@@ -1,7 +1,7 @@
 """Entity is the root class connecting `core` objects to their backend equivilent."""
 from pprint import pformat
 
-from ..db import MaglaORM
+from ..db import ORM
 from ..utils import dict_to_record, record_to_dict
 from .data import MaglaData
 from .errors import MaglaError
@@ -42,7 +42,7 @@ class MaglaEntity(object):
             for k, v in dict(kwargs).items():
                 data[k] = v
         if not isinstance(data, MaglaData):
-            data = MaglaData(record, data, MaglaORM.SESSION)
+            data = MaglaData(record, data, ORM.SESSION)
         if not isinstance(data, MaglaData):
             raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
                 "Received: \n\t{received} ({type_received})".format(

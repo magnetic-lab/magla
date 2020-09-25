@@ -6,7 +6,7 @@ from .directory import Directory
 from .facility import Facility
 from .file_type import FileType
 from .machine import Machine
-from .orm import MaglaORM as MaglaORM
+from .orm import MaglaORM as ORM
 from .project import Project
 from .settings_2d import Settings2D
 from .shot import Shot

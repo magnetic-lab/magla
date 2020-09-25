@@ -1,7 +1,7 @@
 """Creation and Deletion gateway interface for `Entity` records.
     
 You may use this file as is for creation, or customize your own creation methods. All we're doing
-here is creating and commiting `SQLAlchemy` objects to `MaglaORM.SESSION` using compound custom
+here is creating and commiting `SQLAlchemy` objects to `ORM.SESSION` using compound custom
 creation methods for convenience.
 """
 import os
@@ -12,7 +12,7 @@ import uuid
 
 import opentimelineio as otio
 
-from ..db import MaglaORM
+from ..db import ORM
 from ..utils import (all_otio_to_dict, dict_to_otio, otio_to_dict,
                      record_to_dict)
 from .assignment import MaglaAssignment
@@ -46,7 +46,7 @@ class MaglaRoot(object):
     """Permissions-aware interface for creation and deletion within `magla`."""
 
     CREDENTIALS = ""
-    DB = MaglaORM
+    DB = ORM
     
     def __init__(self, *args, **kwargs):
         self._db = self.DB(*args, **kwargs)
@@ -95,7 +95,7 @@ class MaglaRoot(object):
             sys.stdout.write("\n\t{src} not found, skipping..".format(src=os.path.basename(src)))
 
     def create(self, entity, data=None, return_existing=True):
-        """Wrapper for `MaglaORM.create` with configurable return signature.
+        """Wrapper for `ORM.create` with configurable return signature.
 
         Parameters
         ----------
