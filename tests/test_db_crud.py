@@ -1,10 +1,6 @@
 import json
 import pytest
 
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from sqlalchemy.exc import IntegrityError
-
 import magla
 
 DUMMY_DATA_JSON = "dummy_data.json"
