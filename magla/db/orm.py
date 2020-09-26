@@ -40,18 +40,40 @@ class MaglaORM(object):
         pool_timeout=5,
         pool_pre_ping=True,
     )
-    # `SQLAlchemy` session (https://docs.sqlalchemy.org/en/13/orm/session_basics.html)
-    _session_factory = sessionmaker(ENGINE)
-    SESSION = _session_factory()
+
+    Session = sessionmaker(ENGINE)
 
     def __init__(self):
         """Instantiate and iniliatize DB tables."""
+        self._session = self.Session()
         self.init_tables()
 
+    @property
+    def session(self):
+        """Retrieve session instance.
+
+        Returns
+        -------
+        sqlalchemy.orm.Session
+            Session class for the app.
+        """
+        return self._session
+    
     @classmethod
     def init_tables(cls):
         """Create all tables currently defined by `cls.BASE`."""
         cls.BASE.metadata.create_all(cls.ENGINE)
+        
+    @classmethod
+    def sessionmaker(cls, *args, **kwargs):
+        """Create new session facrory.
+
+        Returns
+        -------
+        sqlalchemy.orm.sessionmaker
+            Session factory
+        """
+        return sessionmaker(*args, **kwargs)
 
     def _query(self, entity, **filter_kwargs):
         """Query the `SQLAlchemy` session for given entity and data.
@@ -66,7 +88,7 @@ class MaglaORM(object):
         sqlalchemy.ext.declarative.api.Base
             The returned record from the session query (containing data directly from backend)
         """
-        return self.SESSION.query(entity).filter_by(**filter_kwargs)
+        return self.session.query(entity).filter_by(**filter_kwargs)
 
     def all(self, entity=None):
         """Retrieve all columns from entity's table.
@@ -118,8 +140,8 @@ class MaglaORM(object):
             A `MaglaEntity` from the newly created record
         """
         new_entity_record = entity.SCHEMA(**data)
-        self.SESSION.add(new_entity_record)
-        self.SESSION.commit()
+        self.session.add(new_entity_record)
+        self.session.commit()
         return entity.from_record(new_entity_record)
 
     def delete(self, entity):
@@ -130,8 +152,8 @@ class MaglaORM(object):
         entity : sqlalchemy.ext.declarative.api.Base
             The `SQLAlchemy` mapped entity object to drop
         """
-        self.SESSION.delete(entity)
-        self.SESSION.commit()
+        self.session.delete(entity)
+        self.session.commit()
 
     def query(self, entity, data=None, **filter_kwargs):
         """Query the `SQLAlchemy` session for given entity type and data/kwargs.

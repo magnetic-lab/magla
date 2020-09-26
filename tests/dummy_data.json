@@ -50,6 +50,6 @@
         }, true],
         [{
             "first_name": "fizz"
-        }, false]
+        }, true]
     ]
 }

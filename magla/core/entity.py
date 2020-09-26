@@ -2,7 +2,7 @@
 from pprint import pformat
 
 from ..db import ORM
-from ..utils import dict_to_record, record_to_dict
+from ..utils import record_to_dict
 from .data import MaglaData
 from .errors import MaglaError
 
@@ -16,10 +16,11 @@ class BadArgumentError(MaglaEntityError):
 
 
 class MaglaEntity(object):
-    """General wrapper for `magla` object types, responsible for interfacing with backend.
+    """General wrapper for anything in `magla` that persists in the backend.
     
     This class should be subclassed and never instantiated on its own.
     """
+    _orm = ORM()
 
     def __init__(self, record, data=None, **kwargs):
         """Initialize with record definition, data, and supplimental kwargs as key-value pairs.
@@ -42,7 +43,7 @@ class MaglaEntity(object):
             for k, v in dict(kwargs).items():
                 data[k] = v
         if not isinstance(data, MaglaData):
-            data = MaglaData(record, data, ORM.SESSION)
+            data = MaglaData(record, data, self.orm.session)
         if not isinstance(data, MaglaData):
             raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
                 "Received: \n\t{received} ({type_received})".format(
@@ -130,6 +131,17 @@ class MaglaEntity(object):
             connection to related backend table.
         """
         return self._data
+    
+    @property
+    def orm(cls):
+        """Retrieve `MaglaORM` object used for backend interactions
+
+        Returns
+        -------
+        `magla.db.orm.MaglaORM`
+            The backend interface object all entities communicate through.
+        """
+        return cls._orm
 
     @classmethod
     def type(cls, name):

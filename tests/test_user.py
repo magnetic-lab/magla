@@ -1,28 +1,27 @@
 import os
 import pytest
 
-from magla import Config, User, Entity
-from magla.db import ORM
+from magla.core import Config, Entity
+from magla.db import User
 
-CONFIG = Config(os.path.join(os.path.abspath(__file__), "dummy_data.json"))
+TEST_USER_DATA = Config(os.path.join(os.path.dirname(__file__), "dummy_data.json")).get("User")
 
-@pytest.fixture(scope='module', params=CONFIG)
-def testing_environment(request):
-    orm = ORM()
-    dummy_connection = orm.ENGINE.connect()
-    dummy_transaction = dummy_connection.begin()
-    dummy_session = orm._session_factory(bind=dummy_connection)
+@pytest.fixture(scope='session')
+def db_session(request):
+    Entity._orm.BASE.metadata.create_all(Entity._orm.ENGINE)
+    session = Entity._orm.Session()
+    yield session
+    session.close()
+    Entity._orm.BASE.metadata.drop_all(bind=Entity._orm.ENGINE)
 
-    yield {
-        "session": dummy_session,
-        "connection": dummy_connection,
-        "entity": Entity.type(request.param),
-        "param": request.param 
-    }
-
-    # teardown sequence
-    dummy_transaction.rollback()
-    dummy_connection.close()
-
-def test_create_user(testing_environment):
-    session, connection, entity, param = testing_environment.values()
+@pytest.mark.parametrize("param", TEST_USER_DATA)
+def test_create_user(db_session, param):
+    data, expected_result = param
+    new_user = User(**data)
+    db_session.add(new_user)
+    db_session.commit()
+    
+    result = db_session.query(User).filter_by(**data)
+    x = result.count()
+    y = result.one()
+    assert bool(result.count()) == expected_result
