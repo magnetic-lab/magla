@@ -1,7 +1,6 @@
 """Utility functions."""
-import os
 import json
-import platform
+import random
 import subprocess
 import sys
 
@@ -146,3 +145,20 @@ def open_directory_location(target_path):
             subprocess.Popen(['xdg-open', target_path])
         except OSError:
             raise
+        
+def random_string(choices_str, length):
+    """Generate a random string from the given `choices_str`.
+
+    Parameters
+    ----------
+    choices_str : str
+        A string containing all the possible choice characters
+    length : int
+        The desired length of the resulting string
+
+    Returns
+    -------
+    str
+        A random string of characters
+    """
+    return ''.join(random.choice(choices_str) for _ in range(length))
