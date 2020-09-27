@@ -11,42 +11,35 @@ from os import getenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
-from sqlalchemy.pool import NullPool
+from sqlalchemy.orm import scoped_session
 
 
 class MaglaORM(object):
     """Manage the connection to backend and facilitate `CRUD` operations.
-    
+
     All conversions form backend data to `MaglaEntity` objects or lists should happen here.
-    
+
     This Class is meant to serve as an adapter to any backend in case a different one is desired.
     DB connection settings and credentials should also be managed here.
     """
     # `postgres` connection string variables
-    CREDENTIALS = {
+    CONFIG = {
         "username": getenv("POSTGRES_USERNAME"),
         "password": getenv("POSTGRES_PASSWORD"),
         "hostname": getenv("POSTGRES_HOSTNAME"),
-        "port": getenv("POSTGRES_PORT")
+        "port": getenv("POSTGRES_PORT"),
+        "db_name": getenv("POSTGRES_DB_NAME")
     }
-    # `SQLAlchemy` declarative base containing DB table metadata
-    BASE = declarative_base()
-    # `SQLAlchemy` engine which translates our activity to `postgres`-specific dialect.
-    ENGINE = create_engine(
-        "postgres://{username}:{password}@{hostname}:{port}/magla".format(
-            **CREDENTIALS),
-        # pool_size=20,
-        max_overflow=0,
-        pool_timeout=5,
-        pool_pre_ping=True,
-    )
-
-    Session = sessionmaker(ENGINE)
+    _Base = declarative_base()
+    _Session = None
+    _Engine = None
 
     def __init__(self):
         """Instantiate and iniliatize DB tables."""
-        self._session = self.Session()
-        self.init_tables()
+        self._construct_engine()
+        self._construct_session()
+        self._create_all_tables()
+        self._session = self._Session()
 
     @property
     def session(self):
@@ -58,12 +51,31 @@ class MaglaORM(object):
             Session class for the app.
         """
         return self._session
-    
+
     @classmethod
-    def init_tables(cls):
-        """Create all tables currently defined by `cls.BASE`."""
-        cls.BASE.metadata.create_all(cls.ENGINE)
-        
+    def _create_all_tables(cls):
+        """Create all tables currently defined by `cls._Base`."""
+        cls._Base.metadata.create_all(cls._Engine)
+
+    @classmethod
+    def _drop_all_tables(cls):
+        cls._Base.metadata.drop_all(bind=cls._Engine)
+
+    @classmethod
+    def _construct_session(cls):
+        cls._Session = cls.sessionmaker(cls._Engine)
+
+    @classmethod
+    def _construct_engine(cls):
+        cls._Engine = create_engine(
+            "postgres://{username}:{password}@{hostname}:{port}/{db_name}".format(
+                **cls.CONFIG),
+            # pool_size=20,
+            max_overflow=0,
+            pool_timeout=5,
+            pool_pre_ping=True,
+        )
+
     @classmethod
     def sessionmaker(cls, *args, **kwargs):
         """Create new session facrory.
@@ -73,7 +85,7 @@ class MaglaORM(object):
         sqlalchemy.orm.sessionmaker
             Session factory
         """
-        return sessionmaker(*args, **kwargs)
+        return sessionmaker(bind=cls._Engine, **kwargs)
 
     def _query(self, entity, **filter_kwargs):
         """Query the `SQLAlchemy` session for given entity and data.

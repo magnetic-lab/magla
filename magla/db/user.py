@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class User(MaglaORM.BASE):
+class User(MaglaORM._Base):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "User"

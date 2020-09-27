@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class ToolVersionInstallation(MaglaORM.BASE):
+class ToolVersionInstallation(MaglaORM._Base):
     __tablename__ = "tool_version_installations"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "ToolVersionInstallation"

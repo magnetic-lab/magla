@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class Project(MaglaORM.BASE):
+class Project(MaglaORM._Base):
     __tablename__ = "projects"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Project"

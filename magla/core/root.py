@@ -353,7 +353,7 @@ class MaglaRoot(object):
             )
         )
         # apply `otio`
-        new_shot_version.data.otio.target_url_base = os.path.dirname(reference)
+        new_shot_version.data.otio.target_url_Base = os.path.dirname(reference)
         new_shot_version.data.otio.name_prefix = prefix
         new_shot_version.data.otio.name_suffix = suffix
         new_shot_version.data.otio.frame_zero_padding = padding.count("#")

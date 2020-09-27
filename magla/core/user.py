@@ -106,10 +106,7 @@ class MaglaUser(MaglaEntity):
         list of magla.core.assignment.MaglaAssignment
             The currently active `MaglaAssignment` for this user if one is set
         """
-        r = self.data.record.assignments
-        if r == None:
-            return None
-        return [self.from_record(a) for a in r]
+        return [self.from_record(a) for a in self.data.record.assignments]
     
     @property
     def directories(self):
@@ -122,10 +119,7 @@ class MaglaUser(MaglaEntity):
             working directories, or sandbox-like directories - any place on a filesystem where
             `magla` functionality is desired.
         """
-        r = self.data.record.directories
-        if r == None:
-            return None
-        return [self.from_record(a) for a in r]
+        return [self.from_record(a) for a in self.data.record.directories]
     
     @property
     def timelines(self):
@@ -136,10 +130,7 @@ class MaglaUser(MaglaEntity):
         magla.core.timeline.MaglaTimeline
             A list of private `MaglaTimeline` objects saved by this user
         """
-        r = self.data.record.timelines
-        if r == None:
-            return None
-        return [self.from_record(a) for a in r]
+        return [self.from_record(a) for a in self.data.record.timelines]
 
     #### MaglaUser-specific methods ________________________________________________________________
     @staticmethod

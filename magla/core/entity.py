@@ -20,7 +20,7 @@ class MaglaEntity(object):
     
     This class should be subclassed and never instantiated on its own.
     """
-    _orm = ORM()
+    _orm = None
 
     def __init__(self, record, data=None, **kwargs):
         """Initialize with record definition, data, and supplimental kwargs as key-value pairs.
@@ -37,6 +37,7 @@ class MaglaEntity(object):
         BadArgumentError
             [description]
         """
+        self.connect()
         if kwargs:
             data = data or {}
             # if kwargs were supplied add them as k/v pairs to data
@@ -79,7 +80,7 @@ class MaglaEntity(object):
 
     def __repr__(self):
         return self.__str__()
-    
+  
     @classmethod
     def from_record(cls, record_obj, **kwargs):
         """Instantiate a sub-entity matching the properties of given record object.
@@ -133,7 +134,7 @@ class MaglaEntity(object):
         return self._data
     
     @property
-    def orm(cls):
+    def orm(self):
         """Retrieve `MaglaORM` object used for backend interactions
 
         Returns
@@ -141,7 +142,7 @@ class MaglaEntity(object):
         `magla.db.orm.MaglaORM`
             The backend interface object all entities communicate through.
         """
-        return cls._orm
+        return self._orm
 
     @classmethod
     def type(cls, name):
@@ -158,3 +159,8 @@ class MaglaEntity(object):
             The sub-classed entity (defined in 'magla/db/')
         """
         return cls.__types__[name]
+    
+    @classmethod
+    def connect(cls):
+        if not cls._orm:
+            cls._orm = ORM()

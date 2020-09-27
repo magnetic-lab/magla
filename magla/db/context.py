@@ -5,7 +5,7 @@ from ..db.orm import MaglaORM
 from .user import User
 
 
-class Context(MaglaORM.BASE):
+class Context(MaglaORM._Base):
     __tablename__ = "contexts"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Context"

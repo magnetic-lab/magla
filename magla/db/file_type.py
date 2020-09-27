@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class FileType(MaglaORM.BASE):
+class FileType(MaglaORM._Base):
     __tablename__ = "file_types"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "FileType"
