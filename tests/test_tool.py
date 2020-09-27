@@ -1,16 +1,10 @@
-"""Testing for `magla.core.tool`
-
-TODO: must test `magla.utils` first
-TODO: implement validations for illegal characters and data
-TODO: include tests for expected validation failures
-"""
+"""Testing for `magla.core.tool`"""
 import os
 os.environ["POSTGRES_DB_NAME"] = "magla_testing"
-from random import random
 import pytest
 import string
 
-from magla.utils import random_string, record_to_dict
+from magla.utils import random_string
 from magla.core.tool import MaglaTool
 from magla.core import Config
 from magla.db import Tool
@@ -28,27 +22,26 @@ def test_can_create_random_tool_via_session(db_session, param):
     result = db_session.query(Tool).filter_by(**data).count()
     assert bool(result) == expected_result
 
-@pytest.mark.parametrize("param", TEST_USER_DATA)
-def test_can_update_name(param):
-    data = param[0]
+def test_can_update_name(db_session):
+    dummy_tool_record = Tool(name=random_string(string.ascii_letters, 10))
+    db_session.add(dummy_tool_record)
+    db_session.commit()
     global DUMMY_TOOL
-    DUMMY_TOOL = MaglaTool(data)
+    DUMMY_TOOL = MaglaTool(name=dummy_tool_record.name)
     random_tool_name = random_string(string.ascii_letters, 10)
     DUMMY_TOOL.data.name = random_tool_name
     DUMMY_TOOL.data.push()
     user_check = MaglaTool(id=DUMMY_TOOL.id)
     assert user_check.name == random_tool_name
 
-@pytest.mark.parametrize("param", TEST_USER_DATA)
-def test_can_update_description(param):
+def test_can_update_description():
     random_description = random_string(string.printable, 200)
     DUMMY_TOOL.data.description = random_description
     DUMMY_TOOL.data.push()
     user_check = MaglaTool(id=DUMMY_TOOL.id)
     assert user_check.description == random_description
     
-@pytest.mark.parametrize("param", TEST_USER_DATA)
-def test_can_update_metadata(param):
+def test_can_update_metadata():
     random_metadata = {"key1": "val1", "key2": "val2", "key3": 2048}
     DUMMY_TOOL.data.metadata_ = random_metadata
     DUMMY_TOOL.data.push()

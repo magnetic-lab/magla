@@ -18,7 +18,7 @@ TEST_USER_DATA = Config(os.path.join(os.path.dirname(__file__), "dummy_data.json
 DUMMY_USER = None
 
 @pytest.mark.parametrize("param", TEST_USER_DATA)
-def test_can_create_random_user_via_session(db_session, param):
+def test_can_create_test_users_directly_via_session(db_session, param):
     data, expected_result = param
     new_tool = User(**data)
     db_session.add(new_tool)
@@ -26,12 +26,13 @@ def test_can_create_random_user_via_session(db_session, param):
     result = db_session.query(User).filter_by(**data).count()
     assert bool(result) == expected_result
 
-@pytest.mark.parametrize("param", TEST_USER_DATA)
-def test_can_update_nickname(param):
-    data = param[0]
+def test_can_update_nickname(db_session):
+    dummy_user_record = User(nickname=random_string(string.ascii_letters, 10))
+    db_session.add(dummy_user_record)
+    db_session.commit()
     global DUMMY_USER
-    DUMMY_USER = MaglaUser(data)
-    random_nickname = random_string(string.ascii_letters, 10)
+    DUMMY_USER = MaglaUser(nickname=dummy_user_record.nickname)
+    random_nickname = dummy_user_record.nickname
     DUMMY_USER.data.nickname = random_nickname
     DUMMY_USER.data.push()
     user_check = MaglaUser(id=DUMMY_USER.id)
