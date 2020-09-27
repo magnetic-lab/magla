@@ -8,28 +8,8 @@ import sys
 from pprint import pformat
 
 from ..db.tool import Tool
-from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
-
-
-class MaglaToolError(MaglaError):
-    """An error accured preventing MaglaTool to continue."""
-
-
-class MaglaToolNameNotFound(MaglaError):
-
-    def __init__(self, name):
-        super(MaglaToolNameNotFound, self).__init__()
-
-        text_block = "<MaglaToolNameNotFound: The tool '{}' was not found!>".format(
-            name)
-        self.message = text_block
-
-
-class MaglaToolStartError(MaglaError):
-    def __init__(self, *args, **kwargs):
-        super(MaglaToolStartError, self).__init__(*args, **kwargs)
 
 
 class MaglaTool(MaglaEntity):
@@ -62,38 +42,14 @@ class MaglaTool(MaglaEntity):
 
     @property
     def metadata(self):
-        return self.data.metadata
-
-    # SQAlchemy relationship back-references
-    @property
-    def tool_configs(self):
-        r = self.data.record.tool_configs
-        if not r:
-            raise MaglaToolError(
-                "No 'configs' record found for {}!".format(self))
-        return MaglaEntity.from_record(r)
+        return self.data.metadata_
 
     @property
     def versions(self):
         r = self.data.record.versions
-        if r == None:
-            raise MaglaToolError(
-                "No 'versions' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
-
-    @property
-    def aliases(self):
-        r = self.data.record.aliases
-        if r == None:
-            raise MaglaToolError(
-                "No 'aliases' record found for {}!".format(self))
         return [self.from_record(a) for a in r]
 
     # MaglaTool-specific methods ________________________________________________________________
-    @property
-    def configs(self):
-        return self.tool_configs
-
     @property
     def latest(self):
         if not self.versions:
@@ -158,8 +114,8 @@ class MaglaTool(MaglaEntity):
 
     def pre_startup(self):
         """Perform any custom python scripts then any copy operations."""
-        pass
+        return True
 
     def post_startup(self):
         """Perform any custom python scripts then any copy operations."""
-        pass
+        return True

@@ -30,7 +30,42 @@
 
     ],
 	"Tool": [
-
+        [
+            {
+                "name": "maya"
+            },
+            true
+        ],
+        [
+            {
+                "name": "nuke"
+            },
+            true
+        ],
+        [
+            {
+                "name": "houdini"
+            },
+            true
+        ],
+        [
+            {
+                "name": "natron"
+            },
+            true
+        ],
+        [
+            {
+                "name": "modo"
+            },
+            true
+        ],
+        [
+            {
+                "name": "touchdesigner"
+            },
+            true
+        ]
     ],
 	"ToolConfig": [
 
@@ -42,14 +77,20 @@
 
     ],
 	"User": [
-        [{
-            "first_name": "foo",
-            "last_name": "bar",
-            "nickname": "foobar",
-            "email": "foo@bar.com"
-        }, true],
-        [{
-            "first_name": "fizz"
-        }, true]
+        [
+            {
+                "first_name": "foo",
+                "last_name": "bar",
+                "nickname": "foobar",
+                "email": "foo@bar.com"
+            },
+            true
+        ],
+        [
+            {
+                "first_name": "fizz"
+            },
+            true
+        ]
     ]
 }
