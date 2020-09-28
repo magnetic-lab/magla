@@ -14,6 +14,14 @@ class MaglaConfig(object):
         - json
         - yaml
     """
+    _loaders = {
+        "json": json.load,
+        "yaml": yaml.safe_load
+    }
+    _writers = {
+        "json": json.dumps,
+        "yaml": yaml.dump
+    }
     def __init__(self, path):
         """Initialize with config path.
 
@@ -73,9 +81,10 @@ class MaglaConfig(object):
             Thrown if an invalid config path was given
         """
         config_dict = {}
+        loader = self._get_loader()
         try:
             with open(self._path, "r") as config_fo:
-                config_dict = json.load(config_fo)
+                config_dict = loader(config_fo)
         except (FileNotFoundError, PermissionError, json.decoder.JSONDecodeError) as err:
             if isinstance(err, json.decoder.JSONDecodeError):
                 raise ConfigReadError(err)
@@ -105,9 +114,10 @@ class MaglaConfig(object):
         ConfigPathError
             Thrown if path to the config file is invalid
         """
+        writer = self._get_writer()
         try:
             with open(self._path, "w+") as config_fo:
-                config_fo.write(json.dumps(config_dict))
+                config_fo.write(writer(config_dict))
         except (FileNotFoundError, PermissionError, json.decoder.JSONDecodeError) as err:
             if isinstance(err, json.decoder.JSONDecodeError):
                 raise ConfigReadError(err)
@@ -128,8 +138,39 @@ class MaglaConfig(object):
         Returns
         -------
         dict
-            Dict of the config
+            Dict of the config.
         """
         self._config.update(new_config_dict)
-
         return self._config
+    
+    def dict(self):
+        """Retrieve config contents as a dict.
+
+        Returns
+        -------
+        dict
+            dict containing the contents of given config file.
+        """
+        return self._config
+
+    def _get_loader(self):
+        """Retrieve the correct adapter for loading.
+
+        Returns
+        -------
+        function
+            The filetype-specific function to be used to load contents.
+        """
+        config_type = os.path.splitext(self._path)[1].replace(".", "")
+        return self._loaders[config_type]
+    
+    def _get_writer(self):
+        """Retrieve the correct adapter for writing.
+
+        Returns
+        -------
+        function
+            The filetype-specific function to be used to write to the given config file.
+        """
+        config_type = os.path.splitext(self._path)[1].replace(".", "")
+        return self._writers[config_type]

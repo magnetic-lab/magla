@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""A class to manage the execution of tools and log output from their processes."""
+"""A class to manage the execution of tools and log output from their processes.
+
+TODO: Implement `MaglaExtension` object/records
+"""
 import getpass
 import logging
 import os
@@ -8,12 +11,6 @@ from ..db.tool_version import ToolVersion
 from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
-
-try:
-    basestring
-except NameError:
-    basestring = str
-
 
 class MaglaToolVersionError(MaglaError):
     """An error accured preventing MaglaToolVersion to continue."""
@@ -44,41 +41,19 @@ class MaglaToolVersion(MaglaEntity):
     def tool(self):
         r = self.data.record.tool
         if not r:
-            raise MaglaToolVersionError(
-                "No 'tools' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
 
     @property
     def tool_config(self):
         r = self.data.record.tool_config
         if not r:
-            raise MaglaToolVersionError(
-                "No 'tool_configs' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
 
     @property
     def installations(self):
-        r = self.data.record.installations
-        if not r:
-            raise MaglaToolVersionError(
-                "No 'installations' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
-
-    @property
-    def extensions(self):
-        r = self.data.record.extensions
-        if r == None:
-            raise MaglaToolVersionError(
-                "No 'extensions' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
-
-    @property
-    def aliases(self):
-        r = self.data.record.aliases
-        if r == None:
-            raise MaglaToolVersionError(
-                "No 'aliases' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
+        return [self.from_record(a) for a in self.data.record.installations]
 
     # MaglaToolVersion-specific methods ____________________________________________________________
     @property

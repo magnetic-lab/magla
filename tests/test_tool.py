@@ -1,68 +1,102 @@
 """Testing for `magla.core.tool`"""
 import os
-os.environ["POSTGRES_DB_NAME"] = "magla_testing"
-import pytest
 import string
 
-from magla.utils import random_string
+import pytest
 from magla.core.tool import MaglaTool
-from magla.core import Config
-from magla.db import Tool
+from magla.test import TestMagla
+from magla.utils import random_string
 
-TEST_USER_DATA = Config(os.path.join(os.path.dirname(__file__), "dummy_data.json")).get("Tool")
-DUMMY_TOOL = None
+os.environ["POSTGRES_DB_NAME"] = "magla_testing"
+SEED_DATA = TestMagla.get_seed_data("Tool")
 
-# `MaglaTool` creation
-@pytest.mark.parametrize("param", TEST_USER_DATA)
-def test_can_create_random_tool_via_session(db_session, param):
-    data, expected_result = param
-    new_tool_record = Tool(**data)
-    db_session.add(new_tool_record)
-    db_session.commit()
-    result = db_session.query(Tool).filter_by(**data).count()
-    assert bool(result) == expected_result
 
-def test_can_update_name(db_session):
-    dummy_tool_record = Tool(name=random_string(string.ascii_letters, 10))
-    db_session.add(dummy_tool_record)
-    db_session.commit()
-    global DUMMY_TOOL
-    DUMMY_TOOL = MaglaTool(name=dummy_tool_record.name)
-    random_tool_name = random_string(string.ascii_letters, 10)
-    DUMMY_TOOL.data.name = random_tool_name
-    DUMMY_TOOL.data.push()
-    user_check = MaglaTool(id=DUMMY_TOOL.id)
-    assert user_check.name == random_tool_name
+class TestMaglaTool(TestMagla):
 
-def test_can_update_description():
-    random_description = random_string(string.printable, 200)
-    DUMMY_TOOL.data.description = random_description
-    DUMMY_TOOL.data.push()
-    user_check = MaglaTool(id=DUMMY_TOOL.id)
-    assert user_check.description == random_description
-    
-def test_can_update_metadata():
-    random_metadata = {"key1": "val1", "key2": "val2", "key3": 2048}
-    DUMMY_TOOL.data.metadata_ = random_metadata
-    DUMMY_TOOL.data.push()
-    user_check = MaglaTool(id=DUMMY_TOOL.id)
-    assert user_check.metadata == random_metadata
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_instantiate(self, param):
+        data, expected_result = param
+        tool = MaglaTool(data)
+        self.register_instance(tool)
+        assert bool(tool) == expected_result
 
-def test_can_instantiate_with_string_arg():
-    user_check = MaglaTool(DUMMY_TOOL.name)
-    assert user_check.id == DUMMY_TOOL.id
-    
-def test_can_retrieve_null_versions():
-    assert DUMMY_TOOL.versions == []
-    
-def test_can_retrieve_null_latest():
-    assert DUMMY_TOOL.latest == None
-     
-def test_can_retrieve_null_default_version():
-    assert DUMMY_TOOL.default_version == None
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_update_name(self, param):
+        data, expected_result = param
+        random_tool_name = random_string(string.ascii_letters, 6)
+        tool = self.get_instance(data.get("id"), "Tool")
+        tool.data.name = random_tool_name
+        tool.data.push()
+        confirmation = MaglaTool(id=tool.id)
+        assert (
+            confirmation.name == random_tool_name) \
+            == expected_result
 
-def test_can_call_pre_startup():
-    assert DUMMY_TOOL.pre_startup()
-    
-def test_can_call_post_startup():
-    assert DUMMY_TOOL.post_startup()
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_update_description(self, param):
+        data, expected_result = param
+        random_tool_description = random_string(string.ascii_letters, 300)
+        tool = self.get_instance(data.get("id"), "Tool")
+        tool.data.description = random_tool_description
+        tool.data.push()
+        confirmation = MaglaTool(id=tool.id)
+        assert (
+            confirmation.description == random_tool_description) \
+            == expected_result
+
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_update_metadata(self, param):
+        data, expected_result = param
+        random_metadata = {
+            "key1": "value1",
+            "key2": 123,
+            "key3": {
+                "subkey1": "foo",
+                "subkey2": 456
+            }
+        }
+        tool = self.get_instance(data.get("id"), "Tool")
+        tool.data.metadata_ = random_metadata
+        tool.data.push()
+        confirmation = MaglaTool(id=tool.id)
+        assert (
+            confirmation.metadata == random_metadata
+        ) == expected_result
+
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_instantiate_with_string_arg(self, param):
+        data, expected_result = param
+        confirmation = MaglaTool(data["name"])
+        assert (
+            confirmation.id == data["id"] and confirmation.name == data["name"]
+        ) == expected_result
+
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_retrieve_versions(self, param):
+        data, expected_result = param
+        tool = MaglaTool(data)
+        assert bool(tool.versions) == expected_result
+
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_retrieve_latest(self, param):
+        data, expected_result = param
+        tool = MaglaTool(data)
+        assert bool(tool.latest) == expected_result
+
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_retrieve_default_version(self, param):
+        data, expected_result = param
+        tool = MaglaTool(data)
+        assert bool(tool.default_version) == expected_result
+
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_pre_startup(self, param):
+        data, expected_result = param
+        tool = MaglaTool(data)
+        assert bool(tool.pre_startup()) == expected_result
+
+    @pytest.mark.parametrize("param", SEED_DATA)
+    def test_can_post_startup(self, param):
+        data, expected_result = param
+        tool = MaglaTool(data)
+        assert bool(tool.post_startup()) == expected_result

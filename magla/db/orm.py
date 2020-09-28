@@ -11,7 +11,6 @@ from os import getenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
-from sqlalchemy.orm import scoped_session
 
 
 class MaglaORM(object):
@@ -68,7 +67,7 @@ class MaglaORM(object):
     @classmethod
     def _construct_engine(cls):
         cls._Engine = create_engine(
-            "postgres://{username}:{password}@{hostname}:{port}/{db_name}".format(
+            "postgresql://{username}:{password}@{hostname}:{port}/{db_name}".format(
                 **cls.CONFIG),
             # pool_size=20,
             max_overflow=0,
