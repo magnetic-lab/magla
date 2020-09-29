@@ -81,7 +81,7 @@ class MaglaTool(MaglaEntity):
             tool_version = tool_config.tool_version
 
         # establish environment to inject
-        env_ = tool_config.get_tool_env()
+        env_ = tool_config.build_env()
 
         # establish path to tool executeable
         tool_exe = tool_version.installation(

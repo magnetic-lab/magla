@@ -48,7 +48,7 @@ class MaglaRoot(object):
    
     def __init__(self, *args, **kwargs):
         self._orm = ORM(*args, **kwargs)
-        self._permissions = MaglaUser().permissions()
+        self._permissions = None
 
     def __repr__(self):
         return "<MaglaRoot: database={database}>".format(database=self.orm.SESSION.bind.url)

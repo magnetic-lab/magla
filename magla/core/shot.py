@@ -3,6 +3,8 @@
 It is important to note that a `MaglaShot` object by itself should rarely be accessed except when
 assigning, or if `subsets` need to be managed. The actual content making up the shot is contained
 in individual `MaglaShotVersion` directories.
+
+TODO: should be able to instantiate shot without an otio object initially
 """
 import opentimelineio as otio
 
@@ -32,9 +34,9 @@ class MaglaShot(MaglaEntity):
         if isinstance(data, str):
             data = {"name": data}
         super(MaglaShot, self).__init__(self.SCHEMA, data, **kwargs)
-        if self.versions:
+        if self.versions and self.otio:
             self.otio.media_reference = self.versions[-1].otio
-        else:
+        elif self.otio:
             self.otio.media_reference = otio.schema.MissingReference()
 
     @property

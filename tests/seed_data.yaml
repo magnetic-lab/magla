@@ -23,7 +23,8 @@ User:
     email: foo@bar.com
   - true
 Directory:
-- - machine_id: 1
+- - id: 1
+    machine_id: 1
     user_id: 1
     label: test_user's working directory on machine 1.
     path: "/home/jacob/working_dir"
@@ -34,7 +35,8 @@ Directory:
       backups: ".backups"
       current_assignments: current_assignments
   - true
-- - machine_id: 1
+- - id: 2
+    machine_id: 1
     label: test_project root directory.
     path: "/mnt/projects/test_project"
     tree:
@@ -45,7 +47,8 @@ Directory:
       - reference: []
       - edit: []
   - true
-- - machine_id: 1
+- - id: 3
+    machine_id: 1
     label: test_shot_01 root directory.
     path: "{shot.project.directory.path}/shots/{shot.name}"
     tree:
@@ -54,7 +57,8 @@ Directory:
       - png: []
       - webm: []
   - true
-- - machine_id: 1
+- - id: 4
+    machine_id: 1
     label: test_shot_01_v000 root directory.
     path: "{shot_version.shot.directory.path}/{shot_version.num}"
     tree:
@@ -67,7 +71,8 @@ Directory:
         - png: []
         - mov: []
   - true
-- - machine_id: 1
+- - id: 5
+    machine_id: 1
     label: natron 2.3.15 root directory on machine 1.
     path: "/opt/Natron-2.3.15/bin/natron"
     tree:
@@ -79,9 +84,21 @@ Directory:
       - png: []
       - subsets: []
   - true
-- - machine_id: 1
+- - id: 6
+    machine_id: 1
     user_id: 2
     label: 2nd test_user's working directory on machine 1.
+    path: "/home/jacob/working_dir"
+    tree:
+    - current_assignments: []
+    - ".backups": []
+    bookmarks:
+      backups: ".backups"
+      current_assignments: current_assignments
+  - true
+- - id: 7
+    machine_id: 1
+    label: shot version tool-subdirectory.
     path: "/home/jacob/working_dir"
     tree:
     - current_assignments: []
@@ -96,9 +113,14 @@ Settings2D:
     height: 2048
     rate: 30
   - true
+Timeline:
+- - id: 1
+    label: "example label for a timeline."
+  - true
 Project:
 - - name: test_project
     directory_id: 2
+    timeline_id: 1
     settings:
       project_directory: "/mnt/projects/{project.name}"
       project_directory_tree:
@@ -143,7 +165,6 @@ ShotVersion:
     shot_id: 1
     directory_id: 4
   - true
-Timeline: []
 ToolVersion:
 - - string: 2.3.15
     tool_id: 1
@@ -155,6 +176,7 @@ ToolVersionInstallation:
 ToolConfig:
 - - project_id: 1
     tool_version_id: 1
+    directory_id: 7
     env:
       PYTHONPATH: "/mnt/pipeline_share/python/tools/natron/2.3.15"
     copy_dict:

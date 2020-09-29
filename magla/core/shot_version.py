@@ -105,11 +105,24 @@ class MaglaShotVersion(MaglaEntity):
         """
         r = self.data.record.shot
         if not r:
-            raise MaglaShotVersionError(
-                "No 'shots' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
 
     # MaglaShot-specific methods ___________________________________________________________________
+    @property
+    def project(self):
+        """Shortcut method to retrieve related `MaglaProject` back-reference.
+
+        Returns
+        -------
+        magla.core.project.MaglaProject
+            The `MaglaProject` this shot version belongs to
+        """
+        r = self.data.record.shot.project
+        if not r:
+            return None
+        return MaglaEntity.from_record(r)
+    
     @property
     def name(self):
         """Generate a name for this shot version by combining the shot name with version num.
@@ -139,18 +152,3 @@ class MaglaShotVersion(MaglaEntity):
         return "{project_name}_{shot_version_name}".format(
             project_name=self.shot.project.name,
             shot_version_name=self.name)
-
-    @property
-    def project(self):
-        """Shortcut method to retrieve related `MaglaProject` back-reference.
-
-        Returns
-        -------
-        magla.core.project.MaglaProject
-            The `MaglaProject` this shot version belongs to
-        """
-        r = self.data.record.shot.project
-        if not r:
-            raise MaglaShotVersionError(
-                "No 'projects' record found for {}!".format(self.shot.record))
-        return MaglaEntity.from_record(r)

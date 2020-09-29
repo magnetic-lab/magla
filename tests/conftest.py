@@ -1,6 +1,7 @@
 """Root testing fixture for creating and serving mock database session.
 
-TODO: use second parameterized fixture to serve magla instances to the tests."""
+TODO: use second parameterized fixture to serve magla instances to the tests.
+"""
 import pytest
 import os
 os.environ["POSTGRES_DB_NAME"] = "magla_testing"

@@ -1,22 +1,9 @@
 # -*- coding: utf-8 -*-
 """A class to manage the execution of tools and log output from their processes."""
-import getpass
-import logging
-import os
-
-
-
-from .data import MaglaData
-from .errors import MaglaError
-from .entity import MaglaEntity
-from .user import MaglaUser
-
 from ..db.tool_version_installation import ToolVersionInstallation
+from .entity import MaglaEntity
+from .errors import MaglaError
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 class MaglaToolVersionInstallationError(MaglaError):
     """An error accured preventing MaglaToolVersionInstallation to continue."""
@@ -45,10 +32,6 @@ class MaglaToolVersionInstallation(MaglaEntity):
     def id(self):
         return self.data.id
 
-    @property
-    def exe_path(self):
-        return self.data.exe_path
-
     # SQAlchemy relationship back-references
     @property
     def directory(self):
@@ -64,7 +47,7 @@ class MaglaToolVersionInstallation(MaglaEntity):
             return None
         return MaglaEntity.from_record(r)
 
-    #### MaglaToolVersionInstallation-specific methods _____________________________________________
+    # MaglaToolVersionInstallation-specific methods _____________________________________________
     @property
     def tool(self):
         return self.tool_version.tool

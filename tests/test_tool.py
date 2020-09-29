@@ -74,29 +74,29 @@ class TestMaglaTool(TestMagla):
     @pytest.mark.parametrize("param", SEED_DATA)
     def test_can_retrieve_versions(self, param):
         data, expected_result = param
-        tool = MaglaTool(data)
+        tool = self.get_instance(data.get("id"), "Tool")
         assert bool(tool.versions) == expected_result
 
     @pytest.mark.parametrize("param", SEED_DATA)
     def test_can_retrieve_latest(self, param):
         data, expected_result = param
-        tool = MaglaTool(data)
+        tool = self.get_instance(data.get("id"), "Tool")
         assert bool(tool.latest) == expected_result
 
     @pytest.mark.parametrize("param", SEED_DATA)
     def test_can_retrieve_default_version(self, param):
         data, expected_result = param
-        tool = MaglaTool(data)
+        tool = self.get_instance(data.get("id"), "Tool")
         assert bool(tool.default_version) == expected_result
 
     @pytest.mark.parametrize("param", SEED_DATA)
     def test_can_pre_startup(self, param):
         data, expected_result = param
-        tool = MaglaTool(data)
+        tool = self.get_instance(data.get("id"), "Tool")
         assert bool(tool.pre_startup()) == expected_result
 
     @pytest.mark.parametrize("param", SEED_DATA)
     def test_can_post_startup(self, param):
         data, expected_result = param
-        tool = MaglaTool(data)
+        tool = self.get_instance(data.get("id"), "Tool")
         assert bool(tool.post_startup()) == expected_result

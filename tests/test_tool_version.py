@@ -3,7 +3,6 @@ import os
 import string
 
 import pytest
-from magla.core.tool import MaglaTool
 from magla.core.tool_version import MaglaToolVersion
 from magla.test import TestMagla
 from magla.utils import random_string
@@ -48,8 +47,7 @@ class TestMaglaToolVersion(TestMagla):
         data, expected_result = param
         tool_version = MaglaToolVersion(data)
         assert (
-            isinstance(tool_version.tool, MaglaTool)
-            and tool_version.tool.id == data["tool_id"]
+            tool_version.tool.id == data["tool_id"]
         ) == expected_result
 
     @pytest.mark.parametrize("param", SEED_DATA)

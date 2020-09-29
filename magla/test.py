@@ -9,9 +9,10 @@ class TestMagla:
     _stored_instances = {}
 
     def get_instance(self, id_, entity_type):
-        for instance in self._stored_instances.get(entity_type, []):
-            if instance.id == id_:
-                return instance
+        if id_:
+            for instance in self._stored_instances.get(entity_type, []):
+                if instance.id == id_:
+                    return instance
         return None
 
     def register_instance(self, instance):

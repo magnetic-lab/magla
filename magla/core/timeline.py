@@ -23,7 +23,7 @@ class MaglaTimeline(MaglaEntity):
     """
     SCHEMA = Timeline
 
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, data=None, *args, **kwargs):
         """Initialize with given data.
 
         Parameters

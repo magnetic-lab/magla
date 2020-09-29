@@ -133,16 +133,16 @@ class MaglaToolConfig(MaglaEntity):
         return self.tool_version.tool
 
     @property
-    def PYTHONPATH(self):
+    def pythonpath(self):
         """The `PYTHONPATH` environment to be appended to the tool's launch process."""
-        pass
+        return True
 
     @property
-    def PATH(self):
+    def path_env(self):
         """The `PATH` environment variable to be appended to the tool's launch process."""
-        pass
+        return True
 
-    def get_tool_env(self):
+    def build_env(self):
         """Generate an environment dict from this tool config.
 
         Returns
@@ -155,10 +155,10 @@ class MaglaToolConfig(MaglaEntity):
 
         if "PYTHONPATH" not in env_:
             env_["PYTHONPATH"] = ""
-        env_["PYTHONPATH"] += ";{}".format(self.PYTHONPATH)
+        env_["PYTHONPATH"] += ";{}".format(self.pythonpath)
         if "PATH" not in env_:
             env_["PATH"] = ""
-        env_["PATH"] += ";{}".format(self.PATH)
+        env_["PATH"] += ";{}".format(self.path_env)
 
         # add each environment var from toolconfig
         env_.update(self.env)
