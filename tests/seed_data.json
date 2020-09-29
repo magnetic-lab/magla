@@ -45,6 +45,7 @@
     "Directory": [
         [
             {
+                "id": 1,
                 "machine_id": 1,
                 "user_id": 1,
                 "label": "test_user's working directory on machine 1.",
@@ -66,6 +67,7 @@
         ],
         [
             {
+                "id": 2,
                 "machine_id": 1,
                 "label": "test_project root directory.",
                 "path": "/mnt/projects/test_project",
@@ -95,6 +97,7 @@
         ],
         [
             {
+                "id": 3,
                 "machine_id": 1,
                 "label": "test_shot_01 root directory.",
                 "path": "{shot.project.directory.path}/shots/{shot.name}",
@@ -118,6 +121,7 @@
         ],
         [
             {
+                "id": 4,
                 "machine_id": 1,
                 "label": "test_shot_01_v000 root directory.",
                 "path": "{shot_version.shot.directory.path}/{shot_version.num}",
@@ -155,6 +159,7 @@
         ],
         [
             {
+                "id": 5,
                 "machine_id": 1,
                 "label": "natron 2.3.15 root directory on machine 1.",
                 "path": "/opt/Natron-2.3.15/bin/natron",
@@ -188,9 +193,31 @@
         ],
         [
             {
+                "id": 6,
                 "machine_id": 1,
                 "user_id": 2,
                 "label": "2nd test_user's working directory on machine 1.",
+                "path": "/home/jacob/working_dir",
+                "tree": [
+                    {
+                        "current_assignments": []
+                    },
+                    {
+                        ".backups": []
+                    }
+                ],
+                "bookmarks": {
+                    "backups": ".backups",
+                    "current_assignments": "current_assignments"
+                }
+            },
+            true
+        ],
+        [
+            {
+                "id": 7,
+                "machine_id": 1,
+                "label": "shot version tool-subdirectory.",
                 "path": "/home/jacob/working_dir",
                 "tree": [
                     {
@@ -219,11 +246,36 @@
             true
         ]
     ],
+    "Timeline": [
+        [
+            {
+                "id": 1,
+                "label": "example label for a timeline.",
+                "otio": {
+                    "OTIO_SCHEMA": "Timeline.1",
+                    "metadata": {},
+                    "name": "test_project",
+                    "global_start_time": null,
+                    "tracks": {
+                        "OTIO_SCHEMA": "Stack.1",
+                        "metadata": {},
+                        "name": "tracks",
+                        "source_range": null,
+                        "effects": [],
+                        "markers": [],
+                        "children": []
+                    }
+                }
+            },
+            true
+        ]
+    ],
     "Project": [
         [
             {
                 "name": "test_project",
                 "directory_id": 2,
+                "timeline_id": 1,
                 "settings": {
                     "project_directory": "/mnt/projects/{project.name}",
                     "project_directory_tree": [
@@ -315,7 +367,41 @@
             {
                 "name": "test_shot_01",
                 "project_id": 1,
-                "directory_id": 3
+                "directory_id": 3,
+                "otio": {
+                    "OTIO_SCHEMA": "Clip.1",
+                    "metadata": {},
+                    "name": "test_shot_01",
+                    "source_range": null,
+                    "effects": [],
+                    "markers": [],
+                    "media_reference": {
+                        "OTIO_SCHEMA": "ImageSequenceReference.1",
+                        "metadata": {},
+                        "name": "",
+                        "available_range": {
+                            "OTIO_SCHEMA": "TimeRange.1",
+                            "duration": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 30.0,
+                                "value": 1.0
+                            },
+                            "start_time": {
+                                "OTIO_SCHEMA": "RationalTime.1",
+                                "rate": 30.0,
+                                "value": 1.0
+                            }
+                        },
+                        "target_url_base": "",
+                        "name_prefix": "test_project_test_shot_01_v000.",
+                        "name_suffix": ".png",
+                        "start_frame": 1,
+                        "frame_step": 1,
+                        "rate": 30.0,
+                        "frame_zero_padding": 4,
+                        "missing_frame_policy": "error"
+                    }
+                }
             },
             true
         ]
@@ -327,12 +413,37 @@
             {
                 "num": 0,
                 "shot_id": 1,
-                "directory_id": 4
+                "directory_id": 4,
+                "otio": {
+                    "OTIO_SCHEMA": "ImageSequenceReference.1",
+                    "metadata": {},
+                    "name": "",
+                    "available_range": {
+                        "OTIO_SCHEMA": "TimeRange.1",
+                        "duration": {
+                            "OTIO_SCHEMA": "RationalTime.1",
+                            "rate": 30.0,
+                            "value": 1.0
+                        },
+                        "start_time": {
+                            "OTIO_SCHEMA": "RationalTime.1",
+                            "rate": 30.0,
+                            "value": 1.0
+                        }
+                    },
+                    "target_url_base": "",
+                    "name_prefix": "test_project_test_shot_v000.",
+                    "name_suffix": ".png",
+                    "start_frame": 1,
+                    "frame_step": 1,
+                    "rate": 30.0,
+                    "frame_zero_padding": 4,
+                    "missing_frame_policy": "error"
+                }
             },
             true
         ]
     ],
-    "Timeline": [],
     "ToolVersion": [
         [
             {
@@ -356,6 +467,7 @@
             {
                 "project_id": 1,
                 "tool_version_id": 1,
+                "directory_id": 7,
                 "env": {
                     "PYTHONPATH": "/mnt/pipeline_share/python/tools/natron/2.3.15"
                 },

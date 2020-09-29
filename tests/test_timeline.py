@@ -11,7 +11,7 @@ import opentimelineio as otio
 import pytest
 from magla.core.timeline import MaglaTimeline
 from magla.test import TestMagla
-from magla.utils import random_string
+from magla.utils import random_string, dict_to_otio
 
 os.environ["POSTGRES_DB_NAME"] = "magla_testing"
 SEED_DATA = TestMagla.get_seed_data("Timeline")
@@ -56,7 +56,10 @@ class TestMaglaTimeline(TestMagla):
         timeline.data.user_id = 2
         timeline.data.push()
         timeline_check = MaglaTimeline(id=timeline.id)
-        assert timeline_check.user_id == 2
+        result_id = timeline_check.user.id
+        timeline_check.data.user_id = None
+        timeline_check.data.push()
+        assert result_id == 2
 
     # @pytest.mark.parametrize("param", SEED_DATA)
     # def test_can_build(self, param):
