@@ -125,9 +125,9 @@ class MaglaTimeline(MaglaEntity):
                 self.otio.tracks.append(otio.schema.Track(name="background"))
 
         # if there's no placement information place it at the end of current last clip.
-        if shot.start_time_in_parent == None:
+        if shot.start_frame_in_parent == None:
             track = self.otio.tracks[track_index-1]
-            shot.data.start_time_in_parent = int(
+            shot.data.start_frame_in_parent = int(
                 track.available_range().duration.value)
             shot.data.push()
         self.__insert_shot(shot)
@@ -144,7 +144,7 @@ class MaglaTimeline(MaglaEntity):
         if len(self.otio.tracks[track_index-1]) > 0:
             last_clip = self.otio.tracks[track_index-1][-1]
             gap_start = last_clip.range_in_parent().end_time_exclusive().value
-            gap_duration = shot.start_time_in_parent - gap_start
+            gap_duration = shot.start_frame_in_parent - gap_start
             gap = otio.schema.Gap(
                 duration=otio.opentime.RationalTime(gap_duration))
             self.otio.tracks[track_index-1].extend([gap, shot.otio])
@@ -167,13 +167,13 @@ class MaglaTimeline(MaglaEntity):
         track_index = shot.track_index or 1
         track = self.otio.tracks[track_index-1]
         x = track.available_range().duration.value
-        if x <= shot.start_time_in_parent:
+        if x <= shot.start_frame_in_parent:
             # easy just append a gap + our clip
             self.__append_shot(shot)
         else:
-            # insert clip at it's `shot.start_time_in_parent` while splitting the `Gap`
+            # insert clip at it's `shot.start_frame_in_parent` while splitting the `Gap`
             gap = track.child_at_time(otio.opentime.RationalTime(
-                shot.start_time_in_parent, shot.project.settings_2d.rate))
+                shot.start_frame_in_parent, shot.project.settings_2d.rate))
             if not isinstance(gap, otio.schema.Gap):
                 raise MaglaTimelineError(
                     "Expected {0}, but got: {1}".format(type(gap), shot.otio))
@@ -184,7 +184,7 @@ class MaglaTimeline(MaglaEntity):
 
             # define new gap duration
             new_gap_duration = otio.opentime.RationalTime(
-                shot.start_time_in_parent - gap_start, gap_duration.rate)
+                shot.start_frame_in_parent - gap_start, gap_duration.rate)
 
             # apply new gap duration
             gap.source_range = otio.opentime.TimeRange(

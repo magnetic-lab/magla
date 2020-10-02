@@ -84,15 +84,15 @@ class MaglaShot(MaglaEntity):
         return self.data.track_index
 
     @property
-    def start_time_in_parent(self):
-        """Retrieve start_time_in_parent from data.
+    def start_frame_in_parent(self):
+        """Retrieve start_frame_in_parent from data.
 
         Returns
         -------
         int
             Frame number in the timeline that this shot populates inserts itself at
         """
-        return self.data.start_time_in_parent
+        return self.data.start_frame_in_parent or 0
 
     # SQAlchemy relationship back-references
     @property

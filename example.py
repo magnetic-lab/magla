@@ -6,7 +6,7 @@ using the creation methods in the optimal order.
 Each creation method will return the created `MaglaEntity` or in the case that a record already
 exists, creation will abort and return the found record instead. To instead return an
 `EntityAlreadyExistsError`, you must call the `r.create` method directly and pass the
-'return_existing=False` parameter
+'return_existing=False` entity_test_fixtureeter
 
     example:
     ```
@@ -35,14 +35,6 @@ facility = r.create_facility("test_facility",
 
 # Create Machine
 current_machine = r.create_machine(facility.id)
-
-# Create 2D settings template
-settings_2d = r.create(magla.Settings2D, {
-    "label": "Full 4K @30FPS",
-    "width": 4096,
-    "height": 2048,
-    "rate": 30
-})
 
 # Create Project
 test_project = r.create_project("test_project", "/mnt/projects/test_project",
@@ -81,9 +73,16 @@ test_project = r.create_project("test_project", "/mnt/projects/test_project",
         "shot_version_bookmarks": {
             "png_representation": "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
         }
-    },
-    settings_2d_id=settings_2d.id
-    )
+    })
+
+# Create 2D settings template
+settings_2d = r.create(magla.Settings2D, {
+    "label": "Full 4K @30FPS",
+    "width": 4096,
+    "height": 2048,
+    "rate": 30,
+    "project_id": 1
+})
 
 # Create Tool, ToolVersion, ToolVersionInstallation, FileType
 natron_2 = r.create_tool(
@@ -198,7 +197,7 @@ r.all(magla.Directory)
 t = test_project.timeline
 # current process is sending list of `MaglaShot` objects to `build` method
 t.build(test_project.shots)
-# `MaglaShot` objects include a 'track_index' and 'start_time_in_parent' property which are
+# `MaglaShot` objects include a 'track_index' and 'start_frame_in_parent' property which are
 #  external to `opentimlineio` but used by `magla` for automatic building. This implementation
 #  may change.
 t.otio.to_json_file("test_project.json")

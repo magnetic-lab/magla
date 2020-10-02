@@ -12,8 +12,6 @@ class Facility(MaglaORM._Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    repo_dir = Column(String)
-    magla_dir = Column(String)
     settings = Column(JSONB)
 
     machines = relationship("Machine", back_populates="facility")

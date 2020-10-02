@@ -22,7 +22,7 @@ class MaglaToolVersionInstallation(MaglaEntity):
 
     def __init__(self, data=None, **kwargs):
         """Initialize with a name for the tool
-        :param tool_name: name of the tool to initialize
+        :entity_test_fixture tool_name: name of the tool to initialize
         :type tool_name: str
         :raise MaglaToolVersionInstallationNameNotFound: No tool name, or nicknames found
         """

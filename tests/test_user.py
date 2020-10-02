@@ -1,107 +1,77 @@
-"""Testing for `magla.core.seed_user`
-
-TODO: must test `magla.utils` first
-TODO: implement validations for illegal characters and data
-TODO: include tests for expected validation failures
-"""
-import os
+"""Testing for `magla.core.seed_user`"""
 import string
 
 import pytest
 from magla.core.user import MaglaUser
-from magla.test import TestMagla
-from magla.utils import random_string
-
-os.environ["POSTGRES_DB_NAME"] = "magla_testing"
-SEED_DATA = TestMagla.get_seed_data("User")
+from magla.test import MaglaEntityTestFixture
+from magla.utils import random_string, all_otio_to_dict
 
 
-class TestMaglaUser(TestMagla):
+class TestUser(MaglaEntityTestFixture):
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_instantiate(self, param):
-        data, expected_result = param
-        user = MaglaUser(data)
-        self.register_instance(user)
-        assert bool(user) == expected_result
+    @pytest.fixture(scope="function", params=MaglaEntityTestFixture.seed_data("User"))
+    def seed_user(self, request, entity_test_fixture):
+        data, expected_result = request.param
+        yield MaglaUser(data)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_nickname(self, param):
-        data, expected_result = param
-        seed_user = self.get_instance(data.get("id"), "User")
+    def test_can_update_nickname(self, seed_user):
         random_nickname = random_string(string.ascii_letters, 10)
         seed_user.data.nickname = random_nickname
         seed_user.data.push()
-        user_check = MaglaUser(id=seed_user.id)
-        assert user_check.nickname == random_nickname
+        confirmation = MaglaUser(id=seed_user.id)
+        assert confirmation.nickname == random_nickname
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_first_name(self, param):
-        data, expected_result = param
+    def test_can_update_first_name(self, seed_user):    
         random_first_name = random_string(string.ascii_letters, 10)
-        seed_user = self.get_instance(data.get("id"), "User")
         seed_user.data.first_name = random_first_name
         seed_user.data.push()
-        user_check = MaglaUser(id=seed_user.id)
-        assert user_check.first_name == random_first_name
+        confirmation = MaglaUser(id=seed_user.id)
+        assert confirmation.first_name == random_first_name
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_last_name(self, param):
-        data, expected_result = param
+    def test_can_update_last_name(self, seed_user):
         random_last_name = random_string(string.ascii_letters, 10)
-        seed_user = self.get_instance(data.get("id"), "User")
         seed_user.data.last_name = random_last_name
         seed_user.data.push()
-        user_check = MaglaUser(id=seed_user.id)
-        assert user_check.last_name == random_last_name
+        confirmation = MaglaUser(id=seed_user.id)
+        assert confirmation.last_name == random_last_name
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_email(self, param):
-        data, expected_result = param
+    def test_can_update_email(self, seed_user):
         random_email = "{local}@{domain_name}.{domain}".format(
             local=random_string(string.ascii_letters, 10),
             domain_name=random_string(string.ascii_letters, 10),
             domain=random_string(string.ascii_letters, 3)
         )
-        seed_user = self.get_instance(data.get("id"), "User")
         seed_user.data.email = random_email
         seed_user.data.push()
-        user_check = MaglaUser(id=seed_user.id)
-        assert user_check.email == random_email
+        confirmation = MaglaUser(id=seed_user.id)
+        assert confirmation.email == random_email
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_null_context(self, param):
-        data, expected_result = param
-        seed_user = self.get_instance(data.get("id"), "User")
-        assert seed_user.context is None
+    def test_can_retrieve_null_context(self, seed_user):
+        assert seed_user.context.dict() == self.get_seed_data("Context", seed_user.context.id-1)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_null_assignments(self, param):
-        data, expected_result = param
-        seed_user = self.get_instance(data.get("id"), "User")
-        assert seed_user.assignments == []
+    def test_can_retrieve_assignments(self, seed_user):
+        if seed_user.id == 1:
+            from_backend = seed_user.assignments[0].dict()
+            from_seed_data = self.get_seed_data("Assignment", seed_user.assignments[0].id-1)
+            assert all_otio_to_dict(from_backend) == from_seed_data
+        elif seed_user.id == 2:
+            assert seed_user.assignments == []
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_null_directories(self, param):
-        data, expected_result = param
-        seed_user = self.get_instance(data.get("id"), "User")
+    def test_can_retrieve_directories(self, seed_user):
         assert seed_user.directories
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_null_timelines(self, param):
-        data, expected_result = param
-        seed_user = self.get_instance(data.get("id"), "User")
-        assert seed_user.timelines == []
+    def test_can_retrieve_timelines(self, seed_user):
+        if seed_user.id == 1:
+            assert seed_user.timelines == []
+        elif seed_user.id == 2:
+            # better to convert all `otio` objects to dict before comparison
+            data_from_db = all_otio_to_dict(seed_user.timelines[0].dict())
+            seed_data = all_otio_to_dict(self.get_seed_data("Timeline", seed_user.timelines[0].id-1))
+            assert data_from_db == seed_data
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_null_directory(self, param):
-        data, expected_result = param
-        seed_user = self.get_instance(data.get("id"), "User")
+    def test_can_retrieve_null_directory(self, seed_user):
         random_nickname = random_string(string.ascii_letters, 10)
         assert seed_user.directory(random_nickname) == None
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_null_permissions(self, param):
-        data, expected_result = param
-        seed_user = self.get_instance(data.get("id"), "User")
+    def test_can_retrieve_null_permissions(self, seed_user):
         assert seed_user.permissions() == {}

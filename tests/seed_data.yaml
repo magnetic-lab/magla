@@ -1,12 +1,14 @@
 ---
 Facility:
-- - name: test_facility
+- - id: 1
+    name: test_facility
     settings:
       tool_install_directory_label: "{tool_version.tool.name}_{tool_version.string}"
   - true
 Machine:
-- - facility_id: 1
-    uuid: 00000000-0000-0000-0000-73cb6de7082a
+- - id: 1
+    facility_id: 1
+    uuid: 00000000-0000-0000-0000-277eb57f1cd7
     name: test_machine
   - true
 User:
@@ -35,6 +37,18 @@ Directory:
       backups: ".backups"
       current_assignments: current_assignments
   - true
+# - - id: 9
+#     machine_id: 1
+#     user_id: null
+#     label: dummy tool directory.
+#     path: "/home/jacob/working_dir"
+#     tree:
+#     - current_assignments: []
+#     - ".backups": []
+#     bookmarks:
+#       backups: ".backups"
+#       current_assignments: current_assignments
+#   - true
 - - id: 2
     machine_id: 1
     label: test_project root directory.
@@ -49,6 +63,20 @@ Directory:
   - true
 - - id: 3
     machine_id: 1
+    user_id: null
+    label: dummy project root directory for testin gpurposes only.
+    path: "/mnt/projects/dummy_project"
+    bookmarks: {}
+    tree:
+    - shots: []
+    - audio: []
+    - preproduction:
+      - mood: []
+      - reference: []
+      - edit: []
+  - true
+- - id: 4
+    machine_id: 1
     label: test_shot_01 root directory.
     path: "{shot.project.directory.path}/shots/{shot.name}"
     tree:
@@ -57,10 +85,12 @@ Directory:
       - png: []
       - webm: []
   - true
-- - id: 4
+- - id: 5
     machine_id: 1
+    user_id: null
     label: test_shot_01_v000 root directory.
     path: "{shot_version.shot.directory.path}/{shot_version.num}"
+    bookmarks: {}
     tree:
     - _in:
       - plate: []
@@ -71,7 +101,7 @@ Directory:
         - png: []
         - mov: []
   - true
-- - id: 5
+- - id: 6
     machine_id: 1
     label: natron 2.3.15 root directory on machine 1.
     path: "/opt/Natron-2.3.15/bin/natron"
@@ -84,7 +114,7 @@ Directory:
       - png: []
       - subsets: []
   - true
-- - id: 6
+- - id: 7
     machine_id: 1
     user_id: 2
     label: 2nd test_user's working directory on machine 1.
@@ -96,7 +126,7 @@ Directory:
       backups: ".backups"
       current_assignments: current_assignments
   - true
-- - id: 7
+- - id: 8
     machine_id: 1
     label: shot version tool-subdirectory.
     path: "/home/jacob/working_dir"
@@ -106,12 +136,6 @@ Directory:
     bookmarks:
       backups: ".backups"
       current_assignments: current_assignments
-  - true
-Settings2D:
-- - label: Full 4K @30FPS
-    width: 4096
-    height: 2048
-    rate: 30
   - true
 Timeline:
 - - id: 1
@@ -130,8 +154,26 @@ Timeline:
         markers: []
         children: []
   - true
+- - id: 2
+    label: dummy timeline to assign temporarily during tests.
+    user_id: 2
+    otio:
+      OTIO_SCHEMA: Timeline.1
+      metadata: {}
+      name: test_project
+      global_start_time: 
+      tracks:
+        OTIO_SCHEMA: Stack.1
+        metadata: {}
+        name: tracks
+        source_range: 
+        effects: []
+        markers: []
+        children: []
+  - true
 Project:
-- - name: test_project
+- - id: 1
+    name: test_project
     directory_id: 2
     timeline_id: 1
     settings:
@@ -163,11 +205,30 @@ Project:
       shot_version_bookmarks:
         png_representation: representations/png_sequence/_out/png/{shot_version.full_name}.####.png
   - true
+Settings2D:
+- - id: 1
+    project_id: 1
+    label: Full 4K @30FPS
+    width: 4096
+    height: 2048
+    rate: 30
+    color_profile: null
+  - true
+- - id: 2
+    project_id: 1
+    label: Full 2K @60FPS
+    width: 4096
+    height: 2048
+    rate: 60
+    color_profile: null
+  - true
 Tool:
-- - name: natron
+- - id: 1
+    name: natron
   - true
 Shot:
-- - name: test_shot_01
+- - id: 1
+    name: test_shot_01
     project_id: 1
     directory_id: 3
     otio:
@@ -192,7 +253,7 @@ Shot:
             rate: 30
             value: 1
         target_url_base: ''
-        name_prefix: test_project_test_shot_01_v000.
+        name_prefix: test_project_test_shot_v000.
         name_suffix: ".png"
         start_frame: 1
         frame_step: 1
@@ -200,10 +261,9 @@ Shot:
         frame_zero_padding: 4
         missing_frame_policy: error
   - true
-Assignment: []
-Context: []
 ShotVersion:
-- - num: 0
+- - id: 1
+    num: 0
     shot_id: 1
     directory_id: 4
     otio:
@@ -229,20 +289,40 @@ ShotVersion:
       frame_zero_padding: 4
       missing_frame_policy: error
   - true
+Assignment:
+- - id: 1
+    user_id: 1
+    shot_version_id: 1
+  - true
+Context:
+- - id: 1
+    machine_id: 1
+    assignment_id: 1
+  - true
+- - id: 2
+    machine_id: 1
+    assignment_id: 1
+  - true
 ToolVersion:
-- - string: 2.3.15
+- - id: 1
+    string: 2.3.15
     tool_id: 1
+    file_extension: null
+    file_types_id: null
   - true
 ToolVersionInstallation:
-- - tool_version_id: 1
+- - id: 1
+    tool_version_id: 1
     directory_id: 5
   - true
 ToolConfig:
-- - project_id: 1
+- - id: 1
+    project_id: 1
     tool_version_id: 1
     directory_id: 7
     env:
       PYTHONPATH: "/mnt/pipeline_share/python/tools/natron/2.3.15"
+      PATH: ""
     copy_dict:
       gizmos:
       - "/mnt/pipeline_share/tools/natron/gizmos/natron_gg"

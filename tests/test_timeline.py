@@ -1,107 +1,40 @@
-"""Testing for `magla.core.timeline`
-
-TODO: must test `magla.utils` first
-TODO: implement validations for illegal characters and data
-TODO: include tests for expected validation failures
-"""
-import os
+"""Testing for `magla.core.seed_timeline`"""
 import string
 
-import opentimelineio as otio
 import pytest
 from magla.core.timeline import MaglaTimeline
-from magla.test import TestMagla
-from magla.utils import random_string, dict_to_otio
-
-os.environ["POSTGRES_DB_NAME"] = "magla_testing"
-SEED_DATA = TestMagla.get_seed_data("Timeline")
+from magla.test import MaglaEntityTestFixture
+from magla.utils import random_string
 
 
-class TestMaglaTimeline(TestMagla):
+class TestTimeline(MaglaEntityTestFixture):
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_instantiate(self, param):
-        data, expected_result = param
-        timeline = MaglaTimeline(data)
-        self.register_instance(timeline)
-        assert bool(timeline) == expected_result
+    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Timeline"))
+    def seed_timeline(self, request, entity_test_fixture):
+        data, expected_result = request.param
+        yield MaglaTimeline(data)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_label(self, param):
-        data, expected_result = param
-        timeline = self.get_instance(data.get("id"), "Timeline")
+    def test_can_update_label(self, seed_timeline):
         random_label = random_string(string.ascii_letters, 10)
-        timeline.data.label = random_label
-        timeline.data.push()
-        timeline_check = MaglaTimeline(id=timeline.id)
-        assert timeline_check.label == random_label
+        seed_timeline.data.label = random_label
+        seed_timeline.data.push()
+        confirmation = MaglaTimeline(id=seed_timeline.id)
+        assert confirmation.label == random_label
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_otio(self, param):
-        data, expected_result = param
+    def test_can_update_otio(self, seed_timeline):
         random_name = random_string(string.ascii_letters, 10)
-        timeline = self.get_instance(data.get("id"), "Timeline")
-        timeline.data.otio.name = random_name
-        timeline.data.push()
-        confirmation = MaglaTimeline(id=timeline.id)
-        assert (
-            confirmation.otio.name == random_name) \
-            == expected_result
+        seed_timeline.data.otio.name = random_name
+        seed_timeline.data.push()
+        confirmation = MaglaTimeline(id=seed_timeline.id)
+        assert confirmation.otio.name == random_name
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_user(self, param):
-        # TODO: get user id more dynamically here don't want anything hard-coded
-        data, expected_result = param
-        timeline = self.get_instance(data.get("id"), "Timeline")
-        timeline.data.user_id = 2
-        timeline.data.push()
-        timeline_check = MaglaTimeline(id=timeline.id)
-        result_id = timeline_check.user.id
-        timeline_check.data.user_id = None
-        timeline_check.data.push()
+    def test_can_update_user(self, seed_timeline):
+        reset_user_id = seed_timeline.data.user_id
+        seed_timeline.data.user_id = 2
+        seed_timeline.data.push()
+        confirmation = MaglaTimeline(id=seed_timeline.id)
+        result_id = confirmation.user.id
+        # set the user_id back to 'none' to not interfere with subsequent tests
+        confirmation.data.user_id = reset_user_id
+        confirmation.data.push()
         assert result_id == 2
-
-    # @pytest.mark.parametrize("param", SEED_DATA)
-    # def test_can_build(self, param):
-    #     # TODO: need more thorough testing here for construction of timeline
-    #     # need shots list here
-    #     data, expected_result = param
-    #     timeline = self.get_instance(data.get("id"), "Timeline")
-    #     assert isinstance(timeline.build().otio, otio.schema.Timeline)
-
-    # @pytest.mark.parametrize("param", SEED_DATA)
-    # def test_can_retrieve_null_context(self, param):
-    #     data, expected_result = param
-    #     timeline = self.get_instance(data.get("id"), "Timeline")
-    #     assert timeline.context is None
-
-    # @pytest.mark.parametrize("param", SEED_DATA)
-    # def test_can_retrieve_null_assignments(self, param):
-    #     data, expected_result = param
-    #     timeline = self.get_instance(data.get("id"), "Timeline")
-    #     assert timeline.assignments == []
-
-    # @pytest.mark.parametrize("param", SEED_DATA)
-    # def test_can_retrieve_null_directories(self, param):
-    #     data, expected_result = param
-    #     timeline = self.get_instance(data.get("id"), "Timeline")
-    #     assert timeline.directories
-
-    # @pytest.mark.parametrize("param", SEED_DATA)
-    # def test_can_retrieve_null_timelines(self, param):
-    #     data, expected_result = param
-    #     timeline = self.get_instance(data.get("id"), "Timeline")
-    #     assert timeline.timelines == []
-
-    # @pytest.mark.parametrize("param", SEED_DATA)
-    # def test_can_retrieve_null_directory(self, param):
-    #     data, expected_result = param
-    #     timeline = self.get_instance(data.get("id"), "Timeline")
-    #     random_label = random_string(string.ascii_letters, 10)
-    #     assert timeline.directory(random_label) == None
-
-    # @pytest.mark.parametrize("param", SEED_DATA)
-    # def test_can_retrieve_null_permissions(self, param):
-    #     data, expected_result = param
-    #     timeline = self.get_instance(data.get("id"), "Timeline")
-    #     assert timeline.permissions() == {}

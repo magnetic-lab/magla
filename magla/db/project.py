@@ -11,15 +11,13 @@ class Project(MaglaORM._Base):
     __entity_name__ = "Project"
 
     id = Column(Integer, primary_key=True)
-    settings_2d_id = Column(Integer, ForeignKey("settings_2d.id"))
     directory_id = Column(Integer, ForeignKey("directories.id"))
     timeline_id = Column(Integer, ForeignKey("timelines.id"))
     name = Column(String)
-    path = Column(String)
     settings = Column(JSONB)
 
     timeline = relationship("Timeline")
-    settings_2d = relationship("Settings2D")
+    settings_2d = relationship("Settings2D", back_populates="project")
     shots = relationship("Shot", back_populates="project")
     tool_configs = relationship("ToolConfig", back_populates="project")
     directory = relationship("Directory")

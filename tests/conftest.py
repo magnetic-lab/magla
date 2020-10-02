@@ -1,19 +1,16 @@
-"""Root testing fixture for creating and serving mock database session.
-
-TODO: use second parameterized fixture to serve magla instances to the tests.
-"""
-import pytest
+"""Root testing fixture for creating and serving mock database session."""
 import os
 os.environ["POSTGRES_DB_NAME"] = "magla_testing"
 
-from magla.core import Entity
+import pytest
+from magla.test import MaglaEntityTestFixture
 
 @pytest.fixture(scope='session')
-def db_session(request):
-    Entity.connect()
-    Entity._orm._construct_engine()
-    Entity._orm._create_all_tables()
-    Entity._orm._construct_session()
-    yield Entity._orm.session
-    Entity._orm.session.close()
-    Entity._orm._drop_all_tables()
+def entity_test_fixture(request):
+    entity_test_fixture = MaglaEntityTestFixture()
+    # start testing session with backend
+    entity_test_fixture.start()
+    yield entity_test_fixture
+    # end testing session and drop all tables
+    entity_test_fixture.end(drop_tables=True)
+

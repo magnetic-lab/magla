@@ -22,20 +22,20 @@ class MaglaEntity(object):
     """
     _orm = None
 
-    def __init__(self, record, data=None, **kwargs):
-        """Initialize with record definition, data, and supplimental kwargs as key-value pairs.
+    def __init__(self, model, data=None, **kwargs):
+        """Initialize with model definition, data, and supplimental kwargs as key-value pairs.
 
         Parameters
         ----------
-        record : [type]
-            [description]
-        data : [type]
-            [description]
+        model : sqlalchemy.ext.declarative
+            The associated model for this subentity.
+        data : dict
+            The data to use in the query to retrieve from backend.
 
         Raises
         ------
         BadArgumentError
-            [description]
+            Invalid argument was given which prevents instantiation.
         """
         self.connect()
         if kwargs:
@@ -44,7 +44,7 @@ class MaglaEntity(object):
             for k, v in dict(kwargs).items():
                 data[k] = v
         if not isinstance(data, MaglaData):
-            data = MaglaData(record, data, self.orm.session)
+            data = MaglaData(model, data, self.orm.session)
         if not isinstance(data, MaglaData):
             raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
                 "Received: \n\t{received} ({type_received})".format(
@@ -70,7 +70,7 @@ class MaglaEntity(object):
         id_ = self.id
         if "id" in data:
             del(data["id"])
-        entity_type = self.data.record.__class__.__name__
+        entity_type = self.data._schema.__class__.__name__
         keys_n_vals = ["{0}={1}".format(*tup) for tup in data.items()]
 
         return "<{entity_type} {id}: {keys_n_vals}>".format(
@@ -83,12 +83,12 @@ class MaglaEntity(object):
   
     @classmethod
     def from_record(cls, record_obj, **kwargs):
-        """Instantiate a sub-entity matching the properties of given record object.
+        """Instantiate a sub-entity matching the properties of given model object.
 
         Parameters
         ----------
         record_obj : sqlalchemy.ext.declarative.api.Base
-            A `SQLAlchemy` mapped entity record containing data directly from backend
+            A `SQLAlchemy` mapped entity model containing data directly from backend
 
         Returns
         -------
@@ -101,11 +101,11 @@ class MaglaEntity(object):
             An invalid argument was given.
         """
         if not record_obj:
-            raise BadArgumentError("'{}' is not a valid record instance.".format(record_obj))
+            raise BadArgumentError("'{}' is not a valid model instance.".format(record_obj))
         # get modeul from magla here
         entity_type = cls.type(record_obj.__entity_name__)
-        x = record_to_dict(record_obj)
-        return entity_type(x, **kwargs)
+        data = record_to_dict(record_obj)
+        return entity_type(data, **kwargs)
 
     def dict(self):
         """Return dictionary representation of this entity.

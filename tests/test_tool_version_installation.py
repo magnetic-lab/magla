@@ -1,38 +1,23 @@
 """Testing for `magla.core.tool_version_installation`"""
-import os
-import string
-
 import pytest
 from magla.core.tool_version_installation import MaglaToolVersionInstallation
-from magla.test import TestMagla
-
-os.environ["POSTGRES_DB_NAME"] = "magla_testing"
-SEED_DATA = TestMagla.get_seed_data("ToolVersionInstallation")
+from magla.test import MaglaEntityTestFixture
 
 
-class TestMaglaToolVersionInstallation(TestMagla):
+class TestToolVersionInstallation(MaglaEntityTestFixture):
+    
+    @pytest.fixture(scope="function", params=MaglaEntityTestFixture.seed_data("ToolVersionInstallation"))
+    def seed_tool_version_installation(self, request, entity_test_fixture):
+        data, expected_result = request.param
+        yield MaglaToolVersionInstallation(data)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_instantiate(self, param):
-        data, expected_result = param
-        tool_version_installation = MaglaToolVersionInstallation(data)
-        self.register_instance(tool_version_installation)
-        assert bool(tool_version_installation) == expected_result
+    def test_can_retrieve_directory(self, seed_tool_version_installation):
+        x = seed_tool_version_installation.directory.data.dict()
+        y = self.get_seed_data("Directory", seed_tool_version_installation.directory.id-1)
+        assert seed_tool_version_installation.directory.data.dict() == self.get_seed_data("Directory", seed_tool_version_installation.directory.id-1)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_directory(self, param):
-        data, expected_result = param
-        tool_version_installation = self.get_instance(data.get("id"), "ToolVersionInstallation")
-        assert bool(tool_version_installation.directory) == expected_result
+    def test_can_retrieve_tool_version(self, seed_tool_version_installation):
+        assert seed_tool_version_installation.tool_version.data.dict() == self.get_seed_data("ToolVersion", seed_tool_version_installation.tool_version.id-1)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_tool_version(self, param):
-        data, expected_result = param
-        tool_version_installation = self.get_instance(data.get("id"), "ToolVersionInstallation")
-        assert bool(tool_version_installation.tool_version) == expected_result
-
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retieve_tool(self, param):
-        data, expected_result = param
-        tool_version_installation = self.get_instance(data.get("id"), "ToolVersionInstallation")
-        assert bool(tool_version_installation.tool) == expected_result
+    def test_can_retieve_tool(self, seed_tool_version_installation):
+        assert seed_tool_version_installation.tool.data.dict() == self.get_seed_data("Tool", seed_tool_version_installation.tool.id-1)

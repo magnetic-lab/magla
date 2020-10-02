@@ -1,85 +1,62 @@
-"""Testing for `magla.core.shot_version`"""
+"""Testing for `magla.core.seed_shot_version`"""
+from magla.core import ShotVersion
 import os
 import random
 import string
 
 import pytest
 from magla.core.shot_version import MaglaShotVersion
-from magla.test import TestMagla
-from magla.utils import random_string
-
-os.environ["POSTGRES_DB_NAME"] = "magla_testing"
-SEED_DATA = TestMagla.get_seed_data("ShotVersion")
+from magla.test import MaglaEntityTestFixture
+from magla.utils import all_otio_to_dict, random_string
 
 
-class TestMaglaShotVersion(TestMagla):
+class TestShotVersion(MaglaEntityTestFixture):
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_instantiate(self, param):
-        data, expected_result = param
-        shot_version = MaglaShotVersion(data)
-        self.register_instance(shot_version)
-        assert bool(shot_version) == expected_result
+    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("ShotVersion"))
+    def seed_shot_version(self, request, entity_test_fixture):
+        data, expected_result = request.param
+        yield MaglaShotVersion(data)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_num(self, param):
-        data, expected_result = param
+    def test_can_update_num(self, seed_shot_version):
+        reset_data = seed_shot_version.dict()
         random_num = random.randint(0, 115)
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        shot_version.data.num = random_num
-        shot_version.data.push()
-        confirmation = MaglaShotVersion(id=shot_version.id)
-        assert (
-            confirmation.num == random_num) \
-            == expected_result
+        seed_shot_version.data.num = random_num
+        seed_shot_version.data.push()
+        confirmation = MaglaShotVersion(id=seed_shot_version.id)
+        num_from_backend = confirmation.num
+        # undo changes
+        confirmation.data.update(reset_data)
+        confirmation.data.push()
+        assert num_from_backend == random_num
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_update_otio(self, param):
-        data, expected_result = param
-        random_name = random_string(string.ascii_letters, 10)
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        shot_version.data.otio.target_url_base = random_name
-        shot_version.data.push()
-        confirmation = MaglaShotVersion(id=shot_version.id)
-        assert (
-            confirmation.otio.target_url_base == random_name) \
-            == expected_result
+    def test_can_update_otio(self, seed_shot_version):
+        reset_data = seed_shot_version.dict()
+        random_target_url_base = random_string(string.ascii_letters, 10)
+        seed_shot_version.data.otio.target_url_base = random_target_url_base
+        seed_shot_version.data.push()
+        confirmation = MaglaShotVersion(id=seed_shot_version.id)
+        target_url_base_from_backend = confirmation.otio.target_url_base
+        # undo changes
+        confirmation.data.update(all_otio_to_dict(reset_data))
+        confirmation.data.push()
+        assert target_url_base_from_backend == random_target_url_base
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retieve_directory(self, param):
-        data, expected_result = param
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        assert bool(shot_version.directory.id == data["directory_id"]) == expected_result
+    def test_can_retieve_directory(self, seed_shot_version):
+        assert seed_shot_version.directory.dict() == self.get_seed_data("Directory", seed_shot_version.directory.id-1)
         
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retieve_assignment(self, param):
-        data, expected_result = param
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        assert shot_version.assignment == None
+    def test_can_retieve_assignment(self, seed_shot_version):
+        assert seed_shot_version.assignment.dict() == self.get_seed_data("Assignment", seed_shot_version.assignment.id-1)
 
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_shot(self, param):
-        data, expected_result = param
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        assert bool(shot_version.shot.id == data["shot_id"]) == expected_result
+    def test_can_retrieve_shot(self, seed_shot_version):
+        assert seed_shot_version.project.dict() == self.get_seed_data("Project", seed_shot_version.project.id-1)
         
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_retrieve_project(self, param):
-        # TODO: need to test validity of constructed project
-        data, expected_result = param
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        assert shot_version.project.id == 1
+    def test_can_retrieve_project(self, seed_shot_version):
+        assert seed_shot_version.project.dict() == self.get_seed_data("Project", seed_shot_version.project.id-1)
         
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_generate_name(self, param):
-        # TODO: need to test validity of constructed name
-        data, expected_result = param
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        assert bool(shot_version.name) == expected_result
+    def test_can_generate_name(self, seed_shot_version):
+        assert seed_shot_version.name == "{shot_name}_v{version_num:03d}".format(
+            shot_name=seed_shot_version.shot.name,
+            version_num=seed_shot_version.num)
         
-    @pytest.mark.parametrize("param", SEED_DATA)
-    def test_can_generate_full_name(self, param):
-        # TODO: need to test validity of constructed name
-        data, expected_result = param
-        shot_version = self.get_instance(data.get("id"), "ShotVersion")
-        assert bool(shot_version.full_name) == expected_result
+    def test_can_generate_full_name(self, seed_shot_version):
+        assert seed_shot_version.directory.dict() == self.get_seed_data("Directory", seed_shot_version.directory.id-1)

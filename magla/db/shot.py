@@ -16,7 +16,7 @@ class Shot(MaglaORM._Base):
     name = Column(String)
     otio = Column(JSONB)
     track_index = Column(Integer)
-    start_time_in_parent = Column(Integer)
+    start_frame_in_parent = Column(Integer)
 
     project = relationship("Project", uselist=False, back_populates="shots")
     versions = relationship("ShotVersion", back_populates="shot")

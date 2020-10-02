@@ -136,6 +136,8 @@ def open_directory_location(target_path):
     target_path : str
         Path to open
     """
+    if not isinstance(target_path, str):
+        raise Exception("Must provide string!")
     if sys.platform=='win32':
         subprocess.Popen(['start', target_path], shell= True)
     elif sys.platform=='darwin':
@@ -161,7 +163,7 @@ def random_string(choices_str, length):
     str
         A random string of characters
     """
-    return ''.join(random.choice(choices_str) for _ in range(length))
+    return ''.join(random.choice(str(choices_str)) for _ in range(length))
 
 def get_class_by_tablename(base, tablename):
     """Return class reference mapped to table.
