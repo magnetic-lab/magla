@@ -1,10 +1,4 @@
-"""Testing for `magla.core.seed_project`
-
-TODO: must test `magla.utils` first
-TODO: implement validations for illegal characters and data
-TODO: include tests for expected validation failures
-"""
-from magla.core import tool_config
+"""Testing for `magla.core.seed_project`"""
 import os
 import string
 import tempfile
@@ -13,7 +7,6 @@ import opentimelineio as otio
 import pytest
 from magla.core.project import MaglaProject
 from magla.test import MaglaEntityTestFixture
-from magla.utils import all_otio_to_dict, otio_to_dict, random_string
 
 
 class TestProject(MaglaEntityTestFixture):

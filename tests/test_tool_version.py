@@ -39,4 +39,5 @@ class TestToolVersion(MaglaEntityTestFixture):
         assert seed_tool_version.installations
 
     def test_can_generate_full_name(self, seed_tool_version):
-        assert seed_tool_version.full_name == "{}_{}".format(seed_tool_version.tool.name, seed_tool_version.string)
+        assert seed_tool_version.full_name == "{}_{}".format(
+            seed_tool_version.tool.name, seed_tool_version.string)

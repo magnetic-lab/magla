@@ -1,6 +1,4 @@
 """Testing for `magla.core.seed_shot_version`"""
-from magla.core import ShotVersion
-import os
 import random
 import string
 

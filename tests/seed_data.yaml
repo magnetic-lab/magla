@@ -37,18 +37,6 @@ Directory:
       backups: ".backups"
       current_assignments: current_assignments
   - true
-# - - id: 9
-#     machine_id: 1
-#     user_id: null
-#     label: dummy tool directory.
-#     path: "/home/jacob/working_dir"
-#     tree:
-#     - current_assignments: []
-#     - ".backups": []
-#     bookmarks:
-#       backups: ".backups"
-#       current_assignments: current_assignments
-#   - true
 - - id: 2
     machine_id: 1
     label: test_project root directory.

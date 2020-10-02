@@ -1,17 +1,11 @@
-"""Testing for `magla.core.seed_settings_2d`
-
-TODO: must test `magla.utils` first
-TODO: implement validations for illegal characters and data
-TODO: include tests for expected validation failures
-"""
-import os
-import string
+"""Testing for `magla.core.seed_settings_2d`"""
 import random
+import string
 
 import pytest
 from magla.core.settings_2d import MaglaSettings2D
 from magla.test import MaglaEntityTestFixture
-from magla.utils import all_otio_to_dict, random_string, record_to_dict
+from magla.utils import random_string
 
 
 class TestSettings2D(MaglaEntityTestFixture):

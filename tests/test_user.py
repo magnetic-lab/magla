@@ -4,7 +4,7 @@ import string
 import pytest
 from magla.core.user import MaglaUser
 from magla.test import MaglaEntityTestFixture
-from magla.utils import random_string, all_otio_to_dict
+from magla.utils import all_otio_to_dict, random_string
 
 
 class TestUser(MaglaEntityTestFixture):
@@ -21,7 +21,7 @@ class TestUser(MaglaEntityTestFixture):
         confirmation = MaglaUser(id=seed_user.id)
         assert confirmation.nickname == random_nickname
 
-    def test_can_update_first_name(self, seed_user):    
+    def test_can_update_first_name(self, seed_user):
         random_first_name = random_string(string.ascii_letters, 10)
         seed_user.data.first_name = random_first_name
         seed_user.data.push()

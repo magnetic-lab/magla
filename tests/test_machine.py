@@ -9,6 +9,7 @@ from magla.core.machine import MaglaMachine
 from magla.test import MaglaEntityTestFixture
 from magla.utils import random_string
 
+
 class TestMachine(MaglaEntityTestFixture):
 
     @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Machine"))

@@ -1,12 +1,11 @@
 """Testing for `magla.core.shot`"""
-import os
-import string
 import random
+import string
 
 import pytest
 from magla.core.shot import MaglaShot
 from magla.test import MaglaEntityTestFixture
-from magla.utils import all_otio_to_dict, otio_to_dict, random_string
+from magla.utils import all_otio_to_dict, random_string
 
 
 class TestShot(MaglaEntityTestFixture):

@@ -1,5 +1,4 @@
 """Testing for `magla.core.seed_tool`"""
-from random import seed
 import string
 
 import pytest
