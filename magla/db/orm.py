@@ -65,7 +65,7 @@ class MaglaORM(object):
     @classmethod
     def _construct_session(cls):
         """Construct a session instance for backend communication."""
-        cls._Session = cls.sessionmaker(cls._Engine)
+        cls._Session = cls.sessionmaker()
 
     @classmethod
     def _construct_engine(cls):

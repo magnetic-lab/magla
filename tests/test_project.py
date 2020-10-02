@@ -7,6 +7,7 @@ import opentimelineio as otio
 import pytest
 from magla.core.project import MaglaProject
 from magla.test import MaglaEntityTestFixture
+from magla.utils import random_string, all_otio_to_dict, otio_to_dict
 
 
 class TestProject(MaglaEntityTestFixture):
