@@ -1,10 +1,9 @@
-"""This is the primary database interface for Magla and SQLAlchemy/Postgre.
+"""This is the primary database interface for Magla and SQLAlchemy/Postgres.
 
 This module is intended to serve as a generic python `CRUD` interface and should remain decoupled
 from `magla`.
 
-To replace with your own backend just keep the below method signatures intact, and make sure to
-implement your own `classmethod` for converting to `MaglaEntity` (see 'magla/core/entity.py').
+To replace with your own backend just keep the below method signatures intact.
 """
 from os import getenv
 
@@ -16,10 +15,12 @@ from sqlalchemy.orm.session import sessionmaker
 class MaglaORM(object):
     """Manage the connection to backend and facilitate `CRUD` operations.
 
-    All conversions form backend data to `MaglaEntity` objects or lists should happen here.
-
     This Class is meant to serve as an adapter to any backend in case a different one is desired.
     DB connection settings and credentials should also be managed here.
+
+    All conversions form backend data to `MaglaEntity` objects or lists should happen here using
+    the `from_record` or `from_dict` classmethods. In this way rhe core `magla` module can remain
+    decoupled.
     """
     # `postgres` connection string variables
     CONFIG = {
@@ -53,19 +54,22 @@ class MaglaORM(object):
 
     @classmethod
     def _create_all_tables(cls):
-        """Create all tables currently defined by `cls._Base`."""
+        """Create all tables currently defined in metadata."""
         cls._Base.metadata.create_all(cls._Engine)
 
     @classmethod
     def _drop_all_tables(cls):
+        """Drop all tables currently defined in metadata."""
         cls._Base.metadata.drop_all(bind=cls._Engine)
 
     @classmethod
     def _construct_session(cls):
+        """Construct a session instance for backend communication."""
         cls._Session = cls.sessionmaker(cls._Engine)
 
     @classmethod
     def _construct_engine(cls):
+        """Construct the engine to be used by `SQLAlchemy`."""
         cls._Engine = create_engine(
             "postgresql://{username}:{password}@{hostname}:{port}/{db_name}".format(
                 **cls.CONFIG),
@@ -76,7 +80,7 @@ class MaglaORM(object):
         )
 
     @classmethod
-    def sessionmaker(cls, *args, **kwargs):
+    def sessionmaker(cls, **kwargs):
         """Create new session facrory.
 
         Returns

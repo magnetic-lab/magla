@@ -130,7 +130,7 @@ class MaglaShot(MaglaEntity):
         Returns
         -------
         list of magla.core.shot_version.MaglaShotVersion
-            The `MaglaShotVersion` for this project
+            A list of `MaglaShotVersion` for this project
         """
         r = self.data.record.versions
         if r == None:

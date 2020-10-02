@@ -162,5 +162,6 @@ class MaglaEntity(object):
     
     @classmethod
     def connect(cls):
+        """Instantiate the `MaglaORM` object."""
         if not cls._orm:
             cls._orm = ORM()

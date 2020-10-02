@@ -30,11 +30,25 @@ class MaglaToolVersionInstallation(MaglaEntity):
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
 
     # SQAlchemy relationship back-references
     @property
     def directory(self):
+        """Shortcut method to retrieve related `MaglaDirectory` back-reference.
+
+        Returns
+        -------
+        magla.core.directory.MaglaDirectory
+            The `MaglaDirectory` for this tool-version-installation
+        """
         r = self.data.record.directory
         if not r:
             return None
@@ -42,6 +56,13 @@ class MaglaToolVersionInstallation(MaglaEntity):
 
     @property
     def tool_version(self):
+        """Shortcut method to retrieve related `MaglaToolVersion` back-reference.
+
+        Returns
+        -------
+        magla.core.tool_version.MaglaToolVersion
+            The `MaglaToolVersion` for this tool-version-installation
+        """
         r = self.data.record.tool_version
         if not r:
             return None
@@ -50,4 +71,11 @@ class MaglaToolVersionInstallation(MaglaEntity):
     # MaglaToolVersionInstallation-specific methods _____________________________________________
     @property
     def tool(self):
+        """Shortcut method to retrieve related `MaglaTool` back-reference.
+
+        Returns
+        -------
+        magla.core.tool.MaglaTool
+            The `MaglaTool` for this tool-version-installation
+        """
         return self.tool_version.tool
