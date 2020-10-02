@@ -118,6 +118,7 @@ class MaglaMachine(MaglaEntity):
         list of magla.core.context.MaglaContext
             The current user `MaglaContext` if any, for this machine
         """
-        r = self.data.record.contexts
-        if r == None:
+        contexts = self.data.record.contexts
+        if contexts == None:
             return None
+        return [self.from_record(c) for c in contexts]

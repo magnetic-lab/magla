@@ -1,4 +1,9 @@
-"""2D settings are output settings that can be recycled and used accross multiple projects."""
+"""2D settings are output settings that can be recycled and used accross multiple projects.
+
+It is especially important to encapsulate any settings and properties that are or would be
+associated to video codec specifications. Specialized video codecs will sometimes have inherent
+requirements 
+"""
 from .entity import MaglaEntity
 from .errors import MaglaError
 from ..db.settings_2d import Settings2D
@@ -34,15 +39,15 @@ class MaglaSettings2D(MaglaEntity):
         return self.data.id
 
     @property
-    def height(self):
-        """Retrieve width from data.
+    def label(self):
+        """Retrieve label.
 
         Returns
         -------
         int
-            width amount
+            Label description of these 2D-settings
         """
-        return self.data.width
+        return self.data.label
 
     @property
     def height(self):
@@ -56,6 +61,17 @@ class MaglaSettings2D(MaglaEntity):
         return self.data.height
 
     @property
+    def width(self):
+        """Retrieve height from data.
+
+        Returns
+        -------
+        int
+            width amount
+        """
+        return self.data.width
+
+    @property
     def rate(self):
         """Retrieve rate from data.
 
@@ -65,6 +81,17 @@ class MaglaSettings2D(MaglaEntity):
             FPS rate
         """
         return self.data.rate
+
+    @property
+    def color_profile(self):
+        """Retrieve color_profile from data.
+
+        Returns
+        -------
+        int
+            FPS color_profile
+        """
+        return self.data.color_profile
 
     #### SQAlchemy relationship back-references
     @property
@@ -78,5 +105,5 @@ class MaglaSettings2D(MaglaEntity):
         """
         r = self.data.record.project
         if not r:
-            raise MaglaSettings2DError("No 'projects' record found for {}!".format(self.nickname))
+            return None
         return MaglaEntity.from_record(r)

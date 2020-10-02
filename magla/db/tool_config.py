@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class ToolConfig(MaglaORM.BASE):
+class ToolConfig(MaglaORM._Base):
     """A single configuration for a tool, usually specific to the Project."""
     __tablename__ = "tool_configs"
     __table_args__ = {'extend_existing': True}

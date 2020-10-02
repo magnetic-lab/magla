@@ -2,7 +2,7 @@
 from pprint import pformat
 
 from ..db import ORM
-from ..utils import dict_to_record, record_to_dict
+from ..utils import record_to_dict
 from .data import MaglaData
 from .errors import MaglaError
 
@@ -16,33 +16,35 @@ class BadArgumentError(MaglaEntityError):
 
 
 class MaglaEntity(object):
-    """General wrapper for `magla` object types, responsible for interfacing with backend.
+    """General wrapper for anything in `magla` that persists in the backend.
     
     This class should be subclassed and never instantiated on its own.
     """
+    _orm = None
 
-    def __init__(self, record, data=None, **kwargs):
-        """Initialize with record definition, data, and supplimental kwargs as key-value pairs.
+    def __init__(self, model, data=None, **kwargs):
+        """Initialize with model definition, data, and supplimental kwargs as key-value pairs.
 
         Parameters
         ----------
-        record : [type]
-            [description]
-        data : [type]
-            [description]
+        model : sqlalchemy.ext.declarative
+            The associated model for this subentity.
+        data : dict
+            The data to use in the query to retrieve from backend.
 
         Raises
         ------
         BadArgumentError
-            [description]
+            Invalid argument was given which prevents instantiation.
         """
+        self.connect()
         if kwargs:
             data = data or {}
             # if kwargs were supplied add them as k/v pairs to data
             for k, v in dict(kwargs).items():
                 data[k] = v
         if not isinstance(data, MaglaData):
-            data = MaglaData(record, data, ORM.SESSION)
+            data = MaglaData(model, data, self.orm.session)
         if not isinstance(data, MaglaData):
             raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
                 "Received: \n\t{received} ({type_received})".format(
@@ -68,7 +70,7 @@ class MaglaEntity(object):
         id_ = self.id
         if "id" in data:
             del(data["id"])
-        entity_type = self.data.record.__class__.__name__
+        entity_type = self.data._schema.__class__.__name__
         keys_n_vals = ["{0}={1}".format(*tup) for tup in data.items()]
 
         return "<{entity_type} {id}: {keys_n_vals}>".format(
@@ -78,15 +80,15 @@ class MaglaEntity(object):
 
     def __repr__(self):
         return self.__str__()
-    
+  
     @classmethod
     def from_record(cls, record_obj, **kwargs):
-        """Instantiate a sub-entity matching the properties of given record object.
+        """Instantiate a sub-entity matching the properties of given model object.
 
         Parameters
         ----------
         record_obj : sqlalchemy.ext.declarative.api.Base
-            A `SQLAlchemy` mapped entity record containing data directly from backend
+            A `SQLAlchemy` mapped entity model containing data directly from backend
 
         Returns
         -------
@@ -99,11 +101,11 @@ class MaglaEntity(object):
             An invalid argument was given.
         """
         if not record_obj:
-            raise BadArgumentError("'{}' is not a valid record instance.".format(record_obj))
+            raise BadArgumentError("'{}' is not a valid model instance.".format(record_obj))
         # get modeul from magla here
         entity_type = cls.type(record_obj.__entity_name__)
-        x = record_to_dict(record_obj)
-        return entity_type(x, **kwargs)
+        data = record_to_dict(record_obj)
+        return entity_type(data, **kwargs)
 
     def dict(self):
         """Return dictionary representation of this entity.
@@ -130,6 +132,17 @@ class MaglaEntity(object):
             connection to related backend table.
         """
         return self._data
+    
+    @property
+    def orm(self):
+        """Retrieve `MaglaORM` object used for backend interactions
+
+        Returns
+        -------
+        `magla.db.orm.MaglaORM`
+            The backend interface object all entities communicate through.
+        """
+        return self._orm
 
     @classmethod
     def type(cls, name):
@@ -146,3 +159,9 @@ class MaglaEntity(object):
             The sub-classed entity (defined in 'magla/db/')
         """
         return cls.__types__[name]
+    
+    @classmethod
+    def connect(cls):
+        """Instantiate the `MaglaORM` object."""
+        if not cls._orm:
+            cls._orm = ORM()

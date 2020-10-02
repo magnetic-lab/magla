@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class Tool(MaglaORM.BASE):
+class Tool(MaglaORM._Base):
     __tablename__ = "tools"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Tool"

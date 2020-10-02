@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""A class to manage the execution of tools and log output from their processes."""
+"""A class to manage properties and behaviors of, as well as launch `MaglaToolVersion`'s
+
+TODO: Implement `MaglaExtension` object/records to replace the `file_extension` property
+"""
 import getpass
 import logging
 import os
@@ -9,83 +12,122 @@ from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
-
 class MaglaToolVersionError(MaglaError):
     """An error accured preventing MaglaToolVersion to continue."""
 
 
 class MaglaToolVersion(MaglaEntity):
-    """"""
+    """Provide an interface to manipulate behavior settings at the tool-version level."""
     SCHEMA = ToolVersion
 
     def __init__(self, data=None, **kwargs):
-        """"""
+        """Initialize with given data.
+
+        Parameters
+        ----------
+        data : dict
+            Data to query for matching backend record
+        """
         super(MaglaToolVersion, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """
         return self.data.id
 
     @property
     def string(self):
+        """Retrieve string from data.
+
+        Returns
+        -------
+        str
+            The version-string representation of this tool version
+        """
         return self.data.string
 
     @property
     def file_extension(self):
+        """Retrieve file_extension from data.
+
+        Returns
+        -------
+        str
+            The file-extension to use when searching for openable project files.
+        """
         return self.data.file_extension  # TODO: use MaglaFileType instead
 
     # SQAlchemy relationship back-references
     @property
     def tool(self):
+        """Shortcut method to retrieve related `MaglaTool` back-reference.
+
+        Returns
+        -------
+        magla.core.tool.MaglaTool
+            The `MaglaTool` for this tool-version
+        """
         r = self.data.record.tool
         if not r:
-            raise MaglaToolVersionError(
-                "No 'tools' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
 
     @property
     def tool_config(self):
+        """Shortcut method to retrieve related `MaglaToolConfig` back-reference.
+
+        Returns
+        -------
+        magla.core.tool.MaglaToolConfig
+            The `MaglaToolConfig` for this tool-version
+        """
         r = self.data.record.tool_config
         if not r:
-            raise MaglaToolVersionError(
-                "No 'tool_configs' record found for {}!".format(self))
+            return None
         return MaglaEntity.from_record(r)
 
     @property
     def installations(self):
-        r = self.data.record.installations
-        if not r:
-            raise MaglaToolVersionError(
-                "No 'installations' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
+        """Shortcut method to retrieve related `MaglaToolVersionInstallation` back-reference list.
 
-    @property
-    def extensions(self):
-        r = self.data.record.extensions
-        if r == None:
-            raise MaglaToolVersionError(
-                "No 'extensions' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
-
-    @property
-    def aliases(self):
-        r = self.data.record.aliases
-        if r == None:
-            raise MaglaToolVersionError(
-                "No 'aliases' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
+        Returns
+        -------
+        list of magla.core.tool_version.MaglaToolVersionInstallations
+            A list of `MaglaToolVersionInstallations` objects associated to this tool-version
+        """
+        return [self.from_record(a) for a in self.data.record.installations]
 
     # MaglaToolVersion-specific methods ____________________________________________________________
     @property
     def full_name(self):
+        """Generate a name for this tool-version using the shot name and version number.
+
+        Returns
+        -------
+        str
+            'shot_name_vXXX'
+        """
         return "{this.tool.name}_{this.string}".format(this=self)
     
     def installation(self, machine_id):
+        """Retrieve a specific installation of this tool on the given machine
+
+        Parameters
+        ----------
+        machine_id : int
+            The ID of the `MaglaMachine` to search for a tool-installation
+
+        Returns
+        -------
+        `MaglaToolInstallation` or None
+            The `MaglaToolInstallation` object on specified machine
+        """
         matches = [
             i for i in self.installations if i.directory.machine.id == machine_id]
         if matches:

@@ -1,0 +1,594 @@
+{
+   "Facility": [
+      [
+         {
+            "id": 1,
+            "name": "test_facility",
+            "settings": {
+               "tool_install_directory_label": "{tool_version.tool.name}_{tool_version.string}"
+            }
+         },
+         true
+      ]
+   ],
+   "Machine": [
+      [
+         {
+            "id": 1,
+            "facility_id": 1,
+            "uuid": "00000000-0000-0000-0000-277eb57f1cd7",
+            "name": "test_machine"
+         },
+         true
+      ]
+   ],
+   "User": [
+      [
+         {
+            "id": 1,
+            "first_name": "foo",
+            "last_name": "bar",
+            "nickname": "foobar",
+            "email": "foo@bar.com"
+         },
+         true
+      ],
+      [
+         {
+            "id": 2,
+            "first_name": "fizz",
+            "last_name": "bazz",
+            "nickname": "foobar",
+            "email": "foo@bar.com"
+         },
+         true
+      ]
+   ],
+   "Directory": [
+      [
+         {
+            "id": 1,
+            "machine_id": 1,
+            "user_id": 1,
+            "label": "test_user's working directory on machine 1.",
+            "path": "/home/jacob/working_dir",
+            "tree": [
+               {
+                  "current_assignments": []
+               },
+               {
+                  ".backups": []
+               }
+            ],
+            "bookmarks": {
+               "backups": ".backups",
+               "current_assignments": "current_assignments"
+            }
+         },
+         true
+      ],
+      [
+         {
+            "id": 2,
+            "machine_id": 1,
+            "label": "test_project root directory.",
+            "path": "/mnt/projects/test_project",
+            "tree": [
+               {
+                  "shots": []
+               },
+               {
+                  "audio": []
+               },
+               {
+                  "preproduction": [
+                     {
+                        "mood": []
+                     },
+                     {
+                        "reference": []
+                     },
+                     {
+                        "edit": []
+                     }
+                  ]
+               }
+            ]
+         },
+         true
+      ],
+      [
+         {
+            "id": 3,
+            "machine_id": 1,
+            "user_id": null,
+            "label": "dummy project root directory for testin gpurposes only.",
+            "path": "/mnt/projects/dummy_project",
+            "bookmarks": {},
+            "tree": [
+               {
+                  "shots": []
+               },
+               {
+                  "audio": []
+               },
+               {
+                  "preproduction": [
+                     {
+                        "mood": []
+                     },
+                     {
+                        "reference": []
+                     },
+                     {
+                        "edit": []
+                     }
+                  ]
+               }
+            ]
+         },
+         true
+      ],
+      [
+         {
+            "id": 4,
+            "machine_id": 1,
+            "label": "test_shot_01 root directory.",
+            "path": "{shot.project.directory.path}/shots/{shot.name}",
+            "tree": [
+               {
+                  "_current": [
+                     {
+                        "h265": []
+                     },
+                     {
+                        "png": []
+                     },
+                     {
+                        "webm": []
+                     }
+                  ]
+               }
+            ]
+         },
+         true
+      ],
+      [
+         {
+            "id": 5,
+            "machine_id": 1,
+            "user_id": null,
+            "label": "test_shot_01_v000 root directory.",
+            "path": "{shot_version.shot.directory.path}/{shot_version.num}",
+            "bookmarks": {},
+            "tree": [
+               {
+                  "_in": [
+                     {
+                        "plate": []
+                     },
+                     {
+                        "subsets": []
+                     }
+                  ]
+               },
+               {
+                  "_out": [
+                     {
+                        "representations": [
+                           {
+                              "exr": []
+                           },
+                           {
+                              "png": []
+                           },
+                           {
+                              "mov": []
+                           }
+                        ]
+                     }
+                  ]
+               }
+            ]
+         },
+         true
+      ],
+      [
+         {
+            "id": 6,
+            "machine_id": 1,
+            "label": "natron 2.3.15 root directory on machine 1.",
+            "path": "/opt/Natron-2.3.15/bin/natron",
+            "tree": [
+               {
+                  "_in": [
+                     {
+                        "plate": []
+                     },
+                     {
+                        "subsets": []
+                     }
+                  ]
+               },
+               {
+                  "_out": [
+                     {
+                        "exr": []
+                     },
+                     {
+                        "png": []
+                     },
+                     {
+                        "subsets": []
+                     }
+                  ]
+               }
+            ]
+         },
+         true
+      ],
+      [
+         {
+            "id": 7,
+            "machine_id": 1,
+            "user_id": 2,
+            "label": "2nd test_user's working directory on machine 1.",
+            "path": "/home/jacob/working_dir",
+            "tree": [
+               {
+                  "current_assignments": []
+               },
+               {
+                  ".backups": []
+               }
+            ],
+            "bookmarks": {
+               "backups": ".backups",
+               "current_assignments": "current_assignments"
+            }
+         },
+         true
+      ],
+      [
+         {
+            "id": 8,
+            "machine_id": 1,
+            "label": "shot version tool-subdirectory.",
+            "path": "/home/jacob/working_dir",
+            "tree": [
+               {
+                  "current_assignments": []
+               },
+               {
+                  ".backups": []
+               }
+            ],
+            "bookmarks": {
+               "backups": ".backups",
+               "current_assignments": "current_assignments"
+            }
+         },
+         true
+      ]
+   ],
+   "Timeline": [
+      [
+         {
+            "id": 1,
+            "label": "example label for a timeline.",
+            "otio": {
+               "OTIO_SCHEMA": "Timeline.1",
+               "metadata": {},
+               "name": "test_project",
+               "global_start_time": null,
+               "tracks": {
+                  "OTIO_SCHEMA": "Stack.1",
+                  "metadata": {},
+                  "name": "tracks",
+                  "source_range": null,
+                  "effects": [],
+                  "markers": [],
+                  "children": []
+               }
+            }
+         },
+         true
+      ],
+      [
+         {
+            "id": 2,
+            "label": "dummy timeline to assign temporarily during tests.",
+            "user_id": 2,
+            "otio": {
+               "OTIO_SCHEMA": "Timeline.1",
+               "metadata": {},
+               "name": "test_project",
+               "global_start_time": null,
+               "tracks": {
+                  "OTIO_SCHEMA": "Stack.1",
+                  "metadata": {},
+                  "name": "tracks",
+                  "source_range": null,
+                  "effects": [],
+                  "markers": [],
+                  "children": []
+               }
+            }
+         },
+         true
+      ]
+   ],
+   "Project": [
+      [
+         {
+            "id": 1,
+            "name": "test_project",
+            "directory_id": 2,
+            "timeline_id": 1,
+            "settings": {
+               "project_directory": "/mnt/projects/{project.name}",
+               "project_directory_tree": [
+                  {
+                     "shots": []
+                  },
+                  {
+                     "audio": []
+                  },
+                  {
+                     "preproduction": [
+                        {
+                           "mood": []
+                        },
+                        {
+                           "reference": []
+                        },
+                        {
+                           "edit": []
+                        }
+                     ]
+                  }
+               ],
+               "frame_sequence_re": "(\\w+\\W)(\\#+)(.+)",
+               "shot_directory": "{shot.project.directory.path}/shots/{shot.name}",
+               "shot_directory_tree": [
+                  {
+                     "_current": [
+                        {
+                           "h265": []
+                        },
+                        {
+                           "png": []
+                        },
+                        {
+                           "webm": []
+                        }
+                     ]
+                  }
+               ],
+               "shot_version_directory": "{shot_version.shot.directory.path}/{shot_version.num}",
+               "shot_version_directory_tree": [
+                  {
+                     "_in": [
+                        {
+                           "plate": []
+                        },
+                        {
+                           "subsets": []
+                        }
+                     ]
+                  },
+                  {
+                     "_out": [
+                        {
+                           "representations": [
+                              {
+                                 "exr": []
+                              },
+                              {
+                                 "png": []
+                              },
+                              {
+                                 "mov": []
+                              }
+                           ]
+                        }
+                     ]
+                  }
+               ],
+               "shot_version_bookmarks": {
+                  "png_representation": "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
+               }
+            }
+         },
+         true
+      ]
+   ],
+   "Settings2D": [
+      [
+         {
+            "id": 1,
+            "project_id": 1,
+            "label": "Full 4K @30FPS",
+            "width": 4096,
+            "height": 2048,
+            "rate": 30,
+            "color_profile": null
+         },
+         true
+      ],
+      [
+         {
+            "id": 2,
+            "project_id": 1,
+            "label": "Full 2K @60FPS",
+            "width": 4096,
+            "height": 2048,
+            "rate": 60,
+            "color_profile": null
+         },
+         true
+      ]
+   ],
+   "Tool": [
+      [
+         {
+            "id": 1,
+            "name": "natron"
+         },
+         true
+      ]
+   ],
+   "Shot": [
+      [
+         {
+            "id": 1,
+            "name": "test_shot_01",
+            "project_id": 1,
+            "directory_id": 3,
+            "otio": {
+               "OTIO_SCHEMA": "Clip.1",
+               "metadata": {},
+               "name": "test_shot_01",
+               "source_range": null,
+               "effects": [],
+               "markers": [],
+               "media_reference": {
+                  "OTIO_SCHEMA": "ImageSequenceReference.1",
+                  "metadata": {},
+                  "name": "",
+                  "available_range": {
+                     "OTIO_SCHEMA": "TimeRange.1",
+                     "duration": {
+                        "OTIO_SCHEMA": "RationalTime.1",
+                        "rate": 30,
+                        "value": 1
+                     },
+                     "start_time": {
+                        "OTIO_SCHEMA": "RationalTime.1",
+                        "rate": 30,
+                        "value": 1
+                     }
+                  },
+                  "target_url_base": "",
+                  "name_prefix": "test_project_test_shot_v000.",
+                  "name_suffix": ".png",
+                  "start_frame": 1,
+                  "frame_step": 1,
+                  "rate": 30,
+                  "frame_zero_padding": 4,
+                  "missing_frame_policy": "error"
+               }
+            }
+         },
+         true
+      ]
+   ],
+   "ShotVersion": [
+      [
+         {
+            "id": 1,
+            "num": 0,
+            "shot_id": 1,
+            "directory_id": 4,
+            "otio": {
+               "OTIO_SCHEMA": "ImageSequenceReference.1",
+               "metadata": {},
+               "name": "",
+               "available_range": {
+                  "OTIO_SCHEMA": "TimeRange.1",
+                  "duration": {
+                     "OTIO_SCHEMA": "RationalTime.1",
+                     "rate": 30,
+                     "value": 1
+                  },
+                  "start_time": {
+                     "OTIO_SCHEMA": "RationalTime.1",
+                     "rate": 30,
+                     "value": 1
+                  }
+               },
+               "target_url_base": "",
+               "name_prefix": "test_project_test_shot_v000.",
+               "name_suffix": ".png",
+               "start_frame": 1,
+               "frame_step": 1,
+               "rate": 30,
+               "frame_zero_padding": 4,
+               "missing_frame_policy": "error"
+            }
+         },
+         true
+      ]
+   ],
+   "Assignment": [
+      [
+         {
+            "id": 1,
+            "user_id": 1,
+            "shot_version_id": 1
+         },
+         true
+      ]
+   ],
+   "Context": [
+      [
+         {
+            "id": 1,
+            "machine_id": 1,
+            "assignment_id": 1
+         },
+         true
+      ],
+      [
+         {
+            "id": 2,
+            "machine_id": 1,
+            "assignment_id": 1
+         },
+         true
+      ]
+   ],
+   "ToolVersion": [
+      [
+         {
+            "id": 1,
+            "string": "2.3.15",
+            "tool_id": 1,
+            "file_extension": null,
+            "file_types_id": null
+         },
+         true
+      ]
+   ],
+   "ToolVersionInstallation": [
+      [
+         {
+            "id": 1,
+            "tool_version_id": 1,
+            "directory_id": 5
+         },
+         true
+      ]
+   ],
+   "ToolConfig": [
+      [
+         {
+            "id": 1,
+            "project_id": 1,
+            "tool_version_id": 1,
+            "directory_id": 7,
+            "env": {
+               "PYTHONPATH": "/mnt/pipeline_share/python/tools/natron/2.3.15",
+               "PATH": ""
+            },
+            "copy_dict": {
+               "gizmos": [
+                  "/mnt/pipeline_share/tools/natron/gizmos/natron_gg",
+                  "{user.working_directory}/tools/natron/gizmos/natron_gg"
+               ]
+            }
+         },
+         true
+      ]
+   ]
+}

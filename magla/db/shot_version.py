@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class ShotVersion(MaglaORM.BASE):
+class ShotVersion(MaglaORM._Base):
     __tablename__ = "shot_versions"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "ShotVersion"

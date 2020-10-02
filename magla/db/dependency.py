@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from ..db.orm import MaglaORM
 
 
-class Dependency(MaglaORM.BASE):
+class Dependency(MaglaORM._Base):
     __tablename__ = "dependencies"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Dependency"

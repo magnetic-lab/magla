@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""A class to manage the execution of tools and log output from their processes."""
+"""Tools are generic wrappers which give access to `ToolVersions` as well as internal metadata."""
 import getpass
 import logging
 import os
@@ -8,103 +8,127 @@ import sys
 from pprint import pformat
 
 from ..db.tool import Tool
-from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
 
 
-class MaglaToolError(MaglaError):
-    """An error accured preventing MaglaTool to continue."""
-
-
-class MaglaToolNameNotFound(MaglaError):
-
-    def __init__(self, name):
-        super(MaglaToolNameNotFound, self).__init__()
-
-        text_block = "<MaglaToolNameNotFound: The tool '{}' was not found!>".format(
-            name)
-        self.message = text_block
-
-
-class MaglaToolStartError(MaglaError):
-    def __init__(self, *args, **kwargs):
-        super(MaglaToolStartError, self).__init__(*args, **kwargs)
-
-
 class MaglaTool(MaglaEntity):
-    """A class for running tool executeables with contextual modifications.
+    """Provide interface for managing tools and their versions."""
 
-    This class is responsible for making sure the proper modifcations are made
-    each time a tool is launched. Modifications include:
-        - custom PYTHONPATH insertions
-        - injected environment variables
-        - tool/show-specific startup scripts(plugins, gizmos, tox's, etc)
-    """
     SCHEMA = Tool
 
     def __init__(self, data=None, **kwargs):
+        """Instantiate with given data.
+
+        Parameters
+        ----------
+        data : dict, optional
+            Data to query for mathcing backend record, by default None
+        """
         if isinstance(data, str):
             data = {"name": data}
         super(MaglaTool, self).__init__(self.SCHEMA, data, **kwargs)
 
     @property
     def id(self):
+        """Retrieve id from data.
+
+        Returns
+        -------
+        int
+            Postgres column id
+        """""
         return self.data.id
 
     @property
     def name(self):
+        """Retrieve name from data.
+
+        Returns
+        -------
+        str
+            Name of the tool
+        """
         return self.data.name
 
     @property
     def description(self):
+        """Internal description of the tool and it's use-cases within the pipeline.
+
+        Returns
+        -------
+        str
+            long-form description of the tool for use internally.
+        """
         return self.data.description
 
     @property
     def metadata(self):
-        return self.data.metadata
+        """Custom metadata to be kept in the backend associated with this tool.
 
-    # SQAlchemy relationship back-references
-    @property
-    def tool_configs(self):
-        r = self.data.record.tool_configs
-        if not r:
-            raise MaglaToolError(
-                "No 'configs' record found for {}!".format(self))
-        return MaglaEntity.from_record(r)
+        Returns
+        -------
+        dict
+            A dictionary contianing anything you want to access within the `magla` ecosystem.
+        """
+        return self.data.metadata_
 
     @property
     def versions(self):
-        r = self.data.record.versions
-        if r == None:
-            raise MaglaToolError(
-                "No 'versions' record found for {}!".format(self))
-        return [self.from_record(a) for a in r]
+        """Shortcut method to retrieve related `MaglaToolVersion` back-reference list.
 
-    @property
-    def aliases(self):
-        r = self.data.record.aliases
-        if r == None:
-            raise MaglaToolError(
-                "No 'aliases' record found for {}!".format(self))
+        Returns
+        -------
+        list of magla.core.tool_version.MaglaToolVersion
+            A list of `MaglaToolVersion` objects associated to this tool
+        """
+        r = self.data.record.versions
         return [self.from_record(a) for a in r]
 
     # MaglaTool-specific methods ________________________________________________________________
     @property
-    def configs(self):
-        return self.tool_configs
-
-    @property
     def latest(self):
+        """Retrieve the latest `MaglaToolVersion` for this tool currently.
+
+        Returns
+        -------
+        magla.core.tool_version.MaglaToolVersion
+            The latest `MaglaToolVersion` currently for this shot
+        """
         if not self.versions:
             return None
         return self.versions[-1]
 
     @property
     def default_version(self):
+        """TODO: Retrieve the default version as defined in `project.settings`
+
+        Returns
+        -------
+        magla.core.tool_version.MaglaToolVersion
+            The default `MaglaToolVersion` to be used when none is designated
+        """
         return self.latest
 
     def start(self, tool_version_id=None, tool_config=None, user=None, assignment=None, *args):
+        """Start the given `MaglatoolVersion` with either given context or inferred context.
+
+        Parameters
+        ----------
+        tool_version_id : int, optional
+            Id of the `MaglaToolVersion` to launch specifically, by default None
+        tool_config : `MaglaToolConfig`, optional
+            The `MaglaToolConfig` instance to use for context, by default None
+        user : `MaglaUser`, optional
+            The `MaglaUser` whos context to use when launching, by default None
+        assignment : `MaglaAssignment`, optional
+            The `MaglaAssignment` to use for context, by default None
+
+        Returns
+        -------
+        subprocess.Popen
+            The running subprocess object
+        """
         # establish user whos context to use
         user = user or MaglaEntity.type("User")()
         
@@ -125,7 +149,7 @@ class MaglaTool(MaglaEntity):
             tool_version = tool_config.tool_version
 
         # establish environment to inject
-        env_ = tool_config.get_tool_env()
+        env_ = tool_config.build_env()
 
         # establish path to tool executeable
         tool_exe = tool_version.installation(
@@ -158,8 +182,8 @@ class MaglaTool(MaglaEntity):
 
     def pre_startup(self):
         """Perform any custom python scripts then any copy operations."""
-        pass
+        return True
 
     def post_startup(self):
         """Perform any custom python scripts then any copy operations."""
-        pass
+        return True
