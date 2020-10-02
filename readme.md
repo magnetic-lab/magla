@@ -45,9 +45,9 @@ using the creation methods in the optimal order.
 Each creation method will return the created `MaglaEntity` or in the case that a record already
 exists, creation will abort and return the found record instead. To instead throw an
 `EntityAlreadyExistsError`, you must call the `magla.Root.create` method directly and pass the
-'return_existing=False` parameter.
+'return_existing=False` entity_test_fixtureeter.
     example:
-    ```
+    ```python
     magla.Root().create(magla.User, {"nickname": "foo"}, return_existing=False)
     ```
 
@@ -173,7 +173,7 @@ r.all(magla.Directory)
 t = test_project.timeline
 # current process for generating timelines is sending list of `MaglaShot` objects to `build` method
 t.build(test_project.shots)
-# `MaglaShot` objects include a 'track_index' and 'start_time_in_parent' property which are
+# `MaglaShot` objects include a 'track_index' and 'start_frame_in_parent' property which are
 #  external to `opentimlineio` but used by `magla` for automatic building. This implementation
 #  may change.
 t.otio.to_json_file("test_project.json")

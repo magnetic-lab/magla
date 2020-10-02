@@ -1,7 +1,7 @@
 """Creation and Deletion gateway interface for `Entity` records.
     
 You may use this file as is for creation, or customize your own creation methods. All we're doing
-here is creating and commiting `SQLAlchemy` objects to `MaglaORM.SESSION` using compound custom
+here is creating and commiting `SQLAlchemy` objects to `ORM.session` using compound custom
 creation methods for convenience.
 """
 import os
@@ -12,7 +12,7 @@ import uuid
 
 import opentimelineio as otio
 
-from ..db import MaglaORM
+from ..db import ORM
 from ..utils import (all_otio_to_dict, dict_to_otio, otio_to_dict,
                      record_to_dict)
 from .assignment import MaglaAssignment
@@ -45,19 +45,17 @@ class EntityAlreadyExistsError(MaglaRootError):
 class MaglaRoot(object):
     """Permissions-aware interface for creation and deletion within `magla`."""
 
-    CREDENTIALS = ""
-    DB = MaglaORM
-    
+   
     def __init__(self, *args, **kwargs):
-        self._db = self.DB(*args, **kwargs)
-        self._permissions = MaglaUser().permissions()
+        self._orm = ORM(*args, **kwargs)
+        self._permissions = None
 
     def __repr__(self):
-        return "<MaglaRoot: database={database}>".format(database=self.db.SESSION.bind.url)
+        return "<MaglaRoot: database={database}>".format(database=self.orm.SESSION.bind.url)
     
     @property
-    def db(self):
-        return self._db
+    def orm(self):
+        return self._orm
 
     def all(self, entity):
         """Retrieve all records for given `Entity`-type.
@@ -72,7 +70,7 @@ class MaglaRoot(object):
         list
             List of `MaglaEntity` objects
         """
-        return self.db.all(entity)
+        return self.orm.all(entity)
     
     @staticmethod
     def copy(src, dst):
@@ -95,7 +93,7 @@ class MaglaRoot(object):
             sys.stdout.write("\n\t{src} not found, skipping..".format(src=os.path.basename(src)))
 
     def create(self, entity, data=None, return_existing=True):
-        """Wrapper for `MaglaORM.create` with configurable return signature.
+        """Wrapper for `ORM.create` with configurable return signature.
 
         Parameters
         ----------
@@ -118,14 +116,14 @@ class MaglaRoot(object):
         """
         data = data or {}
         data = all_otio_to_dict(data)
-        query_result = self.db.query(entity).filter_by(**data).first()
+        query_result = self.orm.query(entity).filter_by(**data).first()
         if query_result:
             if return_existing:
                 return entity.from_record(query_result)
             raise EntityAlreadyExistsError("{0} already exists on DB:\n".format(
                 entity.__class__.__name__)
             )
-        return self.db.create(entity, data)
+        return self.orm.create(entity, data)
 
     def create_assignment(self, shot_id, user_id):
         """Create new record for `MaglaAssignment` type.
@@ -349,17 +347,17 @@ class MaglaRoot(object):
         new_shot_version.data.otio = previous_shot_otio or otio.schema.ImageSequenceReference(
             available_range=otio.opentime.TimeRange(
                 start_time=otio.opentime.RationalTime(
-                    1, shot.project.settings_2d.rate),
+                    1, shot.project.settings_2d[-1].rate),
                 duration=otio.opentime.RationalTime(
-                    1, shot.project.settings_2d.rate)
+                    1, shot.project.settings_2d[-1].rate)
             )
         )
         # apply `otio`
-        new_shot_version.data.otio.target_url_base = os.path.dirname(reference)
+        new_shot_version.data.otio.target_url_Base = os.path.dirname(reference)
         new_shot_version.data.otio.name_prefix = prefix
         new_shot_version.data.otio.name_suffix = suffix
         new_shot_version.data.otio.frame_zero_padding = padding.count("#")
-        new_shot_version.data.otio.rate = shot.project.settings_2d.rate
+        new_shot_version.data.otio.rate = shot.project.settings_2d[-1].rate
             
         new_shot_version.data.push()
         new_shot_version.directory.make_tree()
@@ -659,8 +657,8 @@ class MaglaRoot(object):
             )
 
     def delete(self, entity):
-        self.db.SESSION.delete(entity)
-        self.db.SESSION.commit()
+        self.orm.session.delete(entity)
+        self.orm.session.commit()
 
     def delete_shot_version(self, data=None, delete_files=False, **kwargs):
         shot_version = MaglaShotVersion(data or dict(kwargs))

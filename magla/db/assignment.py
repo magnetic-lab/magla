@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class Assignment(MaglaORM.BASE):
+class Assignment(MaglaORM._Base):
     __tablename__ = "assignments"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Assignment"

@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from ..db.orm import MaglaORM
 
 
-class Machine(MaglaORM.BASE):
+class Machine(MaglaORM._Base):
     __tablename__ = "machines"
     __table_args__ = {'extend_existing': True}
     __entity_name__ = "Machine"

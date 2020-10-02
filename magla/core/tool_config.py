@@ -10,10 +10,6 @@ from .errors import MaglaError
 from .data import MaglaData
 from .entity import MaglaEntity
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 class MaglaToolConfigError(MaglaError):
     """An error accured preventing MaglaToolConfig to continue."""
@@ -132,17 +128,7 @@ class MaglaToolConfig(MaglaEntity):
             return None
         return self.tool_version.tool
 
-    @property
-    def PYTHONPATH(self):
-        """The `PYTHONPATH` environment to be appended to the tool's launch process."""
-        pass
-
-    @property
-    def PATH(self):
-        """The `PATH` environment variable to be appended to the tool's launch process."""
-        pass
-
-    def get_tool_env(self):
+    def build_env(self):
         """Generate an environment dict from this tool config.
 
         Returns
@@ -155,10 +141,10 @@ class MaglaToolConfig(MaglaEntity):
 
         if "PYTHONPATH" not in env_:
             env_["PYTHONPATH"] = ""
-        env_["PYTHONPATH"] += ";{}".format(self.PYTHONPATH)
+        env_["PYTHONPATH"] += ";{}".format(self.env["PYTHONPATH"])
         if "PATH" not in env_:
             env_["PATH"] = ""
-        env_["PATH"] += ";{}".format(self.PATH)
+        # env_["PATH"] += ";{}".format(self.env["PATH"])
 
         # add each environment var from toolconfig
         env_.update(self.env)

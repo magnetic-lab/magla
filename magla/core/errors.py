@@ -9,7 +9,7 @@ class MaglaError(Exception):
     """
     def __init__(self, message, *args, **kwargs):
         """Initialize with message str.
-        :param msg: message describing exception from raiser.
+        :entity_test_fixture msg: message describing exception from raiser.
         """
         super(MaglaError, self).__init__(*args, **kwargs)
         self.message = message

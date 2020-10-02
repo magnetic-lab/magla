@@ -1,7 +1,6 @@
 """Utility functions."""
-import os
 import json
-import platform
+import random
 import subprocess
 import sys
 
@@ -137,6 +136,8 @@ def open_directory_location(target_path):
     target_path : str
         Path to open
     """
+    if not isinstance(target_path, str):
+        raise Exception("Must provide string!")
     if sys.platform=='win32':
         subprocess.Popen(['start', target_path], shell= True)
     elif sys.platform=='darwin':
@@ -146,3 +147,39 @@ def open_directory_location(target_path):
             subprocess.Popen(['xdg-open', target_path])
         except OSError:
             raise
+        
+def random_string(choices_str, length):
+    """Generate a random string from the given `choices_str`.
+
+    Parameters
+    ----------
+    choices_str : str
+        A string containing all the possible choice characters
+    length : int
+        The desired length of the resulting string
+
+    Returns
+    -------
+    str
+        A random string of characters
+    """
+    return ''.join(random.choice(str(choices_str)) for _ in range(length))
+
+def get_class_by_tablename(base, tablename):
+    """Return class reference mapped to table.
+
+    Parameters
+    ----------
+    base : sqlalchemy.orm.declarative_base
+        The `SQLAlchemy` declarative base instance storing table metadata.
+    tablename : str
+        Name of the table
+
+    Returns
+    -------
+    class
+        The model class associated to given table name.
+    """
+    for c in base._decl_class_registry.values():
+        if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
+            return c
