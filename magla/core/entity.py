@@ -20,6 +20,7 @@ class MaglaEntity(object):
     
     This class should be subclassed and never instantiated on its own.
     """
+    _ORM = ORM
     _orm = None
 
     def __init__(self, model, data=None, **kwargs):
@@ -70,7 +71,7 @@ class MaglaEntity(object):
         id_ = self.id
         if "id" in data:
             del(data["id"])
-        entity_type = self.data._schema.__class__.__name__
+        entity_type = self.data._schema.__entity_name__
         keys_n_vals = ["{0}={1}".format(*tup) for tup in data.items()]
 
         return "<{entity_type} {id}: {keys_n_vals}>".format(
@@ -164,4 +165,4 @@ class MaglaEntity(object):
     def connect(cls):
         """Instantiate the `MaglaORM` object."""
         if not cls._orm:
-            cls._orm = ORM()
+            cls._orm = cls._ORM()

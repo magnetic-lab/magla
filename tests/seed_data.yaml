@@ -8,7 +8,7 @@ Facility:
 Machine:
 - - id: 1
     facility_id: 1
-    uuid: 00000000-0000-0000-0000-277eb57f1cd7
+    uuid: 00000000-0000-0000-0000-9d76834f818d
     name: test_machine
   - true
 User:

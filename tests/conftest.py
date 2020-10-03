@@ -6,11 +6,11 @@ import pytest
 from magla.test import MaglaEntityTestFixture
 
 @pytest.fixture(scope='session')
-def entity_test_fixture(request):
-    entity_test_fixture = MaglaEntityTestFixture()
+def entity_test_fixture():
+    entity_test_fixture_ = MaglaEntityTestFixture()
     # start testing session with backend
-    entity_test_fixture.start()
-    yield entity_test_fixture
+    entity_test_fixture_.start()
+    yield entity_test_fixture_
     # end testing session and drop all tables
-    entity_test_fixture.end(drop_tables=True)
+    entity_test_fixture_.end(drop_tables=True)
 

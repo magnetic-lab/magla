@@ -12,12 +12,10 @@ import uuid
 
 import opentimelineio as otio
 
-from ..db import ORM
-from ..utils import (all_otio_to_dict, dict_to_otio, otio_to_dict,
-                     record_to_dict)
+from ..utils import all_otio_to_dict, otio_to_dict
 from .assignment import MaglaAssignment
 from .context import MaglaContext
-from .data import MaglaData, NoRecordFoundError
+from .data import NoRecordFoundError
 from .directory import MaglaDirectory
 from .entity import MaglaEntity
 from .errors import MaglaError
@@ -47,7 +45,7 @@ class MaglaRoot(object):
 
    
     def __init__(self, *args, **kwargs):
-        self._orm = ORM(*args, **kwargs)
+        MaglaEntity.connect()
         self._permissions = None
 
     def __repr__(self):
@@ -55,22 +53,28 @@ class MaglaRoot(object):
     
     @property
     def orm(self):
-        return self._orm
+        return MaglaEntity._orm
 
-    def all(self, entity):
+    def all(self, entity = None):
         """Retrieve all records for given `Entity`-type.
 
         Parameters
         ----------
         entity : magla.core.entity.Entity
             Entity type to query.
-
         Returns
         -------
         list
             List of `MaglaEntity` objects
         """
-        return self.orm.all(entity)
+        if entity:
+            # return a list of `magla` objects for given entity-type
+            return self.orm.all(entity)
+        db_dump = []
+        # return a list of everything currently in the backend
+        for entity_ in Entity.__types__.values():
+            db_dump.append(self.orm.all(entity_))
+        return db_dump
     
     @staticmethod
     def copy(src, dst):

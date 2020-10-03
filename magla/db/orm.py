@@ -43,12 +43,12 @@ class MaglaORM(object):
 
     @property
     def session(self):
-        """Retrieve session instance.
+        """Retrieve Session class or Session Instance (after `_construct_session` has been called).
 
         Returns
         -------
         sqlalchemy.orm.Session
-            Session class for the app.
+            Session class/object
         """
         return self._session
 
@@ -64,24 +64,19 @@ class MaglaORM(object):
 
     @classmethod
     def _construct_session(cls):
-        """Construct a session instance for backend communication."""
+        """Construct session-factory."""
         cls._Session = cls.sessionmaker()
 
     @classmethod
     def _construct_engine(cls):
         """Construct the engine to be used by `SQLAlchemy`."""
         cls._Engine = create_engine(
-            "postgresql://{username}:{password}@{hostname}:{port}/{db_name}".format(
-                **cls.CONFIG),
-            # pool_size=20,
-            max_overflow=0,
-            pool_timeout=5,
-            pool_pre_ping=True,
+            "postgresql://{username}:{password}@{hostname}:{port}/{db_name}".format(**cls.CONFIG)
         )
 
     @classmethod
     def sessionmaker(cls, **kwargs):
-        """Create new session facrory.
+        """Create new session factory.
 
         Returns
         -------
@@ -119,8 +114,7 @@ class MaglaORM(object):
             List of `MaglaEntity` objects instantiated from each record.
         """
         entity = entity or self.entity
-        return [entity.from_record(record) for record
-                in self.query(entity).all()]
+        return [entity.from_record(record) for record in self.query(entity).all()]
 
     def one(self, entity=None, **filter_kwargs):
         """Retrieve the first found record.

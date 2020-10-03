@@ -35,7 +35,7 @@ class MaglaContext(MaglaEntity):
         data : dict, optional
             Data to query for matching backend record
         """
-        super(MaglaContext, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaContext, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):

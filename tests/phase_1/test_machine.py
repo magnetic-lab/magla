@@ -1,5 +1,6 @@
 """Testing for `magla.core.machine`"""
 import os
+from random import seed
 import string
 import uuid
 
@@ -32,12 +33,17 @@ class TestMachine(MaglaEntityTestFixture):
         assert confirmation.ip_address == random_ip_address
 
     def test_can_update_uuid(self, seed_machine):
+        reset_data = seed_machine.dict()
         get_node = uuid.getnode()
         random_int14 = int(random_string(get_node, len(str(get_node))))
         random_uuid = str(uuid.UUID(int=random_int14))
         seed_machine.data.uuid = random_uuid
         seed_machine.data.push()
         confirmation = MaglaMachine(id=seed_machine.id)
+        confirmatin_uuid = confirmation.uuid
+        # reset data
+        confirmation.data.update(reset_data)
+        confirmation.data.push()
         assert confirmation.uuid == random_uuid
 
     def test_can_retieve_facility(self, seed_machine):

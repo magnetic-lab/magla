@@ -118,7 +118,7 @@ class MaglaProject(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaProject, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaProject, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):
