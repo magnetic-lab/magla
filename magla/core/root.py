@@ -12,7 +12,7 @@ import uuid
 
 import opentimelineio as otio
 
-from ..utils import all_otio_to_dict, otio_to_dict
+from ..utils import otio_to_dict, otio_to_dict
 from .assignment import MaglaAssignment
 from .context import MaglaContext
 from .data import NoRecordFoundError
@@ -49,7 +49,7 @@ class MaglaRoot(object):
         self._permissions = None
 
     def __repr__(self):
-        return "<MaglaRoot: database={database}>".format(database=self.orm.SESSION.bind.url)
+        return "<MaglaRoot: database={database}>".format(database=self.orm.session.bind.url)
     
     @property
     def orm(self):
@@ -72,7 +72,7 @@ class MaglaRoot(object):
             return self.orm.all(entity)
         db_dump = []
         # return a list of everything currently in the backend
-        for entity_ in Entity.__types__.values():
+        for entity_ in MaglaEntity.__types__.values():
             db_dump.append(self.orm.all(entity_))
         return db_dump
     
@@ -119,7 +119,7 @@ class MaglaRoot(object):
             Entity with given data already exists
         """
         data = data or {}
-        data = all_otio_to_dict(data)
+        data = otio_to_dict(data)
         query_result = self.orm.query(entity).filter_by(**data).first()
         if query_result:
             if return_existing:

@@ -14,11 +14,17 @@ class TestTool(MaglaEntityTestFixture):
         data, expected_result = request.param
         yield MaglaTool(data)
 
+    def test_can_instantiate_with_string_arg(self, seed_tool):
+        seed_data = self.get_seed_data("Tool", seed_tool.id-1)
+        confirmation = MaglaTool(seed_data["name"])
+        assert confirmation.dict() == seed_data
+
     def test_can_update_name(self, seed_tool):
         random_tool_name = random_string(string.ascii_letters, 6)
         seed_tool.data.name = random_tool_name
         seed_tool.data.push()
         confirmation = MaglaTool(id=seed_tool.id)
+        self.reset(seed_tool)
         assert confirmation.name == random_tool_name
 
     def test_can_update_description(self, seed_tool):
@@ -26,6 +32,7 @@ class TestTool(MaglaEntityTestFixture):
         seed_tool.data.description = random_tool_description
         seed_tool.data.push()
         confirmation = MaglaTool(id=seed_tool.id)
+        self.reset(seed_tool)
         assert confirmation.description == random_tool_description
 
     def test_can_update_metadata(self, seed_tool):
@@ -40,12 +47,8 @@ class TestTool(MaglaEntityTestFixture):
         seed_tool.data.metadata_ = random_metadata
         seed_tool.data.push()
         confirmation = MaglaTool(id=seed_tool.id)
+        self.reset(seed_tool)
         assert confirmation.metadata == random_metadata
-
-    def test_can_instantiate_with_string_arg(self, seed_tool):
-        seed_data = self.get_seed_data("Tool", seed_tool.id-1)
-        confirmation = MaglaTool(seed_data["name"])
-        assert confirmation.data.dict() == seed_data
 
     def test_can_retrieve_versions(self, seed_tool):
         assert seed_tool.versions

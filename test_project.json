@@ -43,7 +43,7 @@
                                     "value": 1.0
                                 }
                             },
-                            "target_url_base": "",
+                            "otio_to_dict": "",
                             "name_prefix": "test_project_test_shot_v001.",
                             "name_suffix": ".png",
                             "start_frame": 1,

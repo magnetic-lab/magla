@@ -6,29 +6,8 @@ import sys
 
 import opentimelineio as otio
 
-
-def all_otio_to_dict(dict_):
-    """Traverse through a dictionary recursively converting otio to dict.
-
-    Parameters
-    ----------
-    dict_ : dict
-        The target dictionary to convert
-
-    Returns
-    -------
-    dict
-        Dict with all otio objects converted to dict
-    """
-    for k, v in dict_.items():
-        if isinstance(v, otio.core.SerializableObjectWithMetadata):
-            dict_[k] = otio_to_dict(v)
-        elif isinstance(v, dict):
-            dict_[k] = all_otio_to_dict(v)
-    return dict_
-
-def otio_to_dict(otio):
-    """Convert given `opentimelineio.schema.SerializeableObject` object to dict.
+def otio_to_dict(target):
+    """TODO: Convert given `opentimelineio.schema.SerializeableObject` object to dict.
 
     Parameters
     ----------
@@ -40,16 +19,22 @@ def otio_to_dict(otio):
     dict
         Dict representing the given `opentimelineio.schema.SerializeableObject`
     """
-    if isinstance(otio, dict):
-        return otio
-    return json.loads(otio.to_json_string(indent=-1))
+    if isinstance(target, otio.core.SerializableObjectWithMetadata):
+        stringify = target.to_json_string(indent=-1)
+        return json.loads(stringify)
+    if isinstance(target, dict) and "otio" in target:
+        if isinstance(target["otio"], otio.core.SerializableObjectWithMetadata):
+            stringify = target["otio"].to_json_string(indent=-1)
+            target["otio"] = json.loads(stringify)
+        return target
+    return target
 
-def dict_to_otio(dict_):
+def dict_to_otio(target):
     """Convert a previously converted dict back to an `opentimelineio.schema.SerializeableObject`.
 
     Parameters
     ----------
-    dict_ : dict
+    target : dict
         The dict to convert
 
     Returns
@@ -62,9 +47,15 @@ def dict_to_otio(dict_):
     Exception
         Raised if bad argument given.
     """
-    if not is_otio_dict(dict_):
-        raise Exception("Must provide valid otio dict.")
-    return otio.adapters.read_from_string(json.dumps(dict_))
+    if isinstance(target, dict) and "otio" in target:
+        if isinstance(target["otio"], otio.core.SerializableObjectWithMetadata):
+            return target
+        stringify = json.dumps(target["otio"])
+        target["otio"] = otio.adapters.read_from_string(stringify)
+        return target
+    if not is_otio_dict(target):
+        return target
+    return otio.adapters.read_from_string(json.dumps(target))
 
 def is_otio_dict(dict_):
     """Determine if given dict can be converted to an `opentimelineio.schema.SerializeableObject`
@@ -81,14 +72,14 @@ def is_otio_dict(dict_):
     """
     return isinstance(dict_, dict) and "OTIO_SCHEMA" in dict_
 
-def record_to_dict(record, convert_otio=True):
+def record_to_dict(record, otio_as_dict=True):
     """Convert given `sqlalchemy.ext.declarative.api.Base` mapped entity to dict.
 
     Parameters
     ----------
     record : sqlalchemy.ext.declarative.api.Base
         The `SQAlchemy` record to convert
-    convert_otio : bool, optional
+    otio_as_dict : bool, optional
         Flag whether or not to also convert back to an object, by default True
 
     Returns
@@ -100,12 +91,14 @@ def record_to_dict(record, convert_otio=True):
     "this method needs to retrieve dict from a mapped entity object."
     for c in list(record.__table__.c):
         val = getattr(record, c.name)
-        if convert_otio and is_otio_dict(val):
+        if otio_as_dict and is_otio_dict(val):
+            val = otio_to_dict(val)
+        else:
             val = dict_to_otio(val)
         dict_[c.name] = val
     return dict_
 
-def dict_to_record(record, data, convert_otio=True):
+def dict_to_record(record, data, otio_as_dict=True):
     """Convert given dict to `SQLAlchemy` record.
 
     Parameters
@@ -114,7 +107,7 @@ def dict_to_record(record, data, convert_otio=True):
         Class for record to create
     data : dict
         Dict containing data to use in conversion
-    convert_otio : bool, optional
+    otio_as_dict : bool, optional
         Flag whether or not to convert previously converted dict back to object, by default True
 
     Returns
@@ -123,8 +116,12 @@ def dict_to_record(record, data, convert_otio=True):
         Instantiated record containing populated with given data
     """
     for key, val in data.items():
-        if convert_otio and (isinstance(val, otio.core.SerializableObject)):
-            val = otio_to_dict(val)
+        if otio_as_dict:
+            if isinstance(val, otio.core.SerializableObject):
+                val = otio_to_dict(val)
+        else:
+            if is_otio_dict(val):
+                val = dict_to_otio(val)
         setattr(record, key, val)
     return record
 

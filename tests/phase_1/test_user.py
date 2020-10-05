@@ -4,7 +4,7 @@ import string
 import pytest
 from magla.core.user import MaglaUser
 from magla.test import MaglaEntityTestFixture
-from magla.utils import all_otio_to_dict, random_string
+from magla.utils import random_string
 
 
 class TestUser(MaglaEntityTestFixture):
@@ -19,6 +19,7 @@ class TestUser(MaglaEntityTestFixture):
         seed_user.data.nickname = random_nickname
         seed_user.data.push()
         confirmation = MaglaUser(id=seed_user.id)
+        self.reset(seed_user)
         assert confirmation.nickname == random_nickname
 
     def test_can_update_first_name(self, seed_user):
@@ -26,6 +27,7 @@ class TestUser(MaglaEntityTestFixture):
         seed_user.data.first_name = random_first_name
         seed_user.data.push()
         confirmation = MaglaUser(id=seed_user.id)
+        self.reset(seed_user)
         assert confirmation.first_name == random_first_name
 
     def test_can_update_last_name(self, seed_user):
@@ -33,6 +35,7 @@ class TestUser(MaglaEntityTestFixture):
         seed_user.data.last_name = random_last_name
         seed_user.data.push()
         confirmation = MaglaUser(id=seed_user.id)
+        self.reset(seed_user)
         assert confirmation.last_name == random_last_name
 
     def test_can_update_email(self, seed_user):
@@ -44,16 +47,19 @@ class TestUser(MaglaEntityTestFixture):
         seed_user.data.email = random_email
         seed_user.data.push()
         confirmation = MaglaUser(id=seed_user.id)
+        self.reset(seed_user)
         assert confirmation.email == random_email
 
     def test_can_retrieve_null_context(self, seed_user):
-        assert seed_user.context.dict() == self.get_seed_data("Context", seed_user.context.id-1)
+        backend_data = seed_user.context.dict()
+        seed_data = self.get_seed_data("Context", seed_user.context.id-1)
+        assert backend_data == seed_data
 
     def test_can_retrieve_assignments(self, seed_user):
         if seed_user.id == 1:
-            from_backend = seed_user.assignments[0].dict()
+            backend_data = seed_user.assignments[0].dict()
             from_seed_data = self.get_seed_data("Assignment", seed_user.assignments[0].id-1)
-            assert all_otio_to_dict(from_backend) == from_seed_data
+            assert backend_data == from_seed_data
         elif seed_user.id == 2:
             assert seed_user.assignments == []
 
@@ -65,8 +71,8 @@ class TestUser(MaglaEntityTestFixture):
             assert seed_user.timelines == []
         elif seed_user.id == 2:
             # better to convert all `otio` objects to dict before comparison
-            data_from_db = all_otio_to_dict(seed_user.timelines[0].dict())
-            seed_data = all_otio_to_dict(self.get_seed_data("Timeline", seed_user.timelines[0].id-1))
+            data_from_db = seed_user.timelines[0].dict(otio_as_dict=True)
+            seed_data = self.get_seed_data("Timeline", seed_user.timelines[0].id-1, otio_as_dict=True)
             assert data_from_db == seed_data
 
     def test_can_retrieve_null_directory(self, seed_user):

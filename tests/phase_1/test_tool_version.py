@@ -19,6 +19,7 @@ class TestToolVersion(MaglaEntityTestFixture):
         seed_tool_version.data.string = random_tool_version_string
         seed_tool_version.data.push()
         confirmation = MaglaToolVersion(id=seed_tool_version.id)
+        self.reset(seed_tool_version)
         assert confirmation.string == random_tool_version_string
 
     def test_can_update_file_extension(self, seed_tool_version):
@@ -26,13 +27,16 @@ class TestToolVersion(MaglaEntityTestFixture):
         seed_tool_version.data.file_extension = random_file_extension
         seed_tool_version.data.push()
         confirmation = MaglaToolVersion(id=seed_tool_version.id)
+        self.reset(seed_tool_version)
         assert confirmation.file_extension == random_file_extension
 
     def test_can_retrieve_tool(self, seed_tool_version):
         assert seed_tool_version.tool.id == 1
 
     def test_can_retrieve_tool_config(self, seed_tool_version):
-        assert seed_tool_version.tool_config.data.dict() == self.get_seed_data("ToolConfig", seed_tool_version.tool_config.id-1)
+        backend_data = seed_tool_version.tool_config.data.dict()
+        seed_data = self.get_seed_data("ToolConfig", seed_tool_version.tool_config.id-1)
+        assert backend_data == seed_data
 
     def test_can_retrieve_installations(self, seed_tool_version):
         # TODO: should this test check the directories' data too?

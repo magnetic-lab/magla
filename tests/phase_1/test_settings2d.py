@@ -51,4 +51,6 @@ class TestSettings2D(MaglaEntityTestFixture):
         assert confirmation.color_profile == random_color_profile
 
     def test_can_retrieve_project(self, seed_settings_2d):
-        assert seed_settings_2d.project.dict() == self.get_seed_data("Project", seed_settings_2d.project.id-1)
+        backend_data = seed_settings_2d.project.dict()
+        seed_data = self.get_seed_data("Project", seed_settings_2d.project.id-1)
+        assert backend_data == seed_data

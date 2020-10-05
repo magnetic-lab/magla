@@ -1,3 +1,5 @@
+from attr import validate
+from magla.utils import otio_to_dict
 import pytest
 
 from magla.core.root import MaglaRoot
@@ -13,5 +15,11 @@ class TestRoot(MaglaEntityTestFixture):
         assert dummy_root.orm
         
     def test_can_retrieve_all(self, dummy_root):
-        # TODO: need to iterate and validate EVERYTHING
-        assert dummy_root.all()
+        all_magla_objects = dummy_root.all()
+        for magla_object_list in all_magla_objects:
+            for magla_object in magla_object_list:
+                obj_dict = magla_object.dict(otio_as_dict=True)
+                seed_data_dict = self.get_seed_data(magla_object.SCHEMA.__entity_name__, magla_object_list.index(magla_object))
+                if obj_dict != seed_data_dict:
+                    obj_dict
+                assert obj_dict == seed_data_dict

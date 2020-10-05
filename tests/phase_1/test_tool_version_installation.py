@@ -12,12 +12,16 @@ class TestToolVersionInstallation(MaglaEntityTestFixture):
         yield MaglaToolVersionInstallation(data)
 
     def test_can_retrieve_directory(self, seed_tool_version_installation):
-        x = seed_tool_version_installation.directory.data.dict()
-        y = self.get_seed_data("Directory", seed_tool_version_installation.directory.id-1)
-        assert seed_tool_version_installation.directory.data.dict() == self.get_seed_data("Directory", seed_tool_version_installation.directory.id-1)
+        backend_data = seed_tool_version_installation.directory.data.dict()
+        seed_data = self.get_seed_data("Directory", seed_tool_version_installation.directory.id-1)
+        assert backend_data == seed_data
 
     def test_can_retrieve_tool_version(self, seed_tool_version_installation):
-        assert seed_tool_version_installation.tool_version.data.dict() == self.get_seed_data("ToolVersion", seed_tool_version_installation.tool_version.id-1)
+        backend_data = seed_tool_version_installation.tool_version.data.dict()
+        seed_data = self.get_seed_data("ToolVersion", seed_tool_version_installation.tool_version.id-1)
+        assert backend_data == seed_data
 
     def test_can_retieve_tool(self, seed_tool_version_installation):
-        assert seed_tool_version_installation.tool.data.dict() == self.get_seed_data("Tool", seed_tool_version_installation.tool.id-1)
+        backend_data = seed_tool_version_installation.tool.data.dict()
+        seed_data = self.get_seed_data("Tool", seed_tool_version_installation.tool.id-1)
+        assert backend_data == seed_data

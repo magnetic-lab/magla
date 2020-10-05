@@ -36,6 +36,9 @@ class MaglaORM(object):
 
     def __init__(self):
         """Instantiate and iniliatize DB tables."""
+        self._session = None
+        
+    def init(self):
         self._construct_engine()
         self._construct_session()
         self._create_all_tables()
