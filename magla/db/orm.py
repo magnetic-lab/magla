@@ -6,10 +6,12 @@ from `magla`.
 To replace with your own backend just keep the below method signatures intact.
 """
 from os import getenv
+import tempfile
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
+from sqlalchemy_utils import database_exists, create_database, drop_database
 
 
 class MaglaORM(object):
@@ -24,11 +26,13 @@ class MaglaORM(object):
     """
     # `postgres` connection string variables
     CONFIG = {
+        "dialect": "postgres",
         "username": getenv("POSTGRES_USERNAME"),
         "password": getenv("POSTGRES_PASSWORD"),
         "hostname": getenv("POSTGRES_HOSTNAME"),
         "port": getenv("POSTGRES_PORT"),
-        "db_name": getenv("POSTGRES_DB_NAME")
+        "db_name": getenv("POSTGRES_DB_NAME"),
+        "temp_dir": tempfile.gettempdir()
     }
     _Base = declarative_base()
     _Session = None
@@ -38,8 +42,11 @@ class MaglaORM(object):
         """Instantiate and iniliatize DB tables."""
         self._session = None
         
-    def init(self):
-        self._construct_engine()
+    def init(self, engine=None):
+        if engine:
+            self._Engine = engine
+        else:
+            self._construct_engine(self.CONFIG["dialect"])
         self._construct_session()
         self._create_all_tables()
         self._session = self._Session()
@@ -71,7 +78,23 @@ class MaglaORM(object):
         cls._Session = cls.sessionmaker()
 
     @classmethod
-    def _construct_engine(cls):
+    def _construct_engine(cls, dialect):
+        callable_ = getattr(
+            cls,
+            "_construct_{dialect}_engine".format(dialect=dialect),
+            cls._construct_sqlite_engine
+        )
+        callable_()
+    
+    @classmethod
+    def _construct_sqlite_engine(cls):
+        """Construct the engine to be used by `SQLAlchemy`."""
+        cls._Engine = create_engine(
+            "sqlite:///{temp_dir}/magla/{db_name}".format(**cls.CONFIG)
+        )
+
+    @classmethod
+    def _construct_postgres_engine(cls):
         """Construct the engine to be used by `SQLAlchemy`."""
         cls._Engine = create_engine(
             "postgresql://{username}:{password}@{hostname}:{port}/{db_name}".format(**cls.CONFIG)

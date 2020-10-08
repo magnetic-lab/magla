@@ -1,7 +1,7 @@
 """Entity is the root class connecting `core` objects to their backend equivilent."""
 from pprint import pformat
 
-from ..db import ORM
+from ..db import ORM, database_exists, create_database, drop_database
 from ..utils import otio_to_dict, record_to_dict
 from .data import MaglaData
 from .errors import MaglaError
@@ -161,4 +161,8 @@ class MaglaEntity(object):
         """Instantiate the `MaglaORM` object."""
         if not cls._orm:
             cls._orm = cls._ORM()
-            cls._orm.init()
+            cls._orm._construct_engine("sqlite")
+            engine = cls._orm._Engine
+            if not database_exists(engine.url):
+                create_database(engine.url)
+            cls._orm.init(engine=engine)

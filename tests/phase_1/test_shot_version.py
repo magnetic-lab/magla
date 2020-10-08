@@ -5,7 +5,7 @@ import string
 import pytest
 from magla.core.shot_version import MaglaShotVersion
 from magla.test import MaglaEntityTestFixture
-from magla.utils import otio_to_dict, random_string
+from magla.utils import random_string
 
 
 class TestShotVersion(MaglaEntityTestFixture):

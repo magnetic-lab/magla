@@ -1,6 +1,10 @@
 """MaglaData objects are the universal data transportation and syncing device of `magla`."""
 import sys
-from collections.abc import MutableMapping
+try:
+    from collections.abc import MutableMapping  # noqa
+except ImportError:
+    from collections import MutableMapping  # noqa
+
 from pprint import pformat
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -110,7 +114,7 @@ class MaglaData(CustomDict):
 
     Attributes
     ----------
-    __schema : magla.db.entity.MaglaEntity
+    _schema : magla.db.entity.MaglaEntity
         The associated mapped entity (defined in 'magla/db/')
     __record : sqlalchemy.ext.declarative.api.Base
         The returned record from the session query (containing data directly from backend)
@@ -141,7 +145,7 @@ class MaglaData(CustomDict):
             msg = "'data' must be a python dict! Received: {0}".format(
                 type(data))
             raise MaglaDataError(msg)
-        self.__schema = schema
+        self._schema = schema
         self.__record = None
         self.__session = session
         super(MaglaData, self).__init__(data, *args, **kwargs)
@@ -246,7 +250,7 @@ class MaglaData(CustomDict):
             No record was found matching given data.
         """
         query_dict = otio_to_dict(self._store)
-        record = self.session.query(self.__schema).filter_by(**query_dict).first()
+        record = self.session.query(self._schema).filter_by(**query_dict).first()
         if not record:
             raise NoRecordFoundError(
                 "No record found for: {}".format(query_dict))
@@ -289,3 +293,4 @@ class MaglaData(CustomDict):
         """
         super(MaglaData, self)._validate_key(key)
         return self._sync(key, value, delete)
+

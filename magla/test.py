@@ -1,7 +1,7 @@
 """The `MaglaEntityTestFixture` is an interface for managing and accessing test data and db."""
-from attr.setters import convert
-from magla.utils import dict_to_otio, otio_to_dict, record_to_dict
 import os
+
+from magla.utils import dict_to_otio, otio_to_dict, record_to_dict
 
 from magla import Config, Entity
 from magla import utils
