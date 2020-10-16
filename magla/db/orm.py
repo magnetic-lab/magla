@@ -5,8 +5,7 @@ from `magla`.
 
 To replace with your own backend just keep the below method signatures intact.
 """
-from os import getenv
-import tempfile
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -26,13 +25,13 @@ class MaglaORM(object):
     """
     # `postgres` connection string variables
     CONFIG = {
-        "dialect": "postgres",
-        "username": getenv("POSTGRES_USERNAME"),
-        "password": getenv("POSTGRES_PASSWORD"),
-        "hostname": getenv("POSTGRES_HOSTNAME"),
-        "port": getenv("POSTGRES_PORT"),
-        "db_name": getenv("POSTGRES_DB_NAME"),
-        "temp_dir": tempfile.gettempdir()
+        "dialect": "sqlite",
+        "username": os.getenv("POSTGRES_USERNAME"),
+        "password": os.getenv("POSTGRES_PASSWORD"),
+        "hostname": os.getenv("POSTGRES_HOSTNAME"),
+        "port": os.getenv("POSTGRES_PORT"),
+        "db_name": os.getenv("POSTGRES_DB_NAME"),
+        "data_dir": os.path.join(os.path.dirname(__file__), "data")
     }
     _Base = declarative_base()
     _Session = None
@@ -42,11 +41,12 @@ class MaglaORM(object):
         """Instantiate and iniliatize DB tables."""
         self._session = None
         
-    def init(self, engine=None):
-        if engine:
-            self._Engine = engine
-        else:
-            self._construct_engine(self.CONFIG["dialect"])
+    def init(self):
+        self._construct_engine(self.CONFIG["dialect"])
+        if not os.path.isdir(self.CONFIG["data_dir"]):
+            os.makedirs(self.CONFIG["data_dir"])
+        if not database_exists(self._Engine.url):
+            create_database(self._Engine.url)
         self._construct_session()
         self._create_all_tables()
         self._session = self._Session()
@@ -73,9 +73,10 @@ class MaglaORM(object):
         cls._Base.metadata.drop_all(bind=cls._Engine)
 
     @classmethod
-    def _construct_session(cls):
+    def _construct_session(cls, *args, **kwargs):
         """Construct session-factory."""
-        cls._Session = cls.sessionmaker()
+        # TODO: include test coverage for constructing sessions with args/kwargs
+        cls._Session = cls.sessionmaker(*args, **kwargs)
 
     @classmethod
     def _construct_engine(cls, dialect):
@@ -90,7 +91,7 @@ class MaglaORM(object):
     def _construct_sqlite_engine(cls):
         """Construct the engine to be used by `SQLAlchemy`."""
         cls._Engine = create_engine(
-            "sqlite:///{temp_dir}/magla/{db_name}".format(**cls.CONFIG)
+            "sqlite:///{data_dir}/{db_name}".format(**cls.CONFIG)
         )
 
     @classmethod

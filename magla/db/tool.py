@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -13,6 +13,6 @@ class Tool(MaglaORM._Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(String)
-    metadata_ = Column(JSONB)
+    metadata_ = Column(JSON)
 
     versions = relationship("ToolVersion", back_populates="tool")

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -14,7 +14,7 @@ class ShotVersion(MaglaORM._Base):
     shot_id = Column(Integer, ForeignKey("shots.id"))
     directory_id = Column(Integer, ForeignKey("directories.id"))
     num = Column(Integer)
-    otio = Column(JSONB)
+    otio = Column(JSON)
 
     assignment = relationship("Assignment", uselist=False, back_populates="shot_version")
     shot = relationship("Shot", uselist=False, back_populates="versions")

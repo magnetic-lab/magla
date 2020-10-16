@@ -103,6 +103,7 @@ class MaglaEntityTestFixture:
     
     @classmethod
     def start(cls):
+        Entity._ORM.CONFIG["dialect"] = "sqlite"
         Entity.connect()
         cls.create_all_seed_records()
     
@@ -120,6 +121,7 @@ class MaglaEntityTestFixture:
     def reset(cls, magla_subentity):
         sub_entity_type = magla_subentity.SCHEMA.__entity_name__
         index = magla_subentity.id-1
-        reset_data = cls.get_seed_data(sub_entity_type, index, otio_as_dict=False)
+        reset_data = cls.get_seed_data(sub_entity_type, index, otio_as_dict=True)
         magla_subentity.data.update(reset_data)
-        return magla_subentity.data.push()
+        magla_subentity.data.push()
+        magla_subentity.data.pull()

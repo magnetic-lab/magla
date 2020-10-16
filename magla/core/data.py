@@ -155,7 +155,7 @@ class MaglaData(CustomDict):
             self.pull()
         except NoResultFound as err:
             raise NoRecordFoundError("No '{0}' record found for: {1}".format(
-                schema.__entity_name__, dict(data)))
+                schema.__entity_name__, data))
 
     def __eq__(self, other):
         return self._store == other.__dict__
@@ -164,7 +164,7 @@ class MaglaData(CustomDict):
         keys = [key for key in sorted(
             self.__dict__) if not (key).startswith("_")]
         items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
-        return "<{}: {}>".format(self.__entity_name__, ", ".join(items))
+        return "<{}: {}>".format(self._schema.__entity_name__, ", ".join(items))
 
     def __setattr__(self, name, val):
         super(MaglaData, self).__setattr__(name, val)
@@ -268,11 +268,10 @@ class MaglaData(CustomDict):
         sqlalchemy.ext.declarative.api.Base
             The record retrieved from the update
         """
-        for_obj = dict_to_record(self.__record, self._store, otio_as_dict=False)
-        for_db = dict_to_record(self.__record, self._store, otio_as_dict=True)
-        self.__record = for_db
+        temp = self.__record
+        self.__record = dict_to_record(self.__record, self._store, otio_as_dict=True)
         self.session.commit()
-        self.__record = for_obj
+        self.__record = temp
 
     def validate_key(self, key, value=None, delete=False):
         """Make sure key name will not overwrite any native attributes.

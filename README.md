@@ -29,7 +29,7 @@ In the heat of production there is always a consistent demand for creating, view
 
 In Magla, timelines can be requested, and then dynamically generated on the fly using your production data. This will enable superior features development and automation, as well as hopefully break some shackles and give the idea of an edit more of an expressionistic, non-binding and ultimitely, more creative feeling. 
 
-`MaglaProject`, `MaglaShot`, and `MaglaShotVersion` objects all include companion `opentimelineio.schema` objects which are mirror representations of eachother. The `opentimelineio` objects are saved in `JSONB` form in the DB.
+`MaglaProject`, `MaglaShot`, and `MaglaShotVersion` objects all include companion `opentimelineio.schema` objects which are mirror representations of eachother. The `opentimelineio` objects are saved in `JSON` form in the DB.
 
 Breakdown of `MaglaEntity` types and their associated `opentimelineio.schema` types:
 - `Project` <--> `opentimelineio.schema.Timeline`
@@ -73,7 +73,7 @@ facility = r.create_facility("test_facility",
 ```
 The above creates a new `Postgres` column in the 'facilities' table and returns a `MaglaFacility` object pre-populated with data in the '<MaglaEntity>.data' property.
 
-Project settings are sent in as a dictionary which is stored as `JSONB` in `Postgres`. At runtime a `MaglaEntity` object gets injected and Python's native string formatting can be used to access the object's relationships and attributes for custom naming.
+Project settings are sent in as a dictionary which is stored as `JSON` in `Postgres`. At runtime a `MaglaEntity` object gets injected and Python's native string formatting can be used to access the object's relationships and attributes for custom naming.
 ```python
 # Create 2D settings template
 # a custom creation method doesn't exist for this entity type so the 'create' method is used directly.

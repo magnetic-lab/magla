@@ -98,7 +98,7 @@ class MaglaEntity(object):
             raise BadArgumentError("'{}' is not a valid model instance.".format(record_obj))
         # get modeul from magla here
         entity_type = cls.type(record_obj.__entity_name__)
-        data = record_to_dict(record_obj, otio_as_dict=False)
+        data = record_to_dict(record_obj, otio_as_dict=True)
         return entity_type(data, **kwargs)
 
     def dict(self, otio_as_dict=True):
@@ -161,8 +161,4 @@ class MaglaEntity(object):
         """Instantiate the `MaglaORM` object."""
         if not cls._orm:
             cls._orm = cls._ORM()
-            cls._orm._construct_engine("sqlite")
-            engine = cls._orm._Engine
-            if not database_exists(engine.url):
-                create_database(engine.url)
-            cls._orm.init(engine=engine)
+            cls._orm.init()
