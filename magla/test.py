@@ -50,7 +50,7 @@ class MaglaEntityTestFixture:
     _seed_data = Config(os.environ["MAGLA_TEST_SEED_DATA"]).dict()
 
     @classmethod
-    def get_seed_data(cls, entity_type, index=None, otio_as_dict=True):
+    def get_seed_data(cls, entity_type, index=None):
         """Retrieve either a specific seed data dict or all seed data tuples by entity type.
 
         Parameters
@@ -68,38 +68,32 @@ class MaglaEntityTestFixture:
         if index is not None:
             # return seed data dict without `expected_result` for instance specified by index
             seed_data_dict = cls._seed_data.get(entity_type)[index][0]
-            if otio_as_dict:
-                return otio_to_dict(seed_data_dict)
-            else:
-                return dict_to_otio(seed_data_dict)
+            return seed_data_dict
         else:
             # return all seed data tuples for given entity type
             seed_data_tup_list = []
             for seed_data_tup in cls._seed_data.get(entity_type):
                 seed_data_dict, expected_result = seed_data_tup
-                if otio_as_dict:
-                    seed_data_tup_list.append([otio_to_dict(seed_data_dict), True])
-                else:
-                    seed_data_tup_list.append([dict_to_otio(seed_data_dict), True])
+                seed_data_tup_list.append([seed_data_dict, True])
             return seed_data_tup_list
 
     @classmethod
-    def create_seed_instances_by_type(cls, subentity_type):
+    def create_entity(cls, subentity_type):
         # this method is essentially a replacement for `magla.Root` for creation
-        magla_subentity = Entity.type(subentity_type)
+        entity = Entity.type(subentity_type)
         seed_data_list = cls._seed_data.get(subentity_type, [])
         for seed_data_tup in seed_data_list:
             data, expected_result = seed_data_tup
             data = utils.otio_to_dict(data)
-            new_record = magla_subentity.SCHEMA(**data)
+            new_record = entity.SCHEMA(**data)
             Entity._orm.session.add(new_record)
             Entity._orm.session.commit()
     
     @classmethod 
     def create_all_seed_records(cls):
         for type_ in cls._seed_data:
-            cls.create_seed_instances_by_type(type_)
-        # [cls.create_seed_instances_by_type(type_) for type_ in cls._seed_data]
+            cls.create_entity(type_)
+        # [cls.create_entity(type_) for type_ in cls._seed_data]
     
     @classmethod
     def start(cls):
@@ -121,7 +115,7 @@ class MaglaEntityTestFixture:
     def reset(cls, magla_subentity):
         sub_entity_type = magla_subentity.SCHEMA.__entity_name__
         index = magla_subentity.id-1
-        reset_data = cls.get_seed_data(sub_entity_type, index, otio_as_dict=True)
+        reset_data = cls.get_seed_data(sub_entity_type, index)
         magla_subentity.data.update(reset_data)
         magla_subentity.data.push()
         magla_subentity.data.pull()

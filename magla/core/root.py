@@ -646,6 +646,7 @@ class MaglaRoot(object):
                     "shot_version": new_shot_version,
                     "tool_version": tool_config.tool_version}
             )
+        sys.stdout.write("\n")
         return new_shot_version
 
     def __copy_directory(self, src_directory, dst_directory, src_vars=None, dst_vars=None):
