@@ -9,7 +9,7 @@ from magla.utils import random_string
 
 class TestUser(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="function", params=MaglaEntityTestFixture.seed_data("User"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("User"))
     def seed_user(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaUser(data)
@@ -72,7 +72,7 @@ class TestUser(MaglaEntityTestFixture):
         elif seed_user.id == 2:
             # better to convert all `otio` objects to dict before comparison
             data_from_db = seed_user.timelines[0].dict(otio_as_dict=True)
-            seed_data = self.get_seed_data("Timeline", seed_user.timelines[0].id-1, otio_as_dict=True)
+            seed_data = self.get_seed_data("Timeline", seed_user.timelines[0].id-1)
             assert data_from_db == seed_data
 
     def test_can_retrieve_null_directory(self, seed_user):

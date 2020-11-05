@@ -9,7 +9,7 @@ from magla.utils import random_string
 
 class TestToolVersion(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("ToolVersion"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ToolVersion"))
     def seed_tool_version(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaToolVersion(data)

@@ -6,7 +6,7 @@ from magla.test import MaglaEntityTestFixture
 
 class TestToolConfig(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("ToolConfig"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ToolConfig"))
     def seed_tool_config(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaToolConfig(data)

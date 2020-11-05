@@ -9,7 +9,7 @@ from magla.utils import random_string
 
 class TestTool(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="function", params=MaglaEntityTestFixture.seed_data("Tool"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Tool"))
     def seed_tool(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaTool(data)
@@ -34,21 +34,6 @@ class TestTool(MaglaEntityTestFixture):
         confirmation = MaglaTool(id=seed_tool.id)
         self.reset(seed_tool)
         assert confirmation.description == random_tool_description
-
-    def test_can_update_metadata(self, seed_tool):
-        random_metadata = {
-            "key1": "value1",
-            "key2": 123,
-            "key3": {
-                "subkey1": "foo",
-                "subkey2": 456
-            }
-        }
-        seed_tool.data.metadata_ = random_metadata
-        seed_tool.data.push()
-        confirmation = MaglaTool(id=seed_tool.id)
-        self.reset(seed_tool)
-        assert confirmation.metadata == random_metadata
 
     def test_can_retrieve_versions(self, seed_tool):
         assert seed_tool.versions

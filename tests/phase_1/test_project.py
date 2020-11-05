@@ -12,7 +12,7 @@ from magla.utils import random_string, otio_to_dict, otio_to_dict
 
 class TestProject(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Project"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Project"))
     def seed_project(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaProject(data)

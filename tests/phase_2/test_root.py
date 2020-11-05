@@ -7,7 +7,7 @@ from magla.test import MaglaEntityTestFixture
 
 class TestRoot(MaglaEntityTestFixture):
     
-    @pytest.fixture(scope="module")
+    @pytest.fixture(scope="class")
     def dummy_root(self, entity_test_fixture):
         yield MaglaRoot()
         

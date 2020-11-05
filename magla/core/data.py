@@ -292,4 +292,3 @@ class MaglaData(CustomDict):
         """
         super(MaglaData, self)._validate_key(key)
         return self._sync(key, value, delete)
-

@@ -13,6 +13,5 @@ class Tool(MaglaORM._Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(String)
-    metadata_ = Column(JSON)
 
     versions = relationship("ToolVersion", back_populates="tool")

@@ -6,7 +6,7 @@ from magla.test import MaglaEntityTestFixture
 
 class TestToolVersionInstallation(MaglaEntityTestFixture):
     
-    @pytest.fixture(scope="function", params=MaglaEntityTestFixture.seed_data("ToolVersionInstallation"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ToolVersionInstallation"))
     def seed_tool_version_installation(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaToolVersionInstallation(data)

@@ -55,8 +55,8 @@ Directory:
 - - id: 3
     machine_id: 1
     user_id: null
-    label: dummy project root directory for testin gpurposes only.
-    path: "/mnt/projects/dummy_project"
+    label: test_project root directory.
+    path: "/mnt/projects/test_project"
     bookmarks: {}
     tree:
     - shots: []
@@ -153,7 +153,7 @@ Timeline:
   - true
 - - id: 2
     label: dummy timeline to assign temporarily during tests.
-    user_id: null
+    user_id: 2
     otio:
       OTIO_SCHEMA: Timeline.1
       metadata: {}
@@ -171,7 +171,7 @@ Timeline:
 Project:
 - - id: 1
     name: test_project
-    directory_id: 2
+    directory_id: 3
     timeline_id: 1
     settings:
       project_directory: "/mnt/projects/{project.name}"
@@ -222,6 +222,7 @@ Settings2D:
 Tool:
 - - id: 1
     name: natron
+    description: ""
   - true
 Shot:
 - - id: 1
@@ -306,7 +307,7 @@ ToolVersion:
 - - id: 1
     string: 2.3.15
     tool_id: 1
-    file_extension: null
+    file_extension: ""
     file_types_id: null
   - true
 ToolVersionInstallation:

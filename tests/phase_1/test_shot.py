@@ -10,7 +10,7 @@ from magla.utils import random_string
 
 class TestShot(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Shot"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Shot"))
     def seed_shot(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaShot(data)

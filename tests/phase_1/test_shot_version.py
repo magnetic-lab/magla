@@ -10,7 +10,7 @@ from magla.utils import random_string
 
 class TestShotVersion(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("ShotVersion"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ShotVersion"))
     def seed_shot_version(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaShotVersion(data)
@@ -43,7 +43,7 @@ class TestShotVersion(MaglaEntityTestFixture):
 
     def test_can_retrieve_shot(self, seed_shot_version):
         backend_data = seed_shot_version.shot.dict(otio_as_dict=True)
-        seed_data = self.get_seed_data("Shot", seed_shot_version.shot.id-1, otio_as_dict=True)
+        seed_data = self.get_seed_data("Shot", seed_shot_version.shot.id-1)
         assert backend_data == seed_data
         
     def test_can_retrieve_project(self, seed_shot_version):

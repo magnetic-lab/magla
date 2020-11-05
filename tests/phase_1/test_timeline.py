@@ -9,7 +9,7 @@ from magla.utils import random_string
 
 class TestTimeline(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Timeline"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Timeline"))
     def seed_timeline(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaTimeline(data)
@@ -34,6 +34,6 @@ class TestTimeline(MaglaEntityTestFixture):
         new_user_id = 2
         seed_timeline.data.user_id = new_user_id
         seed_timeline.data.push()
-        confirmation = MaglaTimeline(id=seed_timeline.id)
+        confirmation_user_id = MaglaTimeline(id=seed_timeline.id).user.id
         self.reset(seed_timeline)
-        assert confirmation.user.id == new_user_id
+        assert confirmation_user_id == new_user_id

@@ -10,7 +10,7 @@ from magla.utils import random_string
 
 class TestMachine(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Machine"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Machine"))
     def seed_machine(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaMachine(data)

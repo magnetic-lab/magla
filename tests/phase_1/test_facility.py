@@ -9,7 +9,7 @@ from magla.utils import random_string
 
 class TestFacility(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="function", params=MaglaEntityTestFixture.seed_data("Facility"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Facility"))
     def seed_facility(self, request, entity_test_fixture):
             data, expected_result = request.param
             yield MaglaFacility(data)

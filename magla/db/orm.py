@@ -26,12 +26,12 @@ class MaglaORM(object):
     # `postgres` connection string variables
     CONFIG = {
         "dialect": "sqlite",
-        "username": os.getenv("POSTGRES_USERNAME"),
-        "password": os.getenv("POSTGRES_PASSWORD"),
-        "hostname": os.getenv("POSTGRES_HOSTNAME"),
-        "port": os.getenv("POSTGRES_PORT"),
-        "db_name": os.getenv("POSTGRES_DB_NAME"),
-        "data_dir": os.path.join(os.path.dirname(__file__), "data")
+        "username": os.getenv("MAGLA_DB_USERNAME"),
+        "password": os.getenv("MAGLA_DB_PASSWORD"),
+        "hostname": os.getenv("MAGLA_DB_HOSTNAME"),
+        "port": os.getenv("MAGLA_DB_PORT"),
+        "db_name": os.getenv("MAGLA_DB_NAME"),
+        "data_dir": os.getenv("MAGLA_DB_DATA_DIR")
     }
     _Base = declarative_base()
     _Session = None
@@ -40,9 +40,10 @@ class MaglaORM(object):
     def __init__(self):
         """Instantiate and iniliatize DB tables."""
         self._session = None
-        
+
     def init(self):
-        self._construct_engine(self.CONFIG["dialect"])
+        """Perform `SQLAlchemy` initializations, create filesystem directory for `sqlite` data."""
+        self._construct_engine()
         if not os.path.isdir(self.CONFIG["data_dir"]):
             os.makedirs(self.CONFIG["data_dir"])
         if not database_exists(self._Engine.url):
@@ -79,14 +80,15 @@ class MaglaORM(object):
         cls._Session = cls.sessionmaker(*args, **kwargs)
 
     @classmethod
-    def _construct_engine(cls, dialect):
+    def _construct_engine(cls):
+        """Construct a `SQLAlchemy` engine of the type currently set in `CONFIG['dialect']`."""
         callable_ = getattr(
             cls,
-            "_construct_{dialect}_engine".format(dialect=dialect),
+            "_construct_{dialect}_engine".format(dialect=cls.CONFIG["dialect"]),
             cls._construct_sqlite_engine
         )
         callable_()
-    
+
     @classmethod
     def _construct_sqlite_engine(cls):
         """Construct the engine to be used by `SQLAlchemy`."""
