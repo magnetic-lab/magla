@@ -25,7 +25,8 @@ setuptools.setup(
 	extras_require = {
 		"dev": [
 			"pytest",
-			"pytest-cov"
+			"pytest-cov",
+			"flake8"
 		]
 	},
 	long_description=long_description,
@@ -35,19 +36,14 @@ setuptools.setup(
 	classifiers=[
      		"Development Status :: 2 - Pre-Alpha",
         	"Programming Language :: Python :: 2.7",
-			"Programming Language :: Python :: 3",
-			"Programming Language :: Python :: 3.1",
-			"Programming Language :: Python :: 3.2",
-			"Programming Language :: Python :: 3.3",
-			"Programming Language :: Python :: 3.4",
-			"Programming Language :: Python :: 3.5",
-			"Programming Language :: Python :: 3.6",
-			"Programming Language :: Python :: 3.7",
-			"Programming Language :: Python :: 3.8",
+		"Programming Language :: Python :: 3.6",
+		"Programming Language :: Python :: 3.7",
+		"Programming Language :: Python :: 3.8",
+		"Programming Language :: Python :: 3.9",
         	"Operating System :: OS Independent",
-			"Framework :: SQLAlchemy",
-			"Topic :: Multimedia :: Video"
+		"Framework :: SQLAlchemy",
+		"Topic :: Multimedia :: Video"
 	],
-	python_requires='>=2.7, <3.9',
+	python_requires='>=2.7, <=3.9',
 	keywords="vfx post-production animation editing pipeline opentimelineio sql"
 )
