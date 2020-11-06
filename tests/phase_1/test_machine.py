@@ -1,9 +1,7 @@
 """Testing for `magla.core.machine`"""
-import os
 import string
 import uuid
 
-os.environ["POSTGRES_DB_NAME"] = "magla_testing"
 import pytest
 from magla.core.machine import MaglaMachine
 from magla.test import MaglaEntityTestFixture
@@ -12,23 +10,25 @@ from magla.utils import random_string
 
 class TestMachine(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Machine"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Machine"))
     def seed_machine(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaMachine(data)
 
     def test_can_update_name(self, seed_machine):
-        random_shot_name = random_string(string.ascii_letters, 6)
-        seed_machine.data.name = random_shot_name
+        random_machine_name = random_string(string.ascii_letters, 6)
+        seed_machine.data.name = random_machine_name
         seed_machine.data.push()
         confirmation = MaglaMachine(id=seed_machine.id)
-        assert confirmation.name == random_shot_name
+        self.reset(seed_machine)
+        assert confirmation.name == random_machine_name
 
     def test_can_update_ip_address(self, seed_machine):
         random_ip_address = random_string(string.ascii_letters, 15)
         seed_machine.data.ip_address = random_ip_address
         seed_machine.data.push()
         confirmation = MaglaMachine(id=seed_machine.id)
+        self.reset(seed_machine)
         assert confirmation.ip_address == random_ip_address
 
     def test_can_update_uuid(self, seed_machine):
@@ -38,17 +38,20 @@ class TestMachine(MaglaEntityTestFixture):
         seed_machine.data.uuid = random_uuid
         seed_machine.data.push()
         confirmation = MaglaMachine(id=seed_machine.id)
+        self.reset(seed_machine)
         assert confirmation.uuid == random_uuid
 
     def test_can_retieve_facility(self, seed_machine):
-        assert seed_machine.facility.dict() == self.get_seed_data("Facility", seed_machine.facility.id-1)
+        backend_data = seed_machine.facility.dict()
+        seed_data = self.get_seed_data("Facility", seed_machine.facility.id-1)
+        assert backend_data == seed_data
 
     def test_can_retrieve_directories(self, seed_machine):
-        from_backend = seed_machine.directories[0].dict()
+        backend_data = seed_machine.directories[0].dict()
         from_seed_data = self.get_seed_data("Directory", seed_machine.directories[0].id-1)
-        assert from_backend == from_seed_data
+        assert backend_data == from_seed_data
 
     def test_can_retrieve_contexts(self, seed_machine):
-        from_backend = seed_machine.contexts[0].dict()
+        backend_data = seed_machine.contexts[0].dict()
         from_seed_data = self.get_seed_data("Context", seed_machine.contexts[0].id-1)
-        assert from_backend == from_seed_data
+        assert backend_data == from_seed_data

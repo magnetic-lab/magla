@@ -1,5 +1,4 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -12,7 +11,7 @@ class Machine(MaglaORM._Base):
 
     id = Column(Integer, primary_key=True)
     facility_id = Column(Integer, ForeignKey("facilities.id"))
-    uuid = Column(UUID)  # unique
+    uuid = Column(String)  # unique
     name = Column(String)
     ip_address = Column(String)
 

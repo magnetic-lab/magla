@@ -8,8 +8,9 @@ Facility:
 Machine:
 - - id: 1
     facility_id: 1
-    uuid: 00000000-0000-0000-0000-277eb57f1cd7
+    uuid: 00000000-0000-0000-0000-9d76834f818d
     name: test_machine
+    ip_address: null
   - true
 User:
 - - id: 1
@@ -39,8 +40,10 @@ Directory:
   - true
 - - id: 2
     machine_id: 1
+    user_id: null
     label: test_project root directory.
     path: "/mnt/projects/test_project"
+    bookmarks: {}
     tree:
     - shots: []
     - audio: []
@@ -52,8 +55,8 @@ Directory:
 - - id: 3
     machine_id: 1
     user_id: null
-    label: dummy project root directory for testin gpurposes only.
-    path: "/mnt/projects/dummy_project"
+    label: test_project root directory.
+    path: "/mnt/projects/test_project"
     bookmarks: {}
     tree:
     - shots: []
@@ -65,8 +68,10 @@ Directory:
   - true
 - - id: 4
     machine_id: 1
+    user_id: null
     label: test_shot_01 root directory.
     path: "{shot.project.directory.path}/shots/{shot.name}"
+    bookmarks: {}
     tree:
     - _current:
       - h265: []
@@ -91,8 +96,10 @@ Directory:
   - true
 - - id: 6
     machine_id: 1
+    user_id: null
     label: natron 2.3.15 root directory on machine 1.
     path: "/opt/Natron-2.3.15/bin/natron"
+    bookmarks: {}
     tree:
     - _in:
       - plate: []
@@ -116,6 +123,7 @@ Directory:
   - true
 - - id: 8
     machine_id: 1
+    user_id: null
     label: shot version tool-subdirectory.
     path: "/home/jacob/working_dir"
     tree:
@@ -128,6 +136,7 @@ Directory:
 Timeline:
 - - id: 1
     label: example label for a timeline.
+    user_id: null
     otio:
       OTIO_SCHEMA: Timeline.1
       metadata: {}
@@ -162,7 +171,7 @@ Timeline:
 Project:
 - - id: 1
     name: test_project
-    directory_id: 2
+    directory_id: 3
     timeline_id: 1
     settings:
       project_directory: "/mnt/projects/{project.name}"
@@ -213,12 +222,15 @@ Settings2D:
 Tool:
 - - id: 1
     name: natron
+    description: ""
   - true
 Shot:
 - - id: 1
     name: test_shot_01
     project_id: 1
     directory_id: 3
+    start_frame_in_parent: null
+    track_index: null
     otio:
       OTIO_SCHEMA: Clip.1
       metadata: {}
@@ -295,7 +307,7 @@ ToolVersion:
 - - id: 1
     string: 2.3.15
     tool_id: 1
-    file_extension: null
+    file_extension: ""
     file_types_id: null
   - true
 ToolVersionInstallation:

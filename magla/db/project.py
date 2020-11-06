@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -14,7 +14,7 @@ class Project(MaglaORM._Base):
     directory_id = Column(Integer, ForeignKey("directories.id"))
     timeline_id = Column(Integer, ForeignKey("timelines.id"))
     name = Column(String)
-    settings = Column(JSONB)
+    settings = Column(JSON)
 
     timeline = relationship("Timeline")
     settings_2d = relationship("Settings2D", back_populates="project")

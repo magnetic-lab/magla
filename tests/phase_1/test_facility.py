@@ -9,7 +9,7 @@ from magla.utils import random_string
 
 class TestFacility(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="function", params=MaglaEntityTestFixture.seed_data("Facility"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Facility"))
     def seed_facility(self, request, entity_test_fixture):
             data, expected_result = request.param
             yield MaglaFacility(data)
@@ -19,6 +19,7 @@ class TestFacility(MaglaEntityTestFixture):
         seed_facility.data.name = random_name
         seed_facility.data.push()
         confirmation = MaglaFacility(id=seed_facility.id)
+        self.reset(seed_facility)
         assert confirmation.name == random_name
 
     def test_can_update_settings(self, seed_facility):
@@ -34,12 +35,10 @@ class TestFacility(MaglaEntityTestFixture):
         seed_facility.data.settings = dummy_settings
         seed_facility.data.push()
         confirmation = MaglaFacility(id=seed_facility.id)
-        settings_from_backend = confirmation.settings
-        confirmation.data.update(reset_data)
-        confirmation.data.push()
-        assert settings_from_backend == dummy_settings
+        self.reset(seed_facility)
+        assert confirmation.settings == dummy_settings
 
     def test_can_retrieve_machines(self, seed_facility):
-        shot_from_backend = seed_facility.machines[0].dict()
+        backend_data = seed_facility.machines[0].dict()
         seed_data = self.get_seed_data("Machine", seed_facility.machines[0].id-1)
-        assert len(seed_facility.machines) == 1 and shot_from_backend == seed_data
+        assert len(seed_facility.machines) == 1 and backend_data == seed_data

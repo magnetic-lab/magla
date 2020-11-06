@@ -21,7 +21,7 @@ class MaglaFacility(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaFacility, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaFacility, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):

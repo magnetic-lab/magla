@@ -5,11 +5,12 @@ from `magla`.
 
 To replace with your own backend just keep the below method signatures intact.
 """
-from os import getenv
+import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
+from sqlalchemy_utils import database_exists, create_database, drop_database
 
 
 class MaglaORM(object):
@@ -24,11 +25,13 @@ class MaglaORM(object):
     """
     # `postgres` connection string variables
     CONFIG = {
-        "username": getenv("POSTGRES_USERNAME"),
-        "password": getenv("POSTGRES_PASSWORD"),
-        "hostname": getenv("POSTGRES_HOSTNAME"),
-        "port": getenv("POSTGRES_PORT"),
-        "db_name": getenv("POSTGRES_DB_NAME")
+        "dialect": "sqlite",
+        "username": os.getenv("MAGLA_DB_USERNAME"),
+        "password": os.getenv("MAGLA_DB_PASSWORD"),
+        "hostname": os.getenv("MAGLA_DB_HOSTNAME"),
+        "port": os.getenv("MAGLA_DB_PORT"),
+        "db_name": os.getenv("MAGLA_DB_NAME"),
+        "data_dir": os.getenv("MAGLA_DB_DATA_DIR")
     }
     _Base = declarative_base()
     _Session = None
@@ -36,19 +39,27 @@ class MaglaORM(object):
 
     def __init__(self):
         """Instantiate and iniliatize DB tables."""
+        self._session = None
+
+    def init(self):
+        """Perform `SQLAlchemy` initializations, create filesystem directory for `sqlite` data."""
         self._construct_engine()
+        if not os.path.isdir(self.CONFIG["data_dir"]):
+            os.makedirs(self.CONFIG["data_dir"])
+        if not database_exists(self._Engine.url):
+            create_database(self._Engine.url)
         self._construct_session()
         self._create_all_tables()
         self._session = self._Session()
 
     @property
     def session(self):
-        """Retrieve session instance.
+        """Retrieve Session class or Session Instance (after `_construct_session` has been called).
 
         Returns
         -------
         sqlalchemy.orm.Session
-            Session class for the app.
+            Session class/object
         """
         return self._session
 
@@ -63,25 +74,38 @@ class MaglaORM(object):
         cls._Base.metadata.drop_all(bind=cls._Engine)
 
     @classmethod
-    def _construct_session(cls):
-        """Construct a session instance for backend communication."""
-        cls._Session = cls.sessionmaker()
+    def _construct_session(cls, *args, **kwargs):
+        """Construct session-factory."""
+        # TODO: include test coverage for constructing sessions with args/kwargs
+        cls._Session = cls.sessionmaker(*args, **kwargs)
 
     @classmethod
     def _construct_engine(cls):
+        """Construct a `SQLAlchemy` engine of the type currently set in `CONFIG['dialect']`."""
+        callable_ = getattr(
+            cls,
+            "_construct_{dialect}_engine".format(dialect=cls.CONFIG["dialect"]),
+            cls._construct_sqlite_engine
+        )
+        callable_()
+
+    @classmethod
+    def _construct_sqlite_engine(cls):
         """Construct the engine to be used by `SQLAlchemy`."""
         cls._Engine = create_engine(
-            "postgresql://{username}:{password}@{hostname}:{port}/{db_name}".format(
-                **cls.CONFIG),
-            # pool_size=20,
-            max_overflow=0,
-            pool_timeout=5,
-            pool_pre_ping=True,
+            "sqlite:///{data_dir}/{db_name}".format(**cls.CONFIG)
+        )
+
+    @classmethod
+    def _construct_postgres_engine(cls):
+        """Construct the engine to be used by `SQLAlchemy`."""
+        cls._Engine = create_engine(
+            "postgresql://{username}:{password}@{hostname}:{port}/{db_name}".format(**cls.CONFIG)
         )
 
     @classmethod
     def sessionmaker(cls, **kwargs):
-        """Create new session facrory.
+        """Create new session factory.
 
         Returns
         -------
@@ -119,8 +143,7 @@ class MaglaORM(object):
             List of `MaglaEntity` objects instantiated from each record.
         """
         entity = entity or self.entity
-        return [entity.from_record(record) for record
-                in self.query(entity).all()]
+        return [entity.from_record(record) for record in self.query(entity).all()]
 
     def one(self, entity=None, **filter_kwargs):
         """Retrieve the first found record.

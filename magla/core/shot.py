@@ -33,7 +33,7 @@ class MaglaShot(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaShot, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaShot, self).__init__(self.SCHEMA, data or dict(kwargs))
         if self.versions and self.otio:
             self.otio.media_reference = self.versions[-1].otio
         elif self.otio:

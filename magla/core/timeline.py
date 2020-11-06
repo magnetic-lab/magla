@@ -23,7 +23,7 @@ class MaglaTimeline(MaglaEntity):
     """
     SCHEMA = Timeline
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -31,17 +31,7 @@ class MaglaTimeline(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaTimeline, self).__init__(self.SCHEMA, data, **kwargs)
-
-    def __str__(self):
-        """Overwrite the default string representation.
-
-        Returns
-        -------
-        str
-            Display the native `opentimelineio` representation
-        """
-        return str(self.otio)
+        super(MaglaTimeline, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     def __repr__(self):
         return self.__str__()

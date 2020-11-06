@@ -12,12 +12,10 @@ import uuid
 
 import opentimelineio as otio
 
-from ..db import ORM
-from ..utils import (all_otio_to_dict, dict_to_otio, otio_to_dict,
-                     record_to_dict)
+from ..utils import otio_to_dict, otio_to_dict
 from .assignment import MaglaAssignment
 from .context import MaglaContext
-from .data import MaglaData, NoRecordFoundError
+from .data import NoRecordFoundError
 from .directory import MaglaDirectory
 from .entity import MaglaEntity
 from .errors import MaglaError
@@ -45,33 +43,38 @@ class EntityAlreadyExistsError(MaglaRootError):
 class MaglaRoot(object):
     """Permissions-aware interface for creation and deletion within `magla`."""
 
-   
     def __init__(self, *args, **kwargs):
-        self._orm = ORM(*args, **kwargs)
+        MaglaEntity.connect()
         self._permissions = None
 
     def __repr__(self):
-        return "<MaglaRoot: database={database}>".format(database=self.orm.SESSION.bind.url)
-    
+        return "<MaglaRoot: database={database}>".format(database=self.orm.session.bind.url)
+
     @property
     def orm(self):
-        return self._orm
+        return MaglaEntity._orm
 
-    def all(self, entity):
+    def all(self, entity=None):
         """Retrieve all records for given `Entity`-type.
 
         Parameters
         ----------
         entity : magla.core.entity.Entity
             Entity type to query.
-
         Returns
         -------
         list
             List of `MaglaEntity` objects
         """
-        return self.orm.all(entity)
-    
+        if entity:
+            # return a list of `magla` objects for given entity-type
+            return self.orm.all(entity)
+        db_dump = []
+        # return a list of everything currently in the backend
+        for entity_ in MaglaEntity.__types__.values():
+            db_dump.append(self.orm.all(entity_))
+        return db_dump
+
     @staticmethod
     def copy(src, dst):
         """Perform a filesystem copy on a single file.
@@ -90,7 +93,8 @@ class MaglaRoot(object):
                 dst=os.path.basename(dst))
             )
         except FileNotFoundError:
-            sys.stdout.write("\n\t{src} not found, skipping..".format(src=os.path.basename(src)))
+            sys.stdout.write("\n\t{src} not found, skipping..".format(
+                src=os.path.basename(src)))
 
     def create(self, entity, data=None, return_existing=True):
         """Wrapper for `ORM.create` with configurable return signature.
@@ -115,7 +119,7 @@ class MaglaRoot(object):
             Entity with given data already exists
         """
         data = data or {}
-        data = all_otio_to_dict(data)
+        data = otio_to_dict(data)
         query_result = self.orm.query(entity).filter_by(**data).first()
         if query_result:
             if return_existing:
@@ -235,7 +239,7 @@ class MaglaRoot(object):
         new_project.directory.make_tree()
         return new_project
 
-    def create_shot(self, project_id, name):
+    def create_shot(self, project_id, name, machine_id=None):
         """Create record for new `MaglaShot` and associated types.
 
         associated types created:
@@ -268,7 +272,7 @@ class MaglaRoot(object):
             new_directory = self.create(MaglaDirectory, {
                 "path": project_settings_shot_dir.format(shot=new_shot),
                 "tree": project.settings.get("shot_directory_tree", []),
-                "machine_id": MaglaMachine().id
+                "machine_id": MaglaMachine(machine_id).id
             })
             new_shot.data.directory_id = new_directory.id
             new_shot.data.push()
@@ -307,14 +311,15 @@ class MaglaRoot(object):
         tree = shot.project.settings.get("shot_version_directory_tree", {})
         bookmarks = shot.project.settings.get("shot_version_bookmarks", {})
         for tool_config in shot.project.tool_configs:
-            tool_subdir = tool_config.directory.path.format(shot_version=new_shot_version)
-            tool_config_bookmarks = tool_config.directory.bookmarks
-            tool_config_bookmarks["project_file"] = \
-                tool_config.directory.bookmark("project_file").format(
-                    shot_version=new_shot_version
-                )
-            bookmarks.update(tool_config_bookmarks)
-            tree.append({tool_subdir: tool_config.directory.tree})
+            # make sure each tool configured for this project gets its subdirectory tree created
+            directory_to_update = tool_config.directory
+            tool_project_file_path = \
+                directory_to_update.bookmark("project_file").format(shot_version=new_shot_version)
+            tool_subdir = \
+                directory_to_update.path.format(shot_version=new_shot_version)
+            directory_to_update.data.bookmarks["project_file"] = tool_project_file_path
+            directory_to_update.data.push()
+            tree.append({tool_subdir: directory_to_update.tree})
 
         # apply `ToolConfig` trees
         # for tool_config in shot.project.tool_configs:
@@ -358,7 +363,7 @@ class MaglaRoot(object):
         new_shot_version.data.otio.name_suffix = suffix
         new_shot_version.data.otio.frame_zero_padding = padding.count("#")
         new_shot_version.data.otio.rate = shot.project.settings_2d[-1].rate
-            
+
         new_shot_version.data.push()
         new_shot_version.directory.make_tree()
         return new_shot_version
@@ -444,13 +449,14 @@ class MaglaRoot(object):
         return tool_version
 
     def create_tool_config(
-                self,
-                tool_version_id,
-                project_id,
-                tool_subdir=None,
-                directory_tree=None,
-                bookmarks=None,
-                **kwargs):
+            self,
+            tool_version_id,
+            project_id,
+            machine_id=None,
+            tool_subdir=None,
+            directory_tree=None,
+            bookmarks=None,
+            **kwargs):
         """Create new record for `MaglaToolConfig` type.
 
         Parameters
@@ -504,13 +510,14 @@ class MaglaRoot(object):
         for key, val in bookmarks.items():
             formatted_keys_dict[key.format(tool_version=tool_version)] = val
         bookmarks = formatted_keys_dict
-        
+
         # create MaglaDirectory for the tool's shot_version subdirectory
         tool_subdir_abspath = os.path.join(
             project.settings["shot_version_directory"],
             tool_subdir.format(tool_version=tool_version, project=project))
         directory = self.create(MaglaDirectory, {
-            "label": "{tool_version.full_name} shot version subdirectory.".format(
+            "machine_id": machine_id or MaglaMachine().id,
+            "label": "{tool_version.full_name} subdirectory.".format(
                 tool_version=tool_version),
             "path": tool_subdir_abspath,
             "tree": directory_tree,
@@ -523,8 +530,15 @@ class MaglaRoot(object):
         }
         data.update(dict(kwargs))
         return self.create(MaglaToolConfig, data)
-    
-    def create_tool_version(self, tool_id, version_string, install_dir, exe_path, file_extension=None):
+
+    def create_tool_version(self,
+                            tool_id,
+                            version_string,
+                            install_dir,
+                            exe_path,
+                            machine_id=None,
+                            file_extension=None):
+        machine_id = machine_id or MaglaMachine().id
         # check if a `tool_versions` record already exists for given `version_string`
         try:
             tool_version = MaglaToolVersion(
@@ -538,9 +552,9 @@ class MaglaRoot(object):
         # check if a `tool_version_installations` record already exists for given `install_dir`
         try:
             tool_version_installation = MaglaToolVersionInstallation(
-                directory_id=MaglaDirectory(machine_id=MaglaMachine().id, path=install_dir).id)
+                directory_id=MaglaDirectory(machine_id=machine_id, path=install_dir).id)
         except NoRecordFoundError:
-            machine = MaglaMachine()
+            machine = MaglaMachine(id=machine_id)
             # create/retrieve a MaglaDirectory object required for record creation
             install_directory = self.create(MaglaDirectory, {
                 "path": install_dir,
@@ -590,7 +604,7 @@ class MaglaRoot(object):
         except EntityAlreadyExistsError:
             pass
         return new_user
-   
+
     def version_up(self, shot_id, num):
         """Create a new `MaglaShotVersion` from latest.
 
@@ -631,9 +645,10 @@ class MaglaRoot(object):
                 dst_vars={
                     "shot_version": new_shot_version,
                     "tool_version": tool_config.tool_version}
-                )
+            )
+        sys.stdout.write("\n")
         return new_shot_version
-    
+
     def __copy_directory(self, src_directory, dst_directory, src_vars=None, dst_vars=None):
         """Copy source directory bookmarked files to destination directory bookmarked locations.
 
@@ -663,13 +678,12 @@ class MaglaRoot(object):
     def delete_shot_version(self, data=None, delete_files=False, **kwargs):
         shot_version = MaglaShotVersion(data or dict(kwargs))
         shot_version_directory = shot_version.directory
-        
+
         if delete_files:
             shot_version_directory.delete_tree()
         self.delete(shot_version.data.record)
         self.delete(shot_version_directory.data.record)
-        
+
     def delete_assignment(self, data=None, **kwargs):
         assignment = MaglaAssignment(data or dict(kwargs))
         self.delete(assignment.data.record)
-        

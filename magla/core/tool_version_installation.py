@@ -26,7 +26,7 @@ class MaglaToolVersionInstallation(MaglaEntity):
         :type tool_name: str
         :raise MaglaToolVersionInstallationNameNotFound: No tool name, or nicknames found
         """
-        super(MaglaToolVersionInstallation, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaToolVersionInstallation, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):
