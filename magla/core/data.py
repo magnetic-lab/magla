@@ -1,11 +1,15 @@
 """MaglaData objects are the universal data transportation and syncing device of `magla`."""
 import sys
-from collections import MutableMapping
+try:
+    from collections.abc import MutableMapping  # noqa
+except ImportError:
+    from collections import MutableMapping  # noqa
+
 from pprint import pformat
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..utils import dict_to_record, record_to_dict
+from ..utils import dict_to_record, record_to_dict, otio_to_dict
 from .errors import MaglaError
 
 
@@ -56,18 +60,22 @@ class CustomDict(MutableMapping):
         data : dict, optional
             User-defined dict, by default None
         """
-        self.__invalid_key_names = list(
-            dir(super(CustomDict, self)) + dir(self))
+        # create snapshot of core attributes so they don't get overwritten
+        self.__invalid_key_names = list(dir(super(CustomDict, self)) + dir(self))
         self._store = data or dict()
 
     def __getitem__(self, key):
         return self._store[key]
 
     def __setitem__(self, key, value):
-        self._store[self.validate_key(key, value)] = value
+        # self._validate_key(key)
+        self._store[key] = value
+        self.__dict__[key] = value
 
     def __delitem__(self, key):
-        del self._store[self.validate_key(key, delete=True)]
+        # self._validate_key(key)
+        del self._store[key]
+        del self.__dict__[key]
 
     def __iter__(self):
         return iter(self._store)
@@ -108,9 +116,9 @@ class MaglaData(CustomDict):
     ----------
     _schema : magla.db.entity.MaglaEntity
         The associated mapped entity (defined in 'magla/db/')
-    _record : sqlalchemy.ext.declarative.api.Base
+    __record : sqlalchemy.ext.declarative.api.Base
         The returned record from the session query (containing data directly from backend)
-    _session : sqlalchemy.orm.session.Session
+    __session : sqlalchemy.orm.session.Session
         https://docs.sqlalchemy.org/en/13/orm/session_basics.html
     """
 
@@ -133,40 +141,30 @@ class MaglaData(CustomDict):
         NoRecordFoundError
             No record was found matching given data.
         """
-        self._schema = schema
-        self._record = None
-        self._session = session
-
         if not isinstance(data, dict):
             msg = "'data' must be a python dict! Received: {0}".format(
                 type(data))
             raise MaglaDataError(msg)
-        # apply any kwargs as key-value pairs
-        if kwargs:
-            data.update(dict(kwargs))
-        # initializing CustomDict is what gives us dict functionality
+        self._schema = schema
+        self.__record = None
+        self.__session = session
         super(MaglaData, self).__init__(data, *args, **kwargs)
 
         # attempt to pull from DB
         try:
-            self.pull()  # retrieve and sync with db
-            self.push()  # commit the combined result so rest of the application sees
+            self.pull()
         except NoResultFound as err:
             raise NoRecordFoundError("No '{0}' record found for: {1}".format(
-                schema.__class__.__name__, dict(data)))
-
-        # sync instance's __dict__ with data(for dot-notated keys).
-        for key, value in data.items():
-            self._sync(key, value, delete=False)
+                schema.__entity_name__, data))
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__
+        return self._store == other.__dict__
 
     def __repr__(self):
         keys = [key for key in sorted(
             self.__dict__) if not (key).startswith("_")]
         items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
-        return "<{}: {}>".format(self.__class__.__name__, ", ".join(items))
+        return "<{}: {}>".format(self._schema.__entity_name__, ", ".join(items))
 
     def __setattr__(self, name, val):
         super(MaglaData, self).__setattr__(name, val)
@@ -174,7 +172,7 @@ class MaglaData(CustomDict):
             self.__setitem__(name, val)
 
     @classmethod
-    def from_record(cls, record):
+    def from_record(cls, record, otio_as_dict):
         """Instantiate a `MaglaData` object from a `SQLAlchemy` record.
 
         Parameters
@@ -187,7 +185,7 @@ class MaglaData(CustomDict):
         magla.core.data.MaglaData
             New `MaglaData` object synced with backend data
         """
-        return cls(record_to_dict(record), record.__class__)
+        return cls(record_to_dict(record, otio_as_dict), record.__class__)
 
     @property
     def session(self):
@@ -198,7 +196,7 @@ class MaglaData(CustomDict):
         sqlalchemy.orm.session.Session
             The `SQLAlchemy` session managing all of our transactions
         """
-        return self._session
+        return self.__session
 
     @property
     def record(self):
@@ -209,31 +207,8 @@ class MaglaData(CustomDict):
         sqlalchemy.ext.declarative.api.Base
             The returned record from the session query (containing data directly from backend)
         """
-        return self._record
-
-    def _sync(self, key, value, delete):
-        """Either set, or delete given key/value pair.
-
-        Parameters
-        ----------
-        key : str
-            Target key
-        value : *
-            Value for given key
-        delete : bool   
-            Flag to set or delete given key
-
-        Returns
-        -------
-        str
-            Key that was affected
-        """
-        if delete:
-            del self.__dict__[key]
-            return key
-        self.__dict__[key] = value
-        return key
-
+        return self.__record
+    
     def dict(self):
         return self._store
 
@@ -274,18 +249,15 @@ class MaglaData(CustomDict):
         NoRecordFoundError
             No record was found matching given data.
         """
-        # this method is really ugly needs to be optomized
-        # retrieve record from DB
-        filter_ = self._store
-        if "id" in filter_:
-            filter_ = {"id": filter_["id"]}
-        record = self.session.query(self._schema).filter_by(**filter_).first()
+        query_dict = otio_to_dict(self._store)
+        record = self.session.query(self._schema).filter_by(**query_dict).first()
         if not record:
             raise NoRecordFoundError(
-                "No record found for: {}".format(self._store))
+                "No record found for: {}".format(query_dict))
         # apply to current state
-        self._record = record
-        self._store.update(record_to_dict(record))
+        self.__record = record
+        backend_data = record_to_dict(record, otio_as_dict=False)
+        self.update(backend_data)
         return record
 
     def push(self):
@@ -296,10 +268,10 @@ class MaglaData(CustomDict):
         sqlalchemy.ext.declarative.api.Base
             The record retrieved from the update
         """
-        new_record = dict_to_record(self._record, self._store)
-        self._record = new_record
+        temp = self.__record
+        self.__record = dict_to_record(self.__record, self._store, otio_as_dict=True)
         self.session.commit()
-        return new_record
+        self.__record = temp
 
     def validate_key(self, key, value=None, delete=False):
         """Make sure key name will not overwrite any native attributes.

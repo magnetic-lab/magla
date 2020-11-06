@@ -27,7 +27,7 @@ class MaglaTool(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaTool, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaTool, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):
@@ -63,17 +63,6 @@ class MaglaTool(MaglaEntity):
         return self.data.description
 
     @property
-    def metadata(self):
-        """Custom metadata to be kept in the backend associated with this tool.
-
-        Returns
-        -------
-        dict
-            A dictionary contianing anything you want to access within the `magla` ecosystem.
-        """
-        return self.data.metadata_
-
-    @property
     def versions(self):
         """Shortcut method to retrieve related `MaglaToolVersion` back-reference list.
 
@@ -83,6 +72,8 @@ class MaglaTool(MaglaEntity):
             A list of `MaglaToolVersion` objects associated to this tool
         """
         r = self.data.record.versions
+        if not r:
+            return []
         return [self.from_record(a) for a in r]
 
     # MaglaTool-specific methods ________________________________________________________________

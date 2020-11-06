@@ -25,7 +25,7 @@ class MaglaSettings2D(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaSettings2D, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaSettings2D, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):

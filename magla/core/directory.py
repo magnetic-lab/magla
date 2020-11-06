@@ -5,23 +5,15 @@ There should never be any hard-coded paths anywhere except by users via settings
 relies on accessing local directories then a `MaglaDirectory` record must first be created and
 associated.
 """
-import getpass
-import logging
 import os
 import shutil
 import sys
 
 from ..db.directory import Directory
 from ..utils import open_directory_location
-from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
-from .user import MaglaUser
 
-try:
-    basestring
-except NameError:
-    basestring = str
 
 class MaglaDirectoryError(MaglaError):
     """An error accured preventing MaglaDirectory to continue."""
@@ -97,7 +89,7 @@ class MaglaDirectory(MaglaEntity):
         data : dict, optional
             Data to query for matching backend record
         """
-        super(MaglaDirectory, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaDirectory, self).__init__(self.SCHEMA, data or dict(kwargs))
         
     def __repr__(self):
         return self.path
@@ -145,7 +137,7 @@ class MaglaDirectory(MaglaEntity):
         Returns
         -------
         dict
-            Postgres column tree (JSONB)
+            Postgres column tree (JSON)
         """
         return self.data.tree
     
@@ -156,7 +148,7 @@ class MaglaDirectory(MaglaEntity):
         Returns
         -------
         dict
-            Postgres column bookmarks (JSONB)
+            Postgres column bookmarks (JSON)
         """
         return self.data.bookmarks
 

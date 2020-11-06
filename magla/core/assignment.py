@@ -18,7 +18,7 @@ class MaglaAssignment(MaglaEntity):
     """Provide an interface for manipulating `assignments` tables."""
     SCHEMA = Assignment
 
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, data, **kwargs):
         """Initialize with given data.
 
         Parameters
@@ -26,8 +26,7 @@ class MaglaAssignment(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaAssignment, self).__init__(
-            self.SCHEMA, data or dict(kwargs))
+        super(MaglaAssignment, self).__init__(self.SCHEMA, data or dict(kwargs))
         
     def __repr__(self):
         return "<Assignment {this.id}: {this.shot_version}, {this.user}>".format(this=self)

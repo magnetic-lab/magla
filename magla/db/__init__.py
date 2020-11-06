@@ -7,6 +7,7 @@ from .facility import Facility
 from .file_type import FileType
 from .machine import Machine
 from .orm import MaglaORM as ORM
+from .orm import database_exists, create_database, drop_database
 from .project import Project
 from .settings_2d import Settings2D
 from .shot import Shot

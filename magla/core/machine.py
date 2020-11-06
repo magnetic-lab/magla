@@ -30,11 +30,11 @@ class MaglaMachine(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        if not data:
+        if not data and not kwargs:
             data = {"uuid": str(uuid.UUID(int=uuid.getnode()))}
         elif isinstance(data, uuid.UUID) or isinstance(data, str):
             data = {"uuid": str(data)}
-        super(MaglaMachine, self).__init__(self.SCHEMA, data, **kwargs)
+        super(MaglaMachine, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     @property
     def id(self):

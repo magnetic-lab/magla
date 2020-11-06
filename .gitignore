@@ -142,3 +142,4 @@ cython_debug/
 debug.py
 .vscode/*
 *.orig
+magla/db/data/*

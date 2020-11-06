@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -13,6 +13,6 @@ class Timeline(MaglaORM._Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     label = Column(String)
-    otio = Column(JSONB)
+    otio = Column(JSON)
 
     user = relationship("User", uselist=False, back_populates="timelines")
