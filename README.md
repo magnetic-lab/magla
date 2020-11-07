@@ -2,6 +2,7 @@
   <img src="media/magla_banner.png">
 </p>
 
+![Python package](https://github.com/magnetic-lab/magla/workflows/Python%20package/badge.svg?branch=master)
 ![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
 
 ## Magnetic-Lab Pipeline API for Content Creators
