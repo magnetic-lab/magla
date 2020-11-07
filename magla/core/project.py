@@ -191,9 +191,7 @@ class MaglaProject(MaglaEntity):
         magla.core.settings_2d.MaglaSettings2D
             The `MaglaSettings2D` entity set for this project
         """
-        r = self.data.record.settings_2d
-        if not r:
-            return None
+        r = self.data.record.settings_2d or []
         return [self.from_record(a) for a in r]
 
     @property
@@ -205,9 +203,7 @@ class MaglaProject(MaglaEntity):
         list of magla.core.shot.MaglaShot
             The `MaglaShot` list of this project
         """
-        r = self.data.record.shots
-        if r == None:
-            return None
+        r = self.data.record.shots or []
         return [self.from_record(a) for a in r]
 
     @property
@@ -219,9 +215,7 @@ class MaglaProject(MaglaEntity):
         magla.core.tool_config.MaglaToolConfig
             List of `MaglaToolConfig` objects created for this project
         """
-        r = self.data.record.tool_configs
-        if r == None:
-            return None
+        r = self.data.record.tool_configs or []
         return [self.from_record(a) for a in r]
 
     # MaglaProject-specific methods ________________________________________________________________

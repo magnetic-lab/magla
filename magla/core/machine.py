@@ -10,6 +10,7 @@ the current MAC address. Keep in mind this method is not 100% reliable but more 
 import uuid
 
 from ..db.machine import Machine
+from ..utils import get_machine_uuid
 from .entity import MaglaEntity
 from .errors import MaglaError
 
@@ -31,7 +32,7 @@ class MaglaMachine(MaglaEntity):
             Data to query for matching backend record
         """
         if not data and not kwargs:
-            data = {"uuid": str(uuid.UUID(int=uuid.getnode()))}
+            data = {"uuid": get_machine_uuid()}
         elif isinstance(data, uuid.UUID) or isinstance(data, str):
             data = {"uuid": str(data)}
         super(MaglaMachine, self).__init__(self.SCHEMA, data or dict(kwargs))
@@ -104,9 +105,7 @@ class MaglaMachine(MaglaEntity):
         list of magla.core.directory.MaglaDirectory
             The `MaglaDirectory` records for this machine
         """
-        r = self.data.record.directories
-        if r == None:
-            return None
+        r = self.data.record.directories or []
         return [self.from_record(a) for a in r]
 
     @property
@@ -118,7 +117,5 @@ class MaglaMachine(MaglaEntity):
         list of magla.core.context.MaglaContext
             The current user `MaglaContext` if any, for this machine
         """
-        contexts = self.data.record.contexts
-        if contexts == None:
-            return None
+        contexts = self.data.record.contexts or []
         return [self.from_record(c) for c in contexts]

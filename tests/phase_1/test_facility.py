@@ -8,6 +8,8 @@ from magla.utils import random_string
 
 
 class TestFacility(MaglaEntityTestFixture):
+    
+    _repr_string = "<Facility {this.id}: name={this.name}, settings={this.settings}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Facility"))
     def seed_facility(self, request, entity_test_fixture):
@@ -42,3 +44,8 @@ class TestFacility(MaglaEntityTestFixture):
         backend_data = seed_facility.machines[0].dict()
         seed_data = self.get_seed_data("Machine", seed_facility.machines[0].id-1)
         assert len(seed_facility.machines) == 1 and backend_data == seed_data
+
+    def test_object_string_repr(self, seed_facility):
+        assert str(seed_facility) == self._repr_string.format(
+            this=seed_facility
+        )
