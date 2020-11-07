@@ -8,7 +8,7 @@ Facility:
 Machine:
 - - id: 1
     facility_id: 1
-    uuid: 00000000-0000-0000-0000-9d76834f818d
+    uuid: 00000000-0000-0000-0000-7946f8ba868d
     name: test_machine
     ip_address: null
   - true
@@ -229,7 +229,7 @@ Shot:
     name: test_shot_01
     project_id: 1
     directory_id: 3
-    start_frame_in_parent: null
+    start_frame_in_parent: 0
     track_index: null
     otio:
       OTIO_SCHEMA: Clip.1

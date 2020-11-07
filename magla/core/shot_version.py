@@ -25,7 +25,7 @@ class MaglaShotVersion(MaglaEntity):
         super(MaglaShotVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
         
     def __repr__(self):
-        return "<ShotVersion {this.id}: full_name={this.full_name}, directory={this.directory}>". \
+        return "<ShotVersion {this.id}: directory={this.directory}, full_name={this.full_name}>". \
             format(this=self)
         
     def __str__(self):

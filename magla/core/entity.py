@@ -65,7 +65,13 @@ class MaglaEntity(object):
         data = self.data.dict()
         id_ = self.id
         entity_type = self.data._schema.__entity_name__
-        keys_n_vals = ["{0}={1}".format(*tup) for tup in data.items()]
+        keys_n_vals = []
+        sorted_keys = list(data.keys())
+        sorted_keys.sort()
+        for key in sorted_keys:
+            if key == "id":
+                continue
+            keys_n_vals.append("{key}={val}".format(key=key, val=data[key]))
 
         return "<{entity_type} {id}: {keys_n_vals}>".format(
             entity_type=entity_type,

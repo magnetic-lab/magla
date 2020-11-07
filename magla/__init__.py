@@ -13,6 +13,8 @@ from .core import (Assignment, Config, Context, Data, Dependency, Directory,
                    Settings2D, Shot, ShotVersion, Timeline, Tool, ToolConfig,
 		   ToolVersion, ToolVersionInstallation, User)
 
+from .test import MaglaTestFixture, MaglaEntityTestFixture
+
 # register all sub-entities here
 Entity.__types__ = {
 	"Assignment": Assignment,

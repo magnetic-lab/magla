@@ -93,8 +93,6 @@ class MaglaUser(MaglaEntity):
             The unique `MaglaContext` for this user.
         """
         r = self.data.record.context
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property
@@ -161,13 +159,3 @@ class MaglaUser(MaglaEntity):
             if d.label == label:
                 return d
         return None
-    
-    def permissions(self): 
-        """TODO: make a permissions validation request to external API endpoint.   
-
-        Returns
-        -------
-        dict
-            Permissions dict
-        """
-        return {}

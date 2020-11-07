@@ -29,6 +29,12 @@ class MaglaToolVersion(MaglaEntity):
             Data to query for matching backend record
         """
         super(MaglaToolVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
+    
+    def __repr__(self):
+        return "<ToolVersion {this.id}: file_extension={this.file_extension}, string={this.string}, tool={this.tool}>".format(this=self)
+        
+    def __str__(self):
+        return self.__repr__()
 
     @property
     def id(self):

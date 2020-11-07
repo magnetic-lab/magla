@@ -5,15 +5,32 @@ import uuid
 import pytest
 from magla.core.machine import MaglaMachine
 from magla.test import MaglaEntityTestFixture
-from magla.utils import random_string
+from magla.utils import random_string, get_machine_uuid
 
 
 class TestMachine(MaglaEntityTestFixture):
+    
+    _repr_string = "<Machine {this.id}: facility_id={this.facility.id}, ip_address={this.ip_address}, name={this.name}, uuid={this.uuid}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Machine"))
     def seed_machine(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaMachine(data)
+    
+    def test_can_instantiate_with_no_args(self, seed_machine):
+        confirmation = MaglaMachine()
+        assert confirmation.dict() == seed_machine.dict()
+
+    def test_can_instantiate_from_uuid(self, seed_machine):
+        confirmation = MaglaMachine(get_machine_uuid())
+        assert confirmation.dict() == seed_machine.dict()
+
+    def test_can_update_facility_to_null(self, seed_machine):
+        seed_machine.data.facility_id = None
+        seed_machine.data.push()
+        confirmation = MaglaMachine(id=seed_machine.id).facility
+        self.reset(seed_machine)
+        assert confirmation == None
 
     def test_can_update_name(self, seed_machine):
         random_machine_name = random_string(string.ascii_letters, 6)
@@ -55,3 +72,8 @@ class TestMachine(MaglaEntityTestFixture):
         backend_data = seed_machine.contexts[0].dict()
         from_seed_data = self.get_seed_data("Context", seed_machine.contexts[0].id-1)
         assert backend_data == from_seed_data
+
+    def test_object_string_repr(self, seed_machine):
+        assert str(seed_machine) == self._repr_string.format(
+            this=seed_machine
+        )

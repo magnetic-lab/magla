@@ -9,6 +9,8 @@ from magla.utils import random_string
 
 
 class TestShot(MaglaEntityTestFixture):
+    
+    _repr_string = "<Shot 1: directory_id=3, name=test_shot_01, otio={this.otio}, project_id={this.project.id}, start_frame_in_parent={this.start_frame_in_parent}, track_index={this.track_index}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Shot"))
     def seed_shot(self, request, entity_test_fixture):
@@ -78,3 +80,8 @@ class TestShot(MaglaEntityTestFixture):
         seed_data, expected_result = self.get_seed_data("ShotVersion")[-1]
         backend_data = seed_shot.latest().dict(otio_as_dict=True)
         assert (backend_data == seed_data) == expected_result
+
+    def test_object_string_repr(self, seed_shot):
+        assert str(seed_shot) == self._repr_string.format(
+            this=seed_shot
+        )
