@@ -22,8 +22,7 @@ class MaglaShotVersion(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaShotVersion, self).__init__(
-            self.SCHEMA, data or dict(kwargs))
+        super(MaglaShotVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
         
     def __repr__(self):
         return "<ShotVersion {this.id}: full_name={this.full_name}, directory={this.directory}>". \

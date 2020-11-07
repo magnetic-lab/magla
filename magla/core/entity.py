@@ -1,8 +1,8 @@
 """Entity is the root class connecting `core` objects to their backend equivilent."""
 from pprint import pformat
 
-from ..db import ORM
-from ..utils import record_to_dict
+from ..db import ORM, database_exists, create_database, drop_database
+from ..utils import otio_to_dict, record_to_dict
 from .data import MaglaData
 from .errors import MaglaError
 
@@ -20,6 +20,7 @@ class MaglaEntity(object):
     
     This class should be subclassed and never instantiated on its own.
     """
+    _ORM = ORM
     _orm = None
 
     def __init__(self, model, data=None, **kwargs):
@@ -38,12 +39,7 @@ class MaglaEntity(object):
             Invalid argument was given which prevents instantiation.
         """
         self.connect()
-        if kwargs:
-            data = data or {}
-            # if kwargs were supplied add them as k/v pairs to data
-            for k, v in dict(kwargs).items():
-                data[k] = v
-        if not isinstance(data, MaglaData):
+        if isinstance(data, dict):
             data = MaglaData(model, data, self.orm.session)
         if not isinstance(data, MaglaData):
             raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
@@ -66,11 +62,9 @@ class MaglaEntity(object):
                 <EntityType: key1=value1, key2=value2, key3={"subkey1": "subvalue1"}>
                 ```
         """
-        data = self._data.dict()
+        data = self.data.dict()
         id_ = self.id
-        if "id" in data:
-            del(data["id"])
-        entity_type = self.data._schema.__class__.__name__
+        entity_type = self.data._schema.__entity_name__
         keys_n_vals = ["{0}={1}".format(*tup) for tup in data.items()]
 
         return "<{entity_type} {id}: {keys_n_vals}>".format(
@@ -104,10 +98,10 @@ class MaglaEntity(object):
             raise BadArgumentError("'{}' is not a valid model instance.".format(record_obj))
         # get modeul from magla here
         entity_type = cls.type(record_obj.__entity_name__)
-        data = record_to_dict(record_obj)
+        data = record_to_dict(record_obj, otio_as_dict=True)
         return entity_type(data, **kwargs)
 
-    def dict(self):
+    def dict(self, otio_as_dict=True):
         """Return dictionary representation of this entity.
 
         Returns
@@ -115,7 +109,9 @@ class MaglaEntity(object):
         dict
             A dictionary representation of this entity with all current properties.
         """
-        return self._data.dict()
+        if otio_as_dict:
+            return otio_to_dict(self.data.dict())
+        return self.data.dict()
 
     def pprint(self):
         """Return a 'pretty-printed' string representation of this entity."""
@@ -164,4 +160,5 @@ class MaglaEntity(object):
     def connect(cls):
         """Instantiate the `MaglaORM` object."""
         if not cls._orm:
-            cls._orm = ORM()
+            cls._orm = cls._ORM()
+            cls._orm.init()

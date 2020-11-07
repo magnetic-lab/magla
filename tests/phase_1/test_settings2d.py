@@ -10,7 +10,7 @@ from magla.utils import random_string
 
 class TestSettings2D(MaglaEntityTestFixture):
 
-    @pytest.fixture(scope="module", params=MaglaEntityTestFixture.seed_data("Settings2D"))
+    @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Settings2D"))
     def seed_settings_2d(self, request, entity_test_fixture):
         data, expected_result = request.param
         yield MaglaSettings2D(data)
@@ -20,6 +20,7 @@ class TestSettings2D(MaglaEntityTestFixture):
         seed_settings_2d.data.label = random_label
         seed_settings_2d.data.push()
         confirmation = MaglaSettings2D(id=seed_settings_2d.id)
+        self.reset(seed_settings_2d)
         assert confirmation.label == random_label
 
     def test_can_update_height(self, seed_settings_2d):
@@ -27,6 +28,7 @@ class TestSettings2D(MaglaEntityTestFixture):
         seed_settings_2d.data.height = random_height
         seed_settings_2d.data.push()
         confirmation = MaglaSettings2D(id=seed_settings_2d.id)
+        self.reset(seed_settings_2d)
         assert confirmation.height == random_height
 
     def test_can_update_width(self, seed_settings_2d):
@@ -34,6 +36,7 @@ class TestSettings2D(MaglaEntityTestFixture):
         seed_settings_2d.data.width = random_width
         seed_settings_2d.data.push()
         confirmation = MaglaSettings2D(id=seed_settings_2d.id)
+        self.reset(seed_settings_2d)
         assert confirmation.width == random_width
 
     def test_can_update_rate(self, seed_settings_2d):
@@ -41,6 +44,7 @@ class TestSettings2D(MaglaEntityTestFixture):
         seed_settings_2d.data.rate = random_rate
         seed_settings_2d.data.push()
         confirmation = MaglaSettings2D(id=seed_settings_2d.id)
+        self.reset(seed_settings_2d)
         assert confirmation.rate == random_rate
 
     def test_can_update_color_profile(self, seed_settings_2d):
@@ -48,7 +52,11 @@ class TestSettings2D(MaglaEntityTestFixture):
         seed_settings_2d.data.color_profile = random_color_profile
         seed_settings_2d.data.push()
         confirmation = MaglaSettings2D(id=seed_settings_2d.id)
+        self.reset(seed_settings_2d)
         assert confirmation.color_profile == random_color_profile
 
     def test_can_retrieve_project(self, seed_settings_2d):
-        assert seed_settings_2d.project.dict() == self.get_seed_data("Project", seed_settings_2d.project.id-1)
+        backend_data = seed_settings_2d.project.dict()
+        seed_data = self.get_seed_data("Project", seed_settings_2d.project.id-1)
+        self.reset(seed_settings_2d)
+        assert backend_data == seed_data
