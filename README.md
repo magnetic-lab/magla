@@ -6,10 +6,37 @@
 ![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
 
 ## Magnetic-Lab Pipeline API for Content Creators
-
 Magla is an effort to bring the magic of large-scale professional visual effects pipelines to small-scale studios and freelancers - for free. Magla features a backend designed to re-enforce the contextual relationships between things in a visual effects pipeline - a philosophy which is at the core of Magla's design. The idea is that with any given `MaglaEntity` one can traverse through all the related `entities` as they exist in the DB. This is achieved with a `Postgres` + `SQLAlchemy` combination allowing for an excellent object-oriented interface with powerful SQL queries and relationships behind it.
 
-#### Example:
+## Getting Started
+You will need to first set the following environment variables required for `magla` to function:
+
+- `MAGLA_DB_DATA_DIR` <-- this is where your `sqlite` db will be written to
+- `MAGLA_DB_NAME` <-- name of your DB
+- `MAGLA_MACHINE_CONFIG_DIR` <-- this directory holds information about the current machine needed by `magla`
+
+Linux:
+```bash
+export MAGLA_DB_DATA_DIR=/path/to/magla_data_dir
+export MAGLA_DB_NAME=magla
+export MAGLA_MACHINE_CONFIG_DIR=/path/to/magla_machine_dir
+```
+
+Windows:
+```cmd
+SET MAGLA_DB_DATA_DIR="<drive>:\\path\to\magla_data_dir"
+SET MAGLA_DB_NAME="magla"
+SET MAGLA_MACHINE_CONFIG_DIR="<drive>:\\path\to\magla_machine_dir"
+```
+
+### Installing
+```bash
+git clone https://github.com/magnetic-lab/magla.git
+cd magla
+pip install .
+```
+
+#### Example Usage within Python shell:
 ```python
 import magla
 
@@ -178,6 +205,25 @@ t.build(test_project.shots)
 #  external to `opentimlineio` but used by `magla` for automatic building. This implementation
 #  may change.
 t.otio.to_json_file("test_project.json")
+```
+
+### Development Setup:
+Running tests require a `MAGLA_TEST_DIR` environment varable pointing to a directory containing `seed_data.yaml` and `test_project.otio` files. Initially you can set this to the included `magla/tests` directory.
+```bash
+export MAGLA_TEST_DIR=/path/to/magla/tests
+```
+
+#### Installing in dev mode:
+```bash
+git clone https://github.com/magnetic-lab/magla.git
+cd magla
+pip install .[dev]
+```
+
+#### Running coverage report and tests:
+```bash
+coverage run --source magla -m pytest -v
+coverage report
 ```
 
 ## Magla Roadmap
