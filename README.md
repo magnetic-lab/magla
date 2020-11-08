@@ -53,7 +53,7 @@ Comparing the above examples to the diagrom below and you can see the connective
 <img src="media/ERD.png">
 
 ### [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)-centric design
-In the heat of production there is always a consistent demand for creating, viewing, and generally altering edits in various ways and in various contexts, for all kinds of reasons. This is the reason for another core philosophy of Magla, which is that timelines and edits should be the driving force of the pipeline. In simple terms the goal in a Magla production-environment is to create, mutate, and move data into a refined form: an edit(s) capable of outputting various formats demanded by the client.
+In the heat of production there is always a consistent demand for creating, viewing, and generally altering edits in various ways and in various contexts, for all kinds of reasons. This is the reason for another core philosophy of Magla, which is that timelines and edits should be the driving force of the pipeline.
 
 In Magla, timelines can be requested, and then dynamically generated on the fly using your production data. This will enable superior features development and automation, as well as hopefully break some shackles and give the idea of an edit more of an expressionistic, non-binding and ultimitely, more creative feeling. 
 
