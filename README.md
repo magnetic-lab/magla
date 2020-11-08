@@ -22,7 +22,22 @@ project_settings = user.assignments[-1].shot_version.shot.project.settings
 project_settings = user.assignments[-1].project.settings
 ```
 Comparing the above examples to the diagrom below and you can see the connective routes that can be traversed based on Magla's schema relationships:
+
 <img src="media/ERD.png">
+
+### [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)-centric design
+In the heat of production there is always a consistent demand for creating, viewing, and generally altering edits in various ways and in various contexts, for all kinds of reasons. This is the reason for another core philosophy of Magla, which is that timelines and edits should be the driving force of the pipeline.
+
+In Magla, timelines can be requested, and then dynamically generated on the fly using your production data. This will enable superior features development and automation, as well as hopefully break some shackles and give the idea of an edit more of an expressionistic, non-binding and ultimitely, more creative feeling. 
+
+`MaglaProject`, `MaglaShot`, and `MaglaShotVersion` objects all include companion `opentimelineio.schema` objects which are mirror representations of eachother. The `opentimelineio` objects are saved in `JSON` form in the DB.
+
+Breakdown of `MaglaEntity` types and their associated `opentimelineio.schema` types:
+- `Project` <--> `opentimelineio.schema.Timeline`
+- `Shot` <--> `opentimelineio.schema.Clip`
+- `ShotVersion` <--> `opentimelineio.schema.ExternalReference`
+
+in the Magla ecosystem `ShotVersion`'s are considered sacred and only one can be current at any given time, even new assignments result in new versions. For this reson they are used as the actual `ExternalReference` of the shot `Clip` -  so only the latest versions of shots are used as meda references. Each time you instantiate a `MaglaProject` object it builds its otio data off of current production data and thus is always up-to-date and **requires no actual timeline file to  be archived on disk or kept track of**.
 
 ## Getting Started
 You will need to first set the following environment variables required for `magla` to function:
@@ -51,20 +66,6 @@ git clone https://github.com/magnetic-lab/magla.git
 cd magla
 pip install .
 ```
-
-### [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)-centric design
-In the heat of production there is always a consistent demand for creating, viewing, and generally altering edits in various ways and in various contexts, for all kinds of reasons. This is the reason for another core philosophy of Magla, which is that timelines and edits should be the driving force of the pipeline.
-
-In Magla, timelines can be requested, and then dynamically generated on the fly using your production data. This will enable superior features development and automation, as well as hopefully break some shackles and give the idea of an edit more of an expressionistic, non-binding and ultimitely, more creative feeling. 
-
-`MaglaProject`, `MaglaShot`, and `MaglaShotVersion` objects all include companion `opentimelineio.schema` objects which are mirror representations of eachother. The `opentimelineio` objects are saved in `JSON` form in the DB.
-
-Breakdown of `MaglaEntity` types and their associated `opentimelineio.schema` types:
-- `Project` <--> `opentimelineio.schema.Timeline`
-- `Shot` <--> `opentimelineio.schema.Clip`
-- `ShotVersion` <--> `opentimelineio.schema.ExternalReference`
-
-in the Magla ecosystem `ShotVersion`'s are considered sacred and only one can be current at any given time, even new assignments result in new versions. For this reson they are used as the actual `ExternalReference` of the shot `Clip` -  so only the latest versions of shots are used as meda references. Each time you instantiate a `MaglaProject` object it builds its otio data off of current production data and thus is always up-to-date and **requires no actual timeline file to  be archived on disk or kept track of**.
 
 ### Example Initial Setup
 All creation and deletion methods are in `magla.Root`, so this is primarily a demonstration of
