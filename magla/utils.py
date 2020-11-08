@@ -23,7 +23,7 @@ def get_machine_uuid(path=None):
         Unique string identifying this machine within the `magla` ecosystem.
     """
     machine_config = configparser.ConfigParser()
-    machine_ini = os.path.join(appdirs.site_config_dir(), "magla", "machine.ini")
+    machine_ini = os.path.join(os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini")
     if not os.path.isfile(machine_ini):
         return None
     machine_config.read(machine_ini)
@@ -39,14 +39,13 @@ def generate_machine_uuid():
     """
     return uuid.UUID(int=uuid.getnode())
 
-def write_machine_uuid():
+def write_machine_uuid(string=None):
     """Create and write UUID string to the current machine's `machine.ini` file."""
     machine_config = configparser.ConfigParser()
-    machine_config["DEFAULT"]["uuid"] = str(generate_machine_uuid())
-    magla_machine_config_dir = os.path.join(appdirs.site_config_dir(), "magla")
-    if not os.path.isdir(magla_machine_config_dir):
-        os.makedirs(magla_machine_config_dir)
-    with open(os.path.join(appdirs.site_config_dir(), "magla", "machine.ini"), "w+") as fo:
+    machine_config["DEFAULT"]["uuid"] = string or str(generate_machine_uuid())
+    if not os.path.isdir(os.environ["MAGLA_MACHINE_CONFIG_DIR"]):
+        os.makedirs(os.environ["MAGLA_MACHINE_CONFIG_DIR"])
+    with open(os.path.join(os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini"), "w+") as fo:
         machine_config.write(fo)
 
 def otio_to_dict(target):
