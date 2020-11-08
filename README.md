@@ -8,6 +8,22 @@
 ## Magnetic-Lab Pipeline API for Content Creators
 Magla is an effort to bring the magic of large-scale professional visual effects pipelines to small-scale studios and freelancers - for free. Magla features a backend designed to re-enforce the contextual relationships between things in a visual effects pipeline - a philosophy which is at the core of Magla's design. The idea is that with any given `MaglaEntity` one can traverse through all the related `entities` as they exist in the DB. This is achieved with a `Postgres` + `SQLAlchemy` combination allowing for an excellent object-oriented interface with powerful SQL queries and relationships behind it.
 
+#### Example:
+```python
+import magla
+
+# to instantiate `User` entity for currently logged in user(no argument is needed, user's name is used):
+user = magla.User()
+
+# to get the project settings associated to the user via their most recent assignment:
+project_settings = user.assignments[-1].shot_version.shot.project.settings
+
+#the above can also be shortened to:
+project_settings = user.assignments[-1].project.settings
+```
+Comparing the above examples to the diagrom below and you can see the connective routes that can be traversed based on Magla's schema relationships:
+<img src="media/ERD.png">
+
 ## Getting Started
 You will need to first set the following environment variables required for `magla` to function:
 
@@ -35,22 +51,6 @@ git clone https://github.com/magnetic-lab/magla.git
 cd magla
 pip install .
 ```
-
-#### Example Usage within Python shell:
-```python
-import magla
-
-# to instantiate `User` entity for currently logged in user(no argument is needed, user's name is used):
-user = magla.User()
-
-# to get the project settings associated to the user via their most recent assignment:
-project_settings = user.assignments[-1].shot_version.shot.project.settings
-
-#the above can also be shortened to:
-project_settings = user.assignments[-1].project.settings
-```
-Comparing the above examples to the diagrom below and you can see the connective routes that can be traversed based on Magla's schema relationships:
-<img src="media/ERD.png">
 
 ### [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)-centric design
 In the heat of production there is always a consistent demand for creating, viewing, and generally altering edits in various ways and in various contexts, for all kinds of reasons. This is the reason for another core philosophy of Magla, which is that timelines and edits should be the driving force of the pipeline.
