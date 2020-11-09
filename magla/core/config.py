@@ -1,14 +1,15 @@
 """Basic config reader for future config loading implementations."""
-import os
-import yaml
 import json
+import os
+
+import yaml
 
 from .errors import ConfigPathError, ConfigReadError
 
 
 class MaglaConfig(object):
     """Provide an interface to multiple types of config filetypes.
-    
+
     Supported types:
     ----------------
         - json
@@ -22,6 +23,7 @@ class MaglaConfig(object):
         "json": json.dumps,
         "yaml": yaml.dump
     }
+
     def __init__(self, path):
         """Initialize with config path.
 
@@ -48,7 +50,7 @@ class MaglaConfig(object):
         """Reset the prefs json to an empty dict and save."""
         self.save({})
 
-    def get(self, key, default = None):
+    def get(self, key, default=None):
         """Get value by key from current instance's config.
 
         Parameters
@@ -142,7 +144,7 @@ class MaglaConfig(object):
         """
         self._config.update(new_config_dict)
         return self._config
-    
+
     def dict(self):
         """Retrieve config contents as a dict.
 
@@ -163,7 +165,7 @@ class MaglaConfig(object):
         """
         config_type = os.path.splitext(self._path)[1].replace(".", "")
         return self._loaders[config_type]
-    
+
     def _get_writer(self):
         """Retrieve the correct adapter for writing.
 

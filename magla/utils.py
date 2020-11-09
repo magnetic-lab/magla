@@ -1,13 +1,14 @@
 """Utility functions."""
-from platform import machine
-import appdirs
 import configparser
 import json
-import random
-import uuid
 import os
+import random
+import subprocess
+import sys
+import uuid
 
 import opentimelineio as otio
+
 
 def get_machine_uuid(path=None):
     """Retrieve the unique machine uuid from this machine's `site_config_dir` if one exists.
@@ -23,11 +24,13 @@ def get_machine_uuid(path=None):
         Unique string identifying this machine within the `magla` ecosystem.
     """
     machine_config = configparser.ConfigParser()
-    machine_ini = os.path.join(appdirs.site_config_dir(), "magla", "machine.ini")
+    machine_ini = os.path.join(
+        os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini")
     if not os.path.isfile(machine_ini):
         return None
     machine_config.read(machine_ini)
     return machine_config["DEFAULT"].get("uuid")
+
 
 def generate_machine_uuid():
     """Generate a UUID string which is unique to current machine.
@@ -39,15 +42,16 @@ def generate_machine_uuid():
     """
     return uuid.UUID(int=uuid.getnode())
 
-def write_machine_uuid():
+
+def write_machine_uuid(string=None):
     """Create and write UUID string to the current machine's `machine.ini` file."""
     machine_config = configparser.ConfigParser()
-    machine_config["DEFAULT"]["uuid"] = str(generate_machine_uuid())
-    magla_machine_config_dir = os.path.join(appdirs.site_config_dir(), "magla")
-    if not os.path.isdir(magla_machine_config_dir):
-        os.makedirs(magla_machine_config_dir)
-    with open(os.path.join(appdirs.site_config_dir(), "magla", "machine.ini"), "w+") as fo:
+    machine_config["DEFAULT"]["uuid"] = string or str(generate_machine_uuid())
+    if not os.path.isdir(os.environ["MAGLA_MACHINE_CONFIG_DIR"]):
+        os.makedirs(os.environ["MAGLA_MACHINE_CONFIG_DIR"])
+    with open(os.path.join(os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini"), "w+") as fo:
         machine_config.write(fo)
+
 
 def otio_to_dict(target):
     """TODO: Convert given `opentimelineio.schema.SerializeableObject` object to dict.
@@ -71,6 +75,7 @@ def otio_to_dict(target):
             target["otio"] = json.loads(stringify)
         return target
     return target
+
 
 def dict_to_otio(target):
     """Convert a previously converted dict back to an `opentimelineio.schema.SerializeableObject`.
@@ -100,6 +105,7 @@ def dict_to_otio(target):
         return target
     return otio.adapters.read_from_string(json.dumps(target))
 
+
 def is_otio_dict(dict_):
     """Determine if given dict can be converted to an `opentimelineio.schema.SerializeableObject`
 
@@ -114,6 +120,7 @@ def is_otio_dict(dict_):
         True if can be converted, False if not
     """
     return isinstance(dict_, dict) and "OTIO_SCHEMA" in dict_
+
 
 def record_to_dict(record, otio_as_dict=True):
     """Convert given `sqlalchemy.ext.declarative.api.Base` mapped entity to dict.
@@ -140,6 +147,7 @@ def record_to_dict(record, otio_as_dict=True):
             val = dict_to_otio(val)
         dict_[c.name] = val
     return dict_
+
 
 def dict_to_record(record, data, otio_as_dict=True):
     """Convert given dict to `SQLAlchemy` record.
@@ -168,6 +176,7 @@ def dict_to_record(record, data, otio_as_dict=True):
         setattr(record, key, val)
     return record
 
+
 def open_directory_location(target_path):
     """Open given target path using current operating system.
 
@@ -178,16 +187,17 @@ def open_directory_location(target_path):
     """
     if not isinstance(target_path, str):
         raise Exception("Must provide string!")
-    if sys.platform=='win32':
-        subprocess.Popen(['start', target_path], shell= True)
-    elif sys.platform=='darwin':
+    if sys.platform == 'win32':
+        subprocess.Popen(['start', target_path], shell=True)
+    elif sys.platform == 'darwin':
         subprocess.Popen(['open', target_path])
     else:
         try:
             subprocess.Popen(['xdg-open', target_path])
         except OSError:
             raise
-        
+
+
 def random_string(choices_str, length):
     """Generate a random string from the given `choices_str`.
 
@@ -204,6 +214,7 @@ def random_string(choices_str, length):
         A random string of characters
     """
     return ''.join(random.choice(str(choices_str)) for _ in range(length))
+
 
 def get_class_by_tablename(base, tablename):
     """Return class reference mapped to table.

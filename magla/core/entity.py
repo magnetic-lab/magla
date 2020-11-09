@@ -1,4 +1,4 @@
-"""Entity is the root class connecting `core` objects to their backend equivilent."""
+"""Entity is the root class connecting `core` objects to their backend equivilent. """
 from pprint import pformat
 
 from ..db import ORM, database_exists, create_database, drop_database

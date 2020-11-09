@@ -1,0 +1,86 @@
+name: magla-CI
+on:
+  push:
+    branches:
+      - features/**
+      - bugs/**
+  pull_request:
+    tags:
+      - "auto-pull-request"
+      - "auto-merge"
+      - "!WIP"
+      - "!wip"
+jobs:
+  build_and_test:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.6]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[dev]
+      - name: Coverage and Test Reports
+        run: |
+          coverage run --source magla -m pytest -v
+          coverage report
+        env:
+          MAGLA_DB_DATA_DIR: ${{github.workspace}}/magla/db/data
+          MAGLA_DB_NAME: "magla_sqlite"
+          MAGLA_TEST_SEED_DATA: ${{github.workspace}}/tests/seed_data.yaml
+
+  auto_pr:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    outputs:
+      # this output is accessible by other jobs
+      number: ${{ steps.create_pr.outputs.pull-request-url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+      - name: Reset ${{ github.head_ref }} Branch
+        run: |
+          git fetch origin ${{ github.head_ref }}:${{ github.head_ref }}
+          git reset --hard ${{ github.head_ref }}
+      - name: Create Auto-PR
+        id: create_pr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: ${{ github.ref }}
+          base: development
+          labels: |
+            auto-pull-request
+            auto-merge
+          title: Automated development update from ${{ github.actor }}
+          body: "This automated-pull request is part of `magla`'s continuous integration pipeline and aims to keep the development branch up-to-date with the `${{ github.ref }}` branch."
+
+  auto_merge:
+    runs-on: ubuntu-latest
+    needs: auto_pr
+    if: ${{ github.event_name }} == "pull_request"
+    env:
+      PR_NUM: ${{ needs.auto_pr.outputs.number }}
+    steps:
+      - name: Merge
+        uses: actions/github-script@v3.0.0
+        with:
+          script: |
+            var pr_url = "${{ env.PR_NUM }}"
+            var pr_num = pr_url.substr(pr_url.lastIndexOf('/') + 1)
+            github.pulls.merge({
+              owner: context.payload.repository.owner.login,
+              repo: context.payload.repository.name,
+              pull_number: pr_num
+            })
+          github-token: ${{ github.token }}

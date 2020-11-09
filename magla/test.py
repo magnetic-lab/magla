@@ -2,11 +2,12 @@
 import os
 
 from magla import Config, Entity
-from magla.utils import otio
+from magla.utils import otio, write_machine_uuid, get_machine_uuid
 
 class MaglaTestFixture:
     
     _seed_data = Config(os.path.join(os.environ["MAGLA_TEST_DIR"], "seed_data.yaml"))
+    _machine_uuid_backup = get_machine_uuid()
     
     @classmethod
     def get_seed_data(cls, entity_type, index=None):
@@ -107,6 +108,8 @@ class MaglaEntityTestFixture(MaglaTestFixture):
     def start(cls):
         """Modify backend dialect to sqlite for testing, then make connection."""
         Entity.connect()
+        # for testing, we overwrite `uuid` temporarily with our seed machine data
+        write_machine_uuid(cls.get_seed_data("Machine", 0)["uuid"])
         cls.create_all_seed_records()
 
     @classmethod
@@ -114,6 +117,7 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         Entity._orm.session.close()
         if drop_tables:
             Entity._orm._drop_all_tables()
+        write_machine_uuid(cls._machine_uuid_backup)
 
     @classmethod
     def reset(cls, magla_subentity):
