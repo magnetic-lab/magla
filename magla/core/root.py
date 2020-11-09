@@ -314,7 +314,8 @@ class MaglaRoot(object):
             # make sure each tool configured for this project gets its subdirectory tree created
             directory_to_update = tool_config.directory
             tool_project_file_path = \
-                directory_to_update.bookmark("project_file").format(shot_version=new_shot_version)
+                directory_to_update.bookmark("project_file").format(
+                    shot_version=new_shot_version)
             tool_subdir = \
                 directory_to_update.path.format(shot_version=new_shot_version)
             directory_to_update.data.bookmarks["project_file"] = tool_project_file_path

@@ -17,11 +17,11 @@ class MaglaToolConfigError(MaglaError):
 
 class MaglaToolConfig(MaglaEntity):
     """Manage relationships between `projects`, `tool_versions`, and `directories` tables.
-    
+
     Primary roles:
         -   Associate a `Project` with a particular `ToolVersion`.
         -   Define the directory structure to be used for tool-specific shot version files
-            
+
     Each `Project` should define one `ToolConfig` for each `Tool` <--> `ToolVersion` designated for
     use. A `Directory` is also defined which will be used to auto-create the `ToolVersion`'s
     sub-directory-tree whithin the shot directory structure.
@@ -71,7 +71,7 @@ class MaglaToolConfig(MaglaEntity):
         """
         return self.data.copy_dict
 
-    #### SQAlchemy relationship back-references
+    # SQAlchemy relationship back-references
     @property
     def project(self):
         """Shortcut method to retrieve related `MaglaProject` back-reference.
@@ -99,7 +99,7 @@ class MaglaToolConfig(MaglaEntity):
         if not r:
             return None
         return MaglaEntity.from_record(r)
-    
+
     @property
     def directory(self):
         """Shortcut method to retrieve related `MaglaDirectory` back-reference.
@@ -114,7 +114,7 @@ class MaglaToolConfig(MaglaEntity):
             return None
         return MaglaEntity.from_record(r)
 
-    #### MaglaToolConfig-specific methods __________________________________________________________
+    # MaglaToolConfig-specific methods __________________________________________________________
     @property
     def tool(self):
         """Shortcut method to retrieve related `MaglaToolVersion` back-reference.
@@ -150,7 +150,7 @@ class MaglaToolConfig(MaglaEntity):
         env_.update(self.env)
 
         return env_
-    
+
     @classmethod
     def from_user_context(cls, tool_id, context):
         """Retrieve the `MaglaToolConfig` associated to given `MaglaContext`.
@@ -171,17 +171,17 @@ class MaglaToolConfig(MaglaEntity):
         # check for assignment context
         if a:
             return a.shot_version.shot.project.tool_config(tool_id)
-        
+
         # check if user has any assignments
         if not context.user.assignments:
             return None
-        
+
         # choose an assignment
-        a = context.user.assignments[-1]  # TODO: make this based on last opened
+        # TODO: make this based on last opened
+        a = context.user.assignments[-1]
         for a in context.user.assignments:
             project_configs = a.shot_version.shot.project.tool_configs
             for c in project_configs:
                 if c.tool.id == tool_id:
                     return c
         return None
-            

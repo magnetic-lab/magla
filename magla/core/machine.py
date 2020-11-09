@@ -58,7 +58,7 @@ class MaglaMachine(MaglaEntity):
             Name of the machine - its hostname
         """
         return self.data.name
-    
+
     @property
     def ip_address(self):
         """Retrieve ip_address from data.
@@ -81,7 +81,7 @@ class MaglaMachine(MaglaEntity):
         """
         return self.data.uuid
 
-    ##### SQAlchemy relationship back-references
+    # SQAlchemy relationship back-references
     @property
     def facility(self):
         """Shortcut method to retrieve related `MaglaFacility` back-reference.

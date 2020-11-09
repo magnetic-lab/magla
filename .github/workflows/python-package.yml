@@ -1,0 +1,33 @@
+name: Python package
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.6]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .[dev]
+    - name: run tests and coverage report
+      run: |
+        coverage run --source magla -m pytest -v
+        coverage report
+      env:
+        MAGLA_DB_DATA_DIR: ${{github.workspace}}/magla/db/data
+        MAGLA_DB_NAME: "magla_sqlite"
+        MAGLA_TEST_DIR: ${{github.workspace}}/tests
+        MAGLA_MACHINE_CONFIG_DIR: ${{github.workspace}}/magla_machine

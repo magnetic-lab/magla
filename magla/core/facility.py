@@ -33,7 +33,7 @@ class MaglaFacility(MaglaEntity):
             Postgres column id
         """
         return self.data.id
-    
+
     @property
     def name(self):
         """Retrieve name from data.
@@ -56,7 +56,7 @@ class MaglaFacility(MaglaEntity):
         """
         return self.data.settings
 
-    ##### SQAlchemy relationship back-references
+    # SQAlchemy relationship back-references
     @property
     def machines(self):
         """Shortcut method to retrieve related `MaglaMachine` back-reference list.

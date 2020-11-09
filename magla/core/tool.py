@@ -122,7 +122,7 @@ class MaglaTool(MaglaEntity):
         """
         # establish user whos context to use
         user = user or MaglaEntity.type("User")()
-        
+
         # establish which tool config if any, to use
         tool_config = tool_config \
             or MaglaEntity.type("ToolConfig").from_user_context(self.id, user.context)
@@ -132,7 +132,7 @@ class MaglaTool(MaglaEntity):
         if not tool_config:
             machine = MaglaEntity.type("Machine")()
             return subprocess.Popen([tool_version.installation(machine.id).directory.bookmarks["exe"]])
-        
+
         # establish which tool version to launch
         if tool_version_id:
             tool_version = MaglaEntity.type("ToolVersion")(id=tool_version_id)
@@ -145,27 +145,27 @@ class MaglaTool(MaglaEntity):
         # establish path to tool executeable
         tool_exe = tool_version.installation(
             user.context.machine.id).directory.bookmarks["exe"]
-        
+
         # begin command list to be sent to `subprocess`
         cmd_list = [tool_exe]
 
         # copy any gizmos, desktops, preferences, etc needed before launching
         self.pre_startup()
         assignment = assignment or user.assignments[-1]
-        
+
         # establish the tool-specific project file to be opened
         project_file = tool_config.directory.bookmark(tool_config.tool_version.full_name).format(
             shot_version=assignment.shot_version)
         cmd_list.append(project_file)
-        
+
         # TODO: replace with `logging`
         sys.stdout.write("\n\nStarting {tool.name} {tool_version.string}:\n{assignment} ...\n\n".format(
             assignment=pformat({
-              "Project": assignment.shot_version.project.name,
-              "Shot": assignment.shot.name,
-              "Version": assignment.shot_version.num
+                "Project": assignment.shot_version.project.name,
+                "Shot": assignment.shot.name,
+                "Version": assignment.shot_version.num
             },
-            width=1),
+                width=1),
             tool=tool_config.tool,
             tool_version=tool_version
         ))

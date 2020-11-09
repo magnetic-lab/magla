@@ -12,6 +12,7 @@ from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
 
+
 class MaglaToolVersionError(MaglaError):
     """An error accured preventing MaglaToolVersion to continue."""
 
@@ -29,10 +30,10 @@ class MaglaToolVersion(MaglaEntity):
             Data to query for matching backend record
         """
         super(MaglaToolVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
-    
+
     def __repr__(self):
         return "<ToolVersion {this.id}: file_extension={this.file_extension}, string={this.string}, tool={this.tool}>".format(this=self)
-        
+
     def __str__(self):
         return self.__repr__()
 
@@ -120,7 +121,7 @@ class MaglaToolVersion(MaglaEntity):
             'shot_name_vXXX'
         """
         return "{this.tool.name}_{this.string}".format(this=self)
-    
+
     def installation(self, machine_id):
         """Retrieve a specific installation of this tool on the given machine
 
@@ -141,6 +142,6 @@ class MaglaToolVersion(MaglaEntity):
         else:
             matches = None
         return matches
-    
+
     def start(self):
         self.tool.start(self.id)

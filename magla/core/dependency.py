@@ -42,7 +42,7 @@ class MaglaDependency(MaglaEntity):
             Postgres column id
         """
         return self.data.id
-    
+
     @property
     def entity_type(self):
         """Retrieve entity_type from data.
@@ -54,7 +54,7 @@ class MaglaDependency(MaglaEntity):
         """
         return self.data.entity_type
 
-    #### MaglaDependency-specific methods ________________________________________________________________
+    # MaglaDependency-specific methods ________________________________________________________________
     @property
     def entity(self):
         """Instantiate and return the `MaglaEntity` this dependency definition belongs to.

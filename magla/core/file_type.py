@@ -11,7 +11,7 @@ class MaglaFileTypeError(MaglaError):
 class MaglaFileType(MaglaEntity):
     """Provide an interface to access information about this type of file."""
     SCHEMA = FileType
-    
+
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
