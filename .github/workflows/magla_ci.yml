@@ -16,7 +16,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: [3.6]
     steps:
       - name: Checkout
@@ -37,6 +37,7 @@ jobs:
           MAGLA_DB_DATA_DIR: ${{github.workspace}}/magla/db/data
           MAGLA_DB_NAME: "magla_sqlite"
           MAGLA_TEST_SEED_DATA: ${{github.workspace}}/tests/seed_data.yaml
+          MAGLA_MACHINE_CONFIG_DIR: ${{github.workspace}}/magla_machine
 
   auto_pr:
     needs: build_and_test
