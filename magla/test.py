@@ -4,11 +4,12 @@ import os
 from magla import Config, Entity
 from magla.utils import otio, write_machine_uuid, get_machine_uuid
 
+
 class MaglaTestFixture:
-    
+
     _seed_data = Config(os.path.join(os.environ["MAGLA_TEST_DIR"], "seed_data.yaml"))
     _machine_uuid_backup = get_machine_uuid()
-    
+
     @classmethod
     def get_seed_data(cls, entity_type, index=None):
         """Retrieve either a specific seed data dict or all seed data tuples by entity type.
@@ -40,7 +41,7 @@ class MaglaTestFixture:
     @classmethod
     def seed_data(cls, entity_type):
         return cls._seed_data.load().get(entity_type, [])
-    
+
     @classmethod
     def seed_otio(cls):
         return otio.adapters.read_from_file(
@@ -62,14 +63,14 @@ class MaglaEntityTestFixture(MaglaTestFixture):
             # end testing session and drop all tables as the tear-down process
             entity_test_fixture_.end(drop_tables=True)
         ```
-    
+
     In `pytest` you have 2 options:
         - inherit from `MaglaEntityTestFixture` and access its contents via `self`
         - use the yielded object from `conftest` from the `entity_test_fixture` param
-    
+
     Either way you must yield and, at least include the `entity_test_fixture` param as shown below
     or else `pytest` doesn't seem to instantiate it.
-    
+
         Example test inheriting from `MaglaEntityTestFixture` and including the un-used param:
         ```
         class TestUser(MaglaEntityTestFixture):
@@ -99,7 +100,7 @@ class MaglaEntityTestFixture(MaglaTestFixture):
             Entity._orm.session.add(new_record)
             Entity._orm.session.commit()
 
-    @classmethod 
+    @classmethod
     def create_all_seed_records(cls):
         for type_ in cls._seed_data.load():
             cls.create_entity(type_)

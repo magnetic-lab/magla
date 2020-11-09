@@ -32,11 +32,11 @@ class CustomDict(MutableMapping):
         # getting
         data["key"]
         data.key
-        
+
         # setting
         data["key"] = "new_value"
         data.key = "new_value"
-        
+
         # traditional dict methods also available
         data.update({"key":"new_value"})
         ```
@@ -208,7 +208,7 @@ class MaglaData(CustomDict):
             The returned record from the session query (containing data directly from backend)
         """
         return self.__record
-    
+
     def dict(self):
         return self._store
 

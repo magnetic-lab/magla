@@ -18,7 +18,7 @@ class MaglaTimelineError(MaglaError):
 
 class MaglaTimeline(MaglaEntity):
     """Provide an interface for building and exporting `opentimelineio.schema.Timeline`.
-    
+
     For usage see `magla.core.project.MaglaProject`
     """
     SCHEMA = Timeline
@@ -35,7 +35,7 @@ class MaglaTimeline(MaglaEntity):
 
     def __repr__(self):
         return "<Timeline {this.id}: name={this.otio.name}, label={this.label}, user={this.user}>".format(this=self)
-        
+
     def __str__(self):
         return self.__repr__()
 
@@ -99,7 +99,7 @@ class MaglaTimeline(MaglaEntity):
         shots = sorted(shots, key=lambda shot: shot.id)
         for shot in shots:
             self.insert_shot(shot)
-        
+
         return self
 
     def insert_shot(self, shot):

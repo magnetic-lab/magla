@@ -17,7 +17,7 @@ class BadArgumentError(MaglaEntityError):
 
 class MaglaEntity(object):
     """General wrapper for anything in `magla` that persists in the backend.
-    
+
     This class should be subclassed and never instantiated on its own.
     """
     _ORM = ORM
@@ -42,10 +42,10 @@ class MaglaEntity(object):
         if isinstance(data, dict):
             data = MaglaData(model, data, self.orm.session)
         if not isinstance(data, MaglaData):
-            raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
-                "Received: \n\t{received} ({type_received})".format(
-                    received=data,
-                    type_received=type(data)))
+            raise BadArgumentError("First argument must be a MaglaData object or python dict. \n"
+                                   "Received: \n\t{received} ({type_received})".format(
+                                       received=data,
+                                       type_received=type(data)))
 
         self._data = data
 
@@ -56,7 +56,7 @@ class MaglaEntity(object):
         -------
         str
             Display entity type with list of key/values contained in its data.
-            
+
             example:
                 ```
                 <EntityType: key1=value1, key2=value2, key3={"subkey1": "subvalue1"}>
@@ -80,7 +80,7 @@ class MaglaEntity(object):
 
     def __repr__(self):
         return self.__str__()
-  
+
     @classmethod
     def from_record(cls, record_obj, **kwargs):
         """Instantiate a sub-entity matching the properties of given model object.
@@ -134,7 +134,7 @@ class MaglaEntity(object):
             connection to related backend table.
         """
         return self._data
-    
+
     @property
     def orm(self):
         """Retrieve `MaglaORM` object used for backend interactions
@@ -161,7 +161,7 @@ class MaglaEntity(object):
             The sub-classed entity (defined in 'magla/db/')
         """
         return cls.__types__[name]
-    
+
     @classmethod
     def connect(cls):
         """Instantiate the `MaglaORM` object."""

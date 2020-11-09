@@ -21,7 +21,7 @@ class MaglaDirectoryError(MaglaError):
 
 class MaglaDirectory(MaglaEntity):
     """Provide an interface for interacting with local filesystem.
-    
+
     `MaglaDirectory` objects are intended to represent a root location and encompass all children
     contained within rather than behaving in a hierarchal fashion.
 
@@ -30,15 +30,15 @@ class MaglaDirectory(MaglaEntity):
         label
         -----
             A descriptive comment about this directory
-        
+
         path
         ----
             The path to the root of the directory
-        
+
         tree
         ----
             A description of a directory tree using nested dicts and lists
-                
+
             example:
                 ```
                 [
@@ -51,7 +51,7 @@ class MaglaDirectory(MaglaEntity):
                     }
                 ]
                 ```
-            
+
             results in following tree-structure:
                 ```
                 shots
@@ -61,12 +61,12 @@ class MaglaDirectory(MaglaEntity):
                     |_reference
                     |_edit
                 ```
-        
+
         bookmarks
         ---------
             A dictionary to store locations within the directory (such as executeables, configs, etc).
             Python string formatting can be utilized as shown below.
-        
+
             example:
             ```
             shot_version_bookmarks = {
@@ -90,10 +90,10 @@ class MaglaDirectory(MaglaEntity):
             Data to query for matching backend record
         """
         super(MaglaDirectory, self).__init__(self.SCHEMA, data or dict(kwargs))
-        
+
     def __repr__(self):
         return self.path
-    
+
     def __str__(self):
         return self.__repr__()
 
@@ -107,7 +107,7 @@ class MaglaDirectory(MaglaEntity):
             Postgres column id
         """
         return self.data.id
-    
+
     @property
     def label(self):
         """Retrieve label from data.
@@ -118,7 +118,7 @@ class MaglaDirectory(MaglaEntity):
             Postgres column label
         """
         return self.data.label
-    
+
     @property
     def path(self):
         """Retrieve path from data.
@@ -129,7 +129,7 @@ class MaglaDirectory(MaglaEntity):
             Postgres column path
         """
         return self.data.path
-    
+
     @property
     def tree(self):
         """Retrieve tree from data.
@@ -140,7 +140,7 @@ class MaglaDirectory(MaglaEntity):
             Postgres column tree (JSON)
         """
         return self.data.tree
-    
+
     @property
     def bookmarks(self):
         """Retrieve bookmarks from data.
@@ -152,7 +152,7 @@ class MaglaDirectory(MaglaEntity):
         """
         return self.data.bookmarks
 
-    #### SQAlchemy relationship back-references
+    # SQAlchemy relationship back-references
     @property
     def machine(self):
         """Retrieve related `MaglaMachine` back-reference.
@@ -195,17 +195,17 @@ class MaglaDirectory(MaglaEntity):
             created using the name as the relative path.
         """
         return os.path.join(self.path, self.bookmarks.get(name, name))
-    
+
     def open(self):
         """Open the directory location in the os file browser."""
         open_directory_location(self.path)
-        
+
     def make_tree(self):
         """Create the directory tree on the machine's filesystem."""
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
         self._recursive_make_tree(self.path, self.tree or [])
-        
+
     def bookmark(self, name):
         """Retrieve and convert given bookmark to absolute path.
 
@@ -221,7 +221,7 @@ class MaglaDirectory(MaglaEntity):
             created using the name as the relative path.
         """
         return os.path.join(self.path, self.bookmarks.get(name, name))
-                
+
     def _recursive_make_tree(self, root, sub_tree):
         """Recursively create the directory tree.
 
@@ -243,7 +243,7 @@ class MaglaDirectory(MaglaEntity):
                     continue
             if v:
                 self._recursive_make_tree(root=os.path.join(root, k), sub_tree=v)
-                
+
     def delete_tree(self):
         try:
             shutil.rmtree(self.path)

@@ -16,7 +16,7 @@ class MaglaSettings2DError(MaglaError):
 class MaglaSettings2D(MaglaEntity):
     """Provide interface for accessing and editing 2d output settings."""
     SCHEMA = Settings2D
-    
+
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
@@ -93,7 +93,7 @@ class MaglaSettings2D(MaglaEntity):
         """
         return self.data.color_profile
 
-    #### SQAlchemy relationship back-references
+    # SQAlchemy relationship back-references
     @property
     def project(self):
         """Shortcut method to retrieve related `MaglaProject` back-reference.
