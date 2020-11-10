@@ -3,6 +3,7 @@ name: magla-CI
 on:
   push:
     branches:
+      - development
       - features/**
       - bugs/**
   pull_request:
