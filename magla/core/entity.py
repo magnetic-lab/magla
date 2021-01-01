@@ -1,7 +1,7 @@
 """Entity is the root class connecting `core` objects to their backend equivilent. """
 from pprint import pformat
 
-from ..db import ORM, database_exists, create_database, drop_database
+from ..db import ORM
 from ..utils import otio_to_dict, record_to_dict
 from .data import MaglaData
 from .errors import MaglaError
@@ -23,7 +23,7 @@ class MaglaEntity(object):
     _ORM = ORM
     _orm = None
 
-    def __init__(self, model, data=None, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with model definition, data, and supplimental kwargs as key-value pairs.
 
         Parameters
@@ -40,7 +40,7 @@ class MaglaEntity(object):
         """
         self.connect()
         if isinstance(data, dict):
-            data = MaglaData(model, data, self.orm.session)
+            data = MaglaData(self.__schema__, data, self.orm.session)
         if not isinstance(data, MaglaData):
             raise BadArgumentError("First argument must be a MaglaData object or python dict. \n"
                                    "Received: \n\t{received} ({type_received})".format(
@@ -101,7 +101,7 @@ class MaglaEntity(object):
             An invalid argument was given.
         """
         if not record_obj:
-            raise BadArgumentError("'{}' is not a valid model instance.".format(record_obj))
+            return None
         # get modeul from magla here
         entity_type = cls.type(record_obj.__entity_name__)
         data = record_to_dict(record_obj, otio_as_dict=True)

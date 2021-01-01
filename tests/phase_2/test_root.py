@@ -19,7 +19,7 @@ class TestRoot(MaglaEntityTestFixture):
         for magla_object_list in all_magla_objects:
             for magla_object in magla_object_list:
                 obj_dict = magla_object.dict(otio_as_dict=True)
-                seed_data_dict = self.get_seed_data(magla_object.SCHEMA.__entity_name__, magla_object_list.index(magla_object))
+                seed_data_dict = self.get_seed_data(magla_object.__schema__.__entity_name__, magla_object_list.index(magla_object))
                 if obj_dict != seed_data_dict:
                     obj_dict
                 assert obj_dict == seed_data_dict

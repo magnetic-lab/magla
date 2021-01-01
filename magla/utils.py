@@ -10,6 +10,14 @@ import uuid
 import opentimelineio as otio
 
 
+class MaglaUtilsError(Exception):
+    """Root error class for `magla.utils` module."""
+
+
+class MachineConfigNotFoundError(MaglaUtilsError):
+    """No `machine.ini` file found on current machine, or at the given target path."""
+
+
 def get_machine_uuid(path=None):
     """Retrieve the unique machine uuid from this machine's `site_config_dir` if one exists.
 
@@ -24,10 +32,10 @@ def get_machine_uuid(path=None):
         Unique string identifying this machine within the `magla` ecosystem.
     """
     machine_config = configparser.ConfigParser()
-    machine_ini = os.path.join(
+    machine_ini = path or os.path.join(
         os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini")
     if not os.path.isfile(machine_ini):
-        return None
+        raise MachineConfigNotFoundError(machine_ini)
     machine_config.read(machine_ini)
     return machine_config["DEFAULT"].get("uuid")
 
@@ -43,8 +51,16 @@ def generate_machine_uuid():
     return uuid.UUID(int=uuid.getnode())
 
 
-def write_machine_uuid(string=None):
-    """Create and write UUID string to the current machine's `machine.ini` file."""
+def write_machine_uuid(string=None, makefile=True):
+    """Create and write UUID string to the current machine's `machine.ini` file.
+
+    Parameters
+    ----------
+    string : str, optional
+        the unique id to use for current machine, by default None
+    makefile : bool, optional
+        flag for creating `machine.ini` if it doesn't exist, by default True
+    """
     machine_config = configparser.ConfigParser()
     machine_config["DEFAULT"]["uuid"] = string or str(generate_machine_uuid())
     if not os.path.isdir(os.environ["MAGLA_MACHINE_CONFIG_DIR"]):
@@ -149,7 +165,7 @@ def record_to_dict(record, otio_as_dict=True):
     return dict_
 
 
-def dict_to_record(record, data, otio_as_dict=True):
+def apply_dict_to_record(record, data, otio_as_dict=True):
     """Convert given dict to `SQLAlchemy` record.
 
     Parameters
@@ -185,17 +201,16 @@ def open_directory_location(target_path):
     target_path : str
         Path to open
     """
+    proc = None
     if not isinstance(target_path, str):
         raise Exception("Must provide string!")
     if sys.platform == 'win32':
-        subprocess.Popen(['start', target_path], shell=True)
+        proc = subprocess.Popen(['start', target_path], shell=True)
     elif sys.platform == 'darwin':
-        subprocess.Popen(['open', target_path])
+        proc = subprocess.Popen(['open', target_path])
     else:
-        try:
-            subprocess.Popen(['xdg-open', target_path])
-        except OSError:
-            raise
+        proc = subprocess.Popen(['xdg-open', target_path])
+    return proc
 
 
 def random_string(choices_str, length):
@@ -234,3 +249,4 @@ def get_class_by_tablename(base, tablename):
     for c in base._decl_class_registry.values():
         if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
             return c
+

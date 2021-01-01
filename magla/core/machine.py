@@ -21,7 +21,7 @@ class MaglaMachineError(MaglaError):
 
 class MaglaMachine(MaglaEntity):
     """Provide an interface to perform administrative tasks on a machine."""
-    SCHEMA = Machine
+    __schema__ = Machine
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -35,7 +35,7 @@ class MaglaMachine(MaglaEntity):
             data = {"uuid": get_machine_uuid()}
         elif isinstance(data, uuid.UUID) or isinstance(data, str):
             data = {"uuid": str(data)}
-        super(MaglaMachine, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaMachine, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):

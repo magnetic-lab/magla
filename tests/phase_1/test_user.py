@@ -21,25 +21,25 @@ class TestUser(MaglaEntityTestFixture):
         random_nickname = random_string(string.ascii_letters, 10)
         seed_user.data.nickname = random_nickname
         seed_user.data.push()
-        confirmation = MaglaUser(id=seed_user.id)
+        nickname= MaglaUser(id=seed_user.id).nickname
         self.reset(seed_user)
-        assert confirmation.nickname == random_nickname
+        assert nickname== random_nickname
 
     def test_can_update_first_name(self, seed_user):
         random_first_name = random_string(string.ascii_letters, 10)
         seed_user.data.first_name = random_first_name
         seed_user.data.push()
-        confirmation = MaglaUser(id=seed_user.id)
+        first_name = MaglaUser(id=seed_user.id).first_name
         self.reset(seed_user)
-        assert confirmation.first_name == random_first_name
+        assert first_name == random_first_name
 
     def test_can_update_last_name(self, seed_user):
         random_last_name = random_string(string.ascii_letters, 10)
         seed_user.data.last_name = random_last_name
         seed_user.data.push()
-        confirmation = MaglaUser(id=seed_user.id)
+        last_name = MaglaUser(id=seed_user.id).last_name
         self.reset(seed_user)
-        assert confirmation.last_name == random_last_name
+        assert last_name == random_last_name
 
     def test_can_update_email(self, seed_user):
         random_email = "{local}@{domain_name}.{domain}".format(
@@ -49,9 +49,9 @@ class TestUser(MaglaEntityTestFixture):
         )
         seed_user.data.email = random_email
         seed_user.data.push()
-        confirmation = MaglaUser(id=seed_user.id)
+        email = MaglaUser(id=seed_user.id).email
         self.reset(seed_user)
-        assert confirmation.email == random_email
+        assert email == random_email
 
     def test_can_retrieve_null_context(self, seed_user):
         backend_data = seed_user.context.dict()

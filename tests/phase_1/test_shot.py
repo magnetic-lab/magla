@@ -10,7 +10,7 @@ from magla.utils import random_string
 
 class TestShot(MaglaEntityTestFixture):
     
-    _repr_string = "<Shot 1: directory_id=3, name=test_shot_01, otio={this.otio}, project_id={this.project.id}, start_frame_in_parent={this.start_frame_in_parent}, track_index={this.track_index}>"
+    _repr_string = "<Shot 1: directory_id=3, episode_id=None, name=test_shot_01, otio={this.otio}, project_id={this.project.id}, sequence_id=None, start_frame_in_parent={this.start_frame_in_parent}, track_index={this.track_index}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Shot"))
     def seed_shot(self, request, entity_test_fixture):
@@ -21,33 +21,33 @@ class TestShot(MaglaEntityTestFixture):
         random_shot_name = random_string(string.ascii_letters, 6)
         seed_shot.data.name = random_shot_name
         seed_shot.data.push()
-        confirmation = MaglaShot(id=seed_shot.id)
+        shot_name = MaglaShot(id=seed_shot.id).name
         self.reset(seed_shot)
-        assert confirmation.name == random_shot_name
+        assert shot_name == random_shot_name
     
     def test_can_update_otio(self, seed_shot):
         random_otio_name = random_string(string.ascii_letters, 10)
         seed_shot.data.otio.name = random_otio_name
         seed_shot.data.push()
-        confirmation = MaglaShot(id=seed_shot.id)
+        otio_name = MaglaShot(id=seed_shot.id).otio.name
         self.reset(seed_shot)
-        assert confirmation.otio.name == random_otio_name
+        assert otio_name == random_otio_name
         
     def test_can_update_track_index(self, seed_shot):
         random_track_index = random.randint(0, 50)
         seed_shot.data.track_index = random_track_index
         seed_shot.data.push()
-        confirmation = MaglaShot(id=seed_shot.id)
+        track_index = MaglaShot(id=seed_shot.id).track_index
         self.reset(seed_shot)
-        assert confirmation.track_index == random_track_index
+        assert track_index == random_track_index
         
     def test_can_update_start_frame_in_parent(self, seed_shot):
         random_start_frame_in_parent = random.randint(0, 650000)
         seed_shot.data.start_frame_in_parent = random_start_frame_in_parent
         seed_shot.data.push()
-        confirmation = MaglaShot(id=seed_shot.id)
+        start_frame_in_parent = MaglaShot(id=seed_shot.id).start_frame_in_parent
         self.reset(seed_shot)
-        assert confirmation.start_frame_in_parent == random_start_frame_in_parent
+        assert start_frame_in_parent == random_start_frame_in_parent
         
     def test_can_retrieve_directory(self, seed_shot):
         backend_data = seed_shot.directory.dict()
@@ -82,6 +82,7 @@ class TestShot(MaglaEntityTestFixture):
         assert (backend_data == seed_data) == expected_result
 
     def test_object_string_repr(self, seed_shot):
+        print(seed_shot)
         assert str(seed_shot) == self._repr_string.format(
             this=seed_shot
         )

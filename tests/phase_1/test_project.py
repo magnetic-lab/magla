@@ -23,17 +23,17 @@ class TestProject(MaglaEntityTestFixture):
         random_name = random_string(string.ascii_letters, 10)
         seed_project.data.name = random_name
         seed_project.data.push()
-        confirmation = MaglaProject(id=seed_project.id)
+        name = MaglaProject(id=seed_project.id).name
         self.reset(seed_project)
-        assert confirmation.name == random_name
+        assert name == random_name
 
     def test_can_update_directory(self, seed_project):
         new_id = 3
         seed_project.data.directory_id = new_id
         seed_project.data.push()
-        confirmation = MaglaProject(id=seed_project.id)
+        directory = MaglaProject(id=seed_project.id).directory
         self.reset(seed_project)
-        assert confirmation.directory.dict() == self.get_seed_data("Directory", new_id-1)
+        assert directory.dict() == self.get_seed_data("Directory", new_id-1)
 
     def test_can_update_settings(self, seed_project):
         dummy_settings = {
@@ -46,9 +46,9 @@ class TestProject(MaglaEntityTestFixture):
         }
         seed_project.data.settings = dummy_settings
         seed_project.data.push()
-        confirmation = MaglaProject(id=seed_project.id)
+        settings = MaglaProject(id=seed_project.id).settings
         self.reset(seed_project)
-        assert confirmation.settings == dummy_settings
+        assert settings == dummy_settings
     
     def test_can_retrieve_shots(self, seed_project):
         backend_data = seed_project.shots[0].dict(otio_as_dict=True)

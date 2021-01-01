@@ -9,13 +9,11 @@ from pprint import pformat
 
 from ..db.tool import Tool
 from .entity import MaglaEntity
-from .errors import MaglaError
 
 
 class MaglaTool(MaglaEntity):
     """Provide interface for managing tools and their versions."""
-
-    SCHEMA = Tool
+    __schema__ = Tool
 
     def __init__(self, data=None, **kwargs):
         """Instantiate with given data.
@@ -27,7 +25,7 @@ class MaglaTool(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaTool, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaTool, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):
