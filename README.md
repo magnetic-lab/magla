@@ -2,10 +2,10 @@
   <img src="media/magla_banner.png">
 </p>
 
+![Python package](https://github.com/magnetic-lab/magla/workflows/Python%20package/badge.svg?branch=master)
 ![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
 
 ## Magnetic-Lab Pipeline API for Content Creators
-
 Magla is an effort to bring the magic of large-scale professional visual effects pipelines to small-scale studios and freelancers - for free. Magla features a backend designed to re-enforce the contextual relationships between things in a visual effects pipeline - a philosophy which is at the core of Magla's design. The idea is that with any given `MaglaEntity` one can traverse through all the related `entities` as they exist in the DB. This is achieved with a `Postgres` + `SQLAlchemy` combination allowing for an excellent object-oriented interface with powerful SQL queries and relationships behind it.
 
 #### Example:
@@ -22,10 +22,11 @@ project_settings = user.assignments[-1].shot_version.shot.project.settings
 project_settings = user.assignments[-1].project.settings
 ```
 Comparing the above examples to the diagrom below and you can see the connective routes that can be traversed based on Magla's schema relationships:
+
 <img src="media/ERD.png">
 
 ### [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)-centric design
-In the heat of production there is always a consistent demand for creating, viewing, and generally altering edits in various ways and in various contexts, for all kinds of reasons. This is the reason for another core philosophy of Magla, which is that timelines and edits should be the driving force of the pipeline. In simple terms the goal in a Magla production-environment is to create, mutate, and move data into a refined form: an edit(s) capable of outputting various formats demanded by the client.
+In the heat of production there is always a consistent demand for creating, viewing, and generally altering edits in various ways and in various contexts, for all kinds of reasons. This is the reason for another core philosophy of Magla, which is that timelines and edits should be the driving force of the pipeline.
 
 In Magla, timelines can be requested, and then dynamically generated on the fly using your production data. This will enable superior features development and automation, as well as hopefully break some shackles and give the idea of an edit more of an expressionistic, non-binding and ultimitely, more creative feeling. 
 
@@ -37,6 +38,34 @@ Breakdown of `MaglaEntity` types and their associated `opentimelineio.schema` ty
 - `ShotVersion` <--> `opentimelineio.schema.ExternalReference`
 
 in the Magla ecosystem `ShotVersion`'s are considered sacred and only one can be current at any given time, even new assignments result in new versions. For this reson they are used as the actual `ExternalReference` of the shot `Clip` -  so only the latest versions of shots are used as meda references. Each time you instantiate a `MaglaProject` object it builds its otio data off of current production data and thus is always up-to-date and **requires no actual timeline file to  be archived on disk or kept track of**.
+
+## Getting Started
+You will need to first set the following environment variables required for `magla` to function:
+
+- `MAGLA_DB_DATA_DIR` <-- this is where your `sqlite` db will be written to
+- `MAGLA_DB_NAME` <-- name of your DB
+- `MAGLA_MACHINE_CONFIG_DIR` <-- this directory holds information about the current machine needed by `magla`
+
+Linux:
+```bash
+export MAGLA_DB_DATA_DIR=/path/to/magla_data_dir
+export MAGLA_DB_NAME=magla
+export MAGLA_MACHINE_CONFIG_DIR=/path/to/magla_machine_dir
+```
+
+Windows:
+```cmd
+SET MAGLA_DB_DATA_DIR="<drive>:\\path\to\magla_data_dir"
+SET MAGLA_DB_NAME="magla"
+SET MAGLA_MACHINE_CONFIG_DIR="<drive>:\\path\to\magla_machine_dir"
+```
+
+### Installing
+```bash
+git clone https://github.com/magnetic-lab/magla.git
+cd magla
+pip install .
+```
 
 ### Example Initial Setup
 All creation and deletion methods are in `magla.Root`, so this is primarily a demonstration of
@@ -177,6 +206,25 @@ t.build(test_project.shots)
 #  external to `opentimlineio` but used by `magla` for automatic building. This implementation
 #  may change.
 t.otio.to_json_file("test_project.json")
+```
+
+### Development Setup:
+Running tests require a `MAGLA_TEST_DIR` environment varable pointing to a directory containing `seed_data.yaml` and `test_project.otio` files. Initially you can set this to the included `magla/tests` directory.
+```bash
+export MAGLA_TEST_DIR=/path/to/magla/tests
+```
+
+#### Installing in dev mode:
+```bash
+git clone https://github.com/magnetic-lab/magla.git
+cd magla
+pip install .[dev]
+```
+
+#### Running coverage report and tests:
+```bash
+coverage run --source magla -m pytest -v
+coverage report
 ```
 
 ## Magla Roadmap
