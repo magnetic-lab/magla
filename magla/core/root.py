@@ -262,6 +262,8 @@ class MaglaRoot(object):
         try:
             new_shot = MaglaShot(name=name)
         except NoRecordFoundError:
+            pass
+        finally:
             new_shot = new_shot = self.create(MaglaShot, {
                 "project_id": project.id,
                 "name": name,
@@ -353,9 +355,9 @@ class MaglaRoot(object):
         new_shot_version.data.otio = previous_shot_otio or otio.schema.ImageSequenceReference(
             available_range=otio.opentime.TimeRange(
                 start_time=otio.opentime.RationalTime(
-                    1, shot.project.settings_2d[-1].rate),
+                    1, shot.project.settings_2d.rate),
                 duration=otio.opentime.RationalTime(
-                    1, shot.project.settings_2d[-1].rate)
+                    1, shot.project.settings_2d.rate)
             )
         )
         # apply `otio`
@@ -363,7 +365,7 @@ class MaglaRoot(object):
         new_shot_version.data.otio.name_prefix = prefix
         new_shot_version.data.otio.name_suffix = suffix
         new_shot_version.data.otio.frame_zero_padding = padding.count("#")
-        new_shot_version.data.otio.rate = shot.project.settings_2d[-1].rate
+        new_shot_version.data.otio.rate = shot.project.settings_2d.rate
 
         new_shot_version.data.push()
         new_shot_version.directory.make_tree()

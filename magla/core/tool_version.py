@@ -19,7 +19,7 @@ class MaglaToolVersionError(MaglaError):
 
 class MaglaToolVersion(MaglaEntity):
     """Provide an interface to manipulate behavior settings at the tool-version level."""
-    SCHEMA = ToolVersion
+    __schema__ = ToolVersion
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -29,7 +29,7 @@ class MaglaToolVersion(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaToolVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaToolVersion, self).__init__(data or dict(kwargs))
 
     def __repr__(self):
         return "<ToolVersion {this.id}: file_extension={this.file_extension}, string={this.string}, tool={this.tool}>".format(this=self)
@@ -81,8 +81,6 @@ class MaglaToolVersion(MaglaEntity):
             The `MaglaTool` for this tool-version
         """
         r = self.data.record.tool
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property
@@ -95,8 +93,6 @@ class MaglaToolVersion(MaglaEntity):
             The `MaglaToolConfig` for this tool-version
         """
         r = self.data.record.tool_config
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property

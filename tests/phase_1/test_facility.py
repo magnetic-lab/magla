@@ -20,9 +20,9 @@ class TestFacility(MaglaEntityTestFixture):
         random_name = random_string(string.ascii_letters, 10)
         seed_facility.data.name = random_name
         seed_facility.data.push()
-        confirmation = MaglaFacility(id=seed_facility.id)
+        name = MaglaFacility(id=seed_facility.id).name
         self.reset(seed_facility)
-        assert confirmation.name == random_name
+        assert name == random_name
 
     def test_can_update_settings(self, seed_facility):
         reset_data = seed_facility.dict()
@@ -36,9 +36,9 @@ class TestFacility(MaglaEntityTestFixture):
         }
         seed_facility.data.settings = dummy_settings
         seed_facility.data.push()
-        confirmation = MaglaFacility(id=seed_facility.id)
+        settings = MaglaFacility(id=seed_facility.id).settings
         self.reset(seed_facility)
-        assert confirmation.settings == dummy_settings
+        assert settings == dummy_settings
 
     def test_can_retrieve_machines(self, seed_facility):
         backend_data = seed_facility.machines[0].dict()

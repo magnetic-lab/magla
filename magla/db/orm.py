@@ -177,7 +177,7 @@ class MaglaORM(object):
         magla.core.entity.MaglaEntity
             A `MaglaEntity` from the newly created record
         """
-        new_entity_record = entity.SCHEMA(**data)
+        new_entity_record = entity.__schema__(**data)
         self.session.add(new_entity_record)
         self.session.commit()
         return entity.from_record(new_entity_record)
@@ -211,4 +211,4 @@ class MaglaORM(object):
         data = data or {}
         data.update(dict(filter_kwargs))
         entity = entity or self.entity
-        return self._query(entity.SCHEMA, **data)
+        return self._query(entity.__schema__, **data)

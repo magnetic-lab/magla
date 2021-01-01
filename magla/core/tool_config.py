@@ -26,7 +26,7 @@ class MaglaToolConfig(MaglaEntity):
     use. A `Directory` is also defined which will be used to auto-create the `ToolVersion`'s
     sub-directory-tree whithin the shot directory structure.
     """
-    SCHEMA = ToolConfig
+    __schema__ = ToolConfig
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -36,7 +36,7 @@ class MaglaToolConfig(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaToolConfig, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaToolConfig, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):
@@ -82,8 +82,6 @@ class MaglaToolConfig(MaglaEntity):
             The `MaglaProject` this tool config belongs to
         """
         r = self.data.record.project
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property
@@ -96,8 +94,6 @@ class MaglaToolConfig(MaglaEntity):
             The `MaglaToolVersion` that this tool config is assigned
         """
         r = self.data.record.tool_version
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property
@@ -110,8 +106,6 @@ class MaglaToolConfig(MaglaEntity):
             The `MaglaDirectory` definiing how this tool will be represented within shot folders
         """
         r = self.data.record.directory
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     # MaglaToolConfig-specific methods __________________________________________________________

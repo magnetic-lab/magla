@@ -15,7 +15,7 @@ class MaglaSettings2DError(MaglaError):
 
 class MaglaSettings2D(MaglaEntity):
     """Provide interface for accessing and editing 2d output settings."""
-    SCHEMA = Settings2D
+    __schema__ = Settings2D
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -25,7 +25,7 @@ class MaglaSettings2D(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaSettings2D, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaSettings2D, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):

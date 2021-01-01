@@ -9,7 +9,6 @@ TODO: should be able to instantiate shot without an otio object initially
 import opentimelineio as otio
 
 from ..db.shot import Shot
-from ..utils import dict_to_otio
 from .entity import MaglaEntity
 from .errors import MaglaError
 from .shot_version import MaglaShotVersion
@@ -21,7 +20,7 @@ class MaglaShotError(MaglaError):
 
 class MaglaShot(MaglaEntity):
     """Provide an interface for shot properties and assignment."""
-    SCHEMA = Shot
+    __schema__ = Shot
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -33,7 +32,7 @@ class MaglaShot(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaShot, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaShot, self).__init__(data or dict(kwargs))
         if self.versions and self.otio:
             self.otio.media_reference = self.versions[-1].otio
         elif self.otio:
@@ -92,9 +91,31 @@ class MaglaShot(MaglaEntity):
         int
             Frame number in the timeline that this shot populates inserts itself at
         """
-        return self.data.start_frame_in_parent or 0
+        return self.data.start_frame_in_parent
 
     # SQAlchemy relationship back-references
+    @property
+    def episode(self):
+        """Shortcut method to retrieve related `MaglaEpisode` back-reference.
+
+        Returns
+        -------
+        magla.core.episode.MaglaEpisode
+            The `MaglaEpisode` for this shot
+        """
+        return MaglaEntity.from_record(self.data.episode.data.record)
+    
+    @property
+    def sequence(self):
+        """Shortcut method to retrieve related `MaglaSequence` back-reference.
+
+        Returns
+        -------
+        magla.core.sequence.MaglaSequence
+            The `MaglaSequence` for this shot
+        """
+        return MaglaEntity.from_record(self.data.sequence.data.record)
+    
     @property
     def directory(self):
         """Shortcut method to retrieve related `MaglaDirectory` back-reference.
@@ -102,12 +123,9 @@ class MaglaShot(MaglaEntity):
         Returns
         -------
         magla.core.directory.MaglaDirectory
-            The `MaglaDirectory` for this project
+            The `MaglaDirectory` for this shot
         """
-        r = self.data.record.directory
-        if not r:
-            return None
-        return MaglaEntity.from_record(r)
+        return MaglaEntity.from_record(self.data.record.directory)
 
     @property
     def project(self):

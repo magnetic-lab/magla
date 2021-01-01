@@ -21,17 +21,17 @@ class TestShotVersion(MaglaEntityTestFixture):
         random_num = random.randint(0, 115)
         seed_shot_version.data.num = random_num
         seed_shot_version.data.push()
-        confirmation = MaglaShotVersion(id=seed_shot_version.id)
+        num = MaglaShotVersion(id=seed_shot_version.id).num
         self.reset(seed_shot_version)
-        assert confirmation.num == random_num
+        assert num == random_num
 
     def test_can_update_otio(self, seed_shot_version):
         random_target_url_base = random_string(string.ascii_letters, 10)
         seed_shot_version.data.otio.target_url_base = random_target_url_base
         seed_shot_version.data.push()
-        confirmation = MaglaShotVersion(id=seed_shot_version.id)
+        otio_target_url_base = MaglaShotVersion(id=seed_shot_version.id).otio.target_url_base
         self.reset(seed_shot_version)
-        assert confirmation.otio.target_url_base == random_target_url_base
+        assert otio_target_url_base == random_target_url_base
 
     def test_can_retieve_directory(self, seed_shot_version):
         backend_data = seed_shot_version.directory.dict()
