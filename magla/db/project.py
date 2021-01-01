@@ -17,7 +17,9 @@ class Project(MaglaORM._Base):
     settings = Column(JSON)
 
     timeline = relationship("Timeline")
-    settings_2d = relationship("Settings2D", back_populates="project")
+    settings_2d = relationship("Settings2D", uselist=False, back_populates="project")
+    episodes = relationship("Episode", back_populates="project")
+    sequences = relationship("Sequence", back_populates="project")
     shots = relationship("Shot", back_populates="project")
     tool_configs = relationship("ToolConfig", back_populates="project")
     directory = relationship("Directory")

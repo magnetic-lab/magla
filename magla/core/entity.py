@@ -1,7 +1,7 @@
 """Entity is the root class connecting `core` objects to their backend equivilent. """
 from pprint import pformat
 
-from ..db import ORM, database_exists, create_database, drop_database
+from ..db import ORM
 from ..utils import otio_to_dict, record_to_dict
 from .data import MaglaData
 from .errors import MaglaError
@@ -17,13 +17,13 @@ class BadArgumentError(MaglaEntityError):
 
 class MaglaEntity(object):
     """General wrapper for anything in `magla` that persists in the backend.
-    
+
     This class should be subclassed and never instantiated on its own.
     """
     _ORM = ORM
     _orm = None
 
-    def __init__(self, model, data=None, **kwargs):
+    def __init__(self, data=None, **kwargs):
         """Initialize with model definition, data, and supplimental kwargs as key-value pairs.
 
         Parameters
@@ -40,12 +40,12 @@ class MaglaEntity(object):
         """
         self.connect()
         if isinstance(data, dict):
-            data = MaglaData(model, data, self.orm.session)
+            data = MaglaData(self.__schema__, data, self.orm.session)
         if not isinstance(data, MaglaData):
-            raise BadArgumentError("First argument must be a MaglaData object or python dict. \n" \
-                "Received: \n\t{received} ({type_received})".format(
-                    received=data,
-                    type_received=type(data)))
+            raise BadArgumentError("First argument must be a MaglaData object or python dict. \n"
+                                   "Received: \n\t{received} ({type_received})".format(
+                                       received=data,
+                                       type_received=type(data)))
 
         self._data = data
 
@@ -56,7 +56,7 @@ class MaglaEntity(object):
         -------
         str
             Display entity type with list of key/values contained in its data.
-            
+
             example:
                 ```
                 <EntityType: key1=value1, key2=value2, key3={"subkey1": "subvalue1"}>
@@ -80,7 +80,7 @@ class MaglaEntity(object):
 
     def __repr__(self):
         return self.__str__()
-  
+
     @classmethod
     def from_record(cls, record_obj, **kwargs):
         """Instantiate a sub-entity matching the properties of given model object.
@@ -101,7 +101,7 @@ class MaglaEntity(object):
             An invalid argument was given.
         """
         if not record_obj:
-            raise BadArgumentError("'{}' is not a valid model instance.".format(record_obj))
+            return None
         # get modeul from magla here
         entity_type = cls.type(record_obj.__entity_name__)
         data = record_to_dict(record_obj, otio_as_dict=True)
@@ -134,7 +134,7 @@ class MaglaEntity(object):
             connection to related backend table.
         """
         return self._data
-    
+
     @property
     def orm(self):
         """Retrieve `MaglaORM` object used for backend interactions
@@ -161,7 +161,7 @@ class MaglaEntity(object):
             The sub-classed entity (defined in 'magla/db/')
         """
         return cls.__types__[name]
-    
+
     @classmethod
     def connect(cls):
         """Instantiate the `MaglaORM` object."""

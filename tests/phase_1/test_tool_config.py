@@ -1,6 +1,8 @@
 """Testing for `magla.core.seed_tool_config`"""
+from magla.core.tool import MaglaTool
 import pytest
 from magla.core.tool_config import MaglaToolConfig
+from magla.core.user import MaglaUser
 from magla.test import MaglaEntityTestFixture
 
 
@@ -19,9 +21,9 @@ class TestToolConfig(MaglaEntityTestFixture):
         }
         seed_tool_config.data.env = random_env
         seed_tool_config.data.push()
-        confirmation = MaglaToolConfig(id=seed_tool_config.id)
+        env = MaglaToolConfig(id=seed_tool_config.id).env
         self.reset(seed_tool_config)
-        assert confirmation.env == random_env
+        assert env == random_env
 
     def test_can_update_copy_dict(self, seed_tool_config):
         random_copy_dict = {
@@ -29,9 +31,9 @@ class TestToolConfig(MaglaEntityTestFixture):
         }
         seed_tool_config.data.copy_dict = random_copy_dict
         seed_tool_config.data.push()
-        confirmation = MaglaToolConfig(id=seed_tool_config.id)
+        copy_dict = MaglaToolConfig(id=seed_tool_config.id).copy_dict
         self.reset(seed_tool_config)
-        assert confirmation.copy_dict == random_copy_dict
+        assert copy_dict == random_copy_dict
 
     def test_can_retieve_project(self, seed_tool_config):
         backend_data = seed_tool_config.project.dict()
@@ -61,3 +63,15 @@ class TestToolConfig(MaglaEntityTestFixture):
         assert str(seed_tool_config) == self._repr_string.format(
             this=seed_tool_config
         )
+    
+    def test_can_instantiate_from_user_context(self):
+        # with assignment context
+        tool_config = MaglaToolConfig.from_user_context(tool_id=1, context=MaglaUser("foobar").context)
+        assert isinstance(tool_config, MaglaToolConfig)
+        # without assignment context
+        user_context = MaglaUser("foobar").context
+        user_context.data.assignment_id = None
+        user_context.data.push()
+        tool_config = MaglaToolConfig.from_user_context(tool_id=1, context=MaglaUser("foobar").context)
+        assert isinstance(tool_config, MaglaToolConfig)
+        self.reset(user_context)

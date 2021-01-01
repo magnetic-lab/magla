@@ -12,13 +12,14 @@ from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
 
+
 class MaglaToolVersionError(MaglaError):
     """An error accured preventing MaglaToolVersion to continue."""
 
 
 class MaglaToolVersion(MaglaEntity):
     """Provide an interface to manipulate behavior settings at the tool-version level."""
-    SCHEMA = ToolVersion
+    __schema__ = ToolVersion
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -28,11 +29,11 @@ class MaglaToolVersion(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaToolVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
-    
+        super(MaglaToolVersion, self).__init__(data or dict(kwargs))
+
     def __repr__(self):
         return "<ToolVersion {this.id}: file_extension={this.file_extension}, string={this.string}, tool={this.tool}>".format(this=self)
-        
+
     def __str__(self):
         return self.__repr__()
 
@@ -80,8 +81,6 @@ class MaglaToolVersion(MaglaEntity):
             The `MaglaTool` for this tool-version
         """
         r = self.data.record.tool
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property
@@ -94,8 +93,6 @@ class MaglaToolVersion(MaglaEntity):
             The `MaglaToolConfig` for this tool-version
         """
         r = self.data.record.tool_config
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property
@@ -120,7 +117,7 @@ class MaglaToolVersion(MaglaEntity):
             'shot_name_vXXX'
         """
         return "{this.tool.name}_{this.string}".format(this=self)
-    
+
     def installation(self, machine_id):
         """Retrieve a specific installation of this tool on the given machine
 
@@ -141,6 +138,6 @@ class MaglaToolVersion(MaglaEntity):
         else:
             matches = None
         return matches
-    
+
     def start(self):
         self.tool.start(self.id)

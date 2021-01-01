@@ -9,7 +9,7 @@ class MaglaFacilityError(MaglaError):
 
 class MaglaFacility(MaglaEntity):
     """Provide an interface for Facility-level administrative tasks."""
-    SCHEMA = Facility
+    __schema__ = Facility
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -21,7 +21,7 @@ class MaglaFacility(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaFacility, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaFacility, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):
@@ -33,7 +33,7 @@ class MaglaFacility(MaglaEntity):
             Postgres column id
         """
         return self.data.id
-    
+
     @property
     def name(self):
         """Retrieve name from data.
@@ -56,7 +56,7 @@ class MaglaFacility(MaglaEntity):
         """
         return self.data.settings
 
-    ##### SQAlchemy relationship back-references
+    # SQAlchemy relationship back-references
     @property
     def machines(self):
         """Shortcut method to retrieve related `MaglaMachine` back-reference list.

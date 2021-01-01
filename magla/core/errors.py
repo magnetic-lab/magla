@@ -7,6 +7,7 @@ class MaglaError(Exception):
     :attr msg: message str given from raiser.
     :type msg: str
     """
+
     def __init__(self, message, *args, **kwargs):
         """Initialize with message str.
         :entity_test_fixture msg: message describing exception from raiser.

@@ -12,8 +12,8 @@ class MaglaUserError(MaglaError):
 
 class MaglaUser(MaglaEntity):
     """Provide interface to user details and privileges."""
-    SCHEMA = User
-    
+    __schema__ = User
+
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
 
@@ -24,8 +24,10 @@ class MaglaUser(MaglaEntity):
         """
         if (not data and not kwargs):
             data = {"nickname": MaglaUser.current()}
+        elif isinstance(data, str):
+            data = {"nickname": data}
 
-        super(MaglaUser, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaUser, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):
@@ -105,7 +107,7 @@ class MaglaUser(MaglaEntity):
             The currently active `MaglaAssignment` for this user if one is set
         """
         return [self.from_record(a) for a in self.data.record.assignments]
-    
+
     @property
     def directories(self):
         """Shortcut method to retrieve related `MaglaDirectory` back-reference list.
@@ -118,7 +120,7 @@ class MaglaUser(MaglaEntity):
             `magla` functionality is desired.
         """
         return [self.from_record(a) for a in self.data.record.directories]
-    
+
     @property
     def timelines(self):
         """Shortcut method to retrieve related `MaglaTimeline` back-reference list.
@@ -130,7 +132,7 @@ class MaglaUser(MaglaEntity):
         """
         return [self.from_record(a) for a in self.data.record.timelines]
 
-    #### MaglaUser-specific methods ________________________________________________________________
+    # MaglaUser-specific methods ________________________________________________________________
     @staticmethod
     def current():
         """Retrieve a `MaglaUser` object for the currently logged in user.
@@ -141,7 +143,7 @@ class MaglaUser(MaglaEntity):
             The current `MaglaUser`
         """
         return getpass.getuser()
-    
+
     def directory(self, label):
         """Retrieve one of this user's private `MaglaDirectory` objects by label.
 

@@ -173,6 +173,8 @@ Project:
     name: test_project
     directory_id: 3
     timeline_id: 1
+    # episodes: []
+    # sequences: []
     settings:
       project_directory: "/mnt/projects/{project.name}"
       project_directory_tree:
@@ -229,8 +231,10 @@ Shot:
     name: test_shot_01
     project_id: 1
     directory_id: 3
+    episode_id: null
+    sequence_id: null
     start_frame_in_parent: 0
-    track_index: null
+    track_index: 1
     otio:
       OTIO_SCHEMA: Clip.1
       metadata: {}
@@ -246,18 +250,18 @@ Shot:
           OTIO_SCHEMA: TimeRange.1
           duration:
             OTIO_SCHEMA: RationalTime.1
-            rate: 30
+            rate: 30.0
             value: 1
           start_time:
             OTIO_SCHEMA: RationalTime.1
-            rate: 30
+            rate: 30.0
             value: 1
         target_url_base: ''
         name_prefix: test_project_test_shot_v000.
         name_suffix: ".png"
         start_frame: 1
         frame_step: 1
-        rate: 30
+        rate: 30.0
         frame_zero_padding: 4
         missing_frame_policy: error
   - true
@@ -274,18 +278,18 @@ ShotVersion:
         OTIO_SCHEMA: TimeRange.1
         duration:
           OTIO_SCHEMA: RationalTime.1
-          rate: 30
+          rate: 30.0
           value: 1
         start_time:
           OTIO_SCHEMA: RationalTime.1
-          rate: 30
+          rate: 30.0
           value: 1
       target_url_base: ''
       name_prefix: test_project_test_shot_v000.
       name_suffix: ".png"
       start_frame: 1
       frame_step: 1
-      rate: 30
+      rate: 30.0
       frame_zero_padding: 4
       missing_frame_policy: error
   - true

@@ -1,14 +1,19 @@
 """The `MaglaEntityTestFixture` is an interface for managing and accessing test data and db."""
+import configparser
 import os
 
 from magla import Config, Entity
+from magla.db import drop_database
 from magla.utils import otio, write_machine_uuid, get_machine_uuid
 
+
 class MaglaTestFixture:
-    
+
     _seed_data = Config(os.path.join(os.environ["MAGLA_TEST_DIR"], "seed_data.yaml"))
-    _machine_uuid_backup = get_machine_uuid()
-    
+    __cp = configparser.ConfigParser()
+    _machine_test_data = __cp.read(
+        os.path.join(os.environ["MAGLA_TEST_DIR"], "magla_machine", "machine.ini"))
+
     @classmethod
     def get_seed_data(cls, entity_type, index=None):
         """Retrieve either a specific seed data dict or all seed data tuples by entity type.
@@ -38,9 +43,10 @@ class MaglaTestFixture:
             return seed_data_tup_list
 
     @classmethod
-    def seed_data(cls, entity_type):
-        return cls._seed_data.load().get(entity_type, [])
-    
+    def seed_data(cls, entity_type=None):
+        seed_data = cls._seed_data.load()
+        return seed_data.get(entity_type, []) if entity_type else seed_data
+
     @classmethod
     def seed_otio(cls):
         return otio.adapters.read_from_file(
@@ -62,14 +68,14 @@ class MaglaEntityTestFixture(MaglaTestFixture):
             # end testing session and drop all tables as the tear-down process
             entity_test_fixture_.end(drop_tables=True)
         ```
-    
+
     In `pytest` you have 2 options:
         - inherit from `MaglaEntityTestFixture` and access its contents via `self`
         - use the yielded object from `conftest` from the `entity_test_fixture` param
-    
+
     Either way you must yield and, at least include the `entity_test_fixture` param as shown below
     or else `pytest` doesn't seem to instantiate it.
-    
+
         Example test inheriting from `MaglaEntityTestFixture` and including the un-used param:
         ```
         class TestUser(MaglaEntityTestFixture):
@@ -95,11 +101,11 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         for seed_data_tup in seed_data_list:
             data, expected_result = seed_data_tup
             # data = utils.otio_to_dict(data)
-            new_record = entity.SCHEMA(**data)
+            new_record = entity.__schema__(**data)
             Entity._orm.session.add(new_record)
             Entity._orm.session.commit()
 
-    @classmethod 
+    @classmethod
     def create_all_seed_records(cls):
         for type_ in cls._seed_data.load():
             cls.create_entity(type_)
@@ -109,7 +115,8 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         """Modify backend dialect to sqlite for testing, then make connection."""
         Entity.connect()
         # for testing, we overwrite `uuid` temporarily with our seed machine data
-        write_machine_uuid(cls.get_seed_data("Machine", 0)["uuid"])
+        cls.__magla_machine_data_dir_backup = os.environ["MAGLA_MACHINE_CONFIG_DIR"]
+        os.environ["MAGLA_MACHINE_CONFIG_DIR"] = os.path.join(os.environ["MAGLA_TEST_DIR"], "magla_machine")
         cls.create_all_seed_records()
 
     @classmethod
@@ -117,11 +124,11 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         Entity._orm.session.close()
         if drop_tables:
             Entity._orm._drop_all_tables()
-        write_machine_uuid(cls._machine_uuid_backup)
+        os.environ["MAGLA_MACHINE_CONFIG_DIR"] = cls.__magla_machine_data_dir_backup
 
     @classmethod
     def reset(cls, magla_subentity):
-        sub_entity_type = magla_subentity.SCHEMA.__entity_name__
+        sub_entity_type = magla_subentity.__schema__.__entity_name__
         index = magla_subentity.id-1
         reset_data = cls.get_seed_data(sub_entity_type, index)
         magla_subentity.data.update(reset_data)

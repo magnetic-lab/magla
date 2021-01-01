@@ -20,7 +20,7 @@ class MaglaDependencyError(MaglaError):
 
 class MaglaDependency(MaglaEntity):
     """Provide an interface for configuring dependency settings."""
-    SCHEMA = Dependency
+    __schema__ = Dependency
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -30,7 +30,7 @@ class MaglaDependency(MaglaEntity):
         data : dict, optional
             Data to query for matching backend record
         """
-        super(MaglaDependency, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaDependency, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):
@@ -42,7 +42,7 @@ class MaglaDependency(MaglaEntity):
             Postgres column id
         """
         return self.data.id
-    
+
     @property
     def entity_type(self):
         """Retrieve entity_type from data.
@@ -54,7 +54,7 @@ class MaglaDependency(MaglaEntity):
         """
         return self.data.entity_type
 
-    #### MaglaDependency-specific methods ________________________________________________________________
+    # MaglaDependency-specific methods ________________________________________________________________
     @property
     def entity(self):
         """Instantiate and return the `MaglaEntity` this dependency definition belongs to.

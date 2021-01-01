@@ -12,7 +12,7 @@ class MaglaShotVersionError(MaglaError):
 
 class MaglaShotVersion(MaglaEntity):
     """Provide an interface to the `subsets` of this shot version and its filesystem details."""
-    SCHEMA = ShotVersion
+    __schema__ = ShotVersion
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -22,12 +22,12 @@ class MaglaShotVersion(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaShotVersion, self).__init__(self.SCHEMA, data or dict(kwargs))
-        
+        super(MaglaShotVersion, self).__init__(data or dict(kwargs))
+
     def __repr__(self):
         return "<ShotVersion {this.id}: directory={this.directory}, full_name={this.full_name}>". \
             format(this=self)
-        
+
     def __str__(self):
         return self.__repr__()
 
@@ -121,7 +121,7 @@ class MaglaShotVersion(MaglaEntity):
         if not r:
             return None
         return MaglaEntity.from_record(r)
-    
+
     @property
     def name(self):
         """Generate a name for this shot version by combining the shot name with version num.
@@ -134,6 +134,7 @@ class MaglaShotVersion(MaglaEntity):
         return "{shot_name}_v{version_num:03d}".format(
             shot_name=self.shot.name,
             version_num=self.num)
+
     @property
     def full_name(self):
         """Generate a name prepended with project name.
@@ -142,7 +143,7 @@ class MaglaShotVersion(MaglaEntity):
         -------
         str
             The name of shit shot version prepended with the project name
-            
+
             Example:
                 ```
                 project_name_shot_name_v001

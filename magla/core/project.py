@@ -106,7 +106,7 @@ class MaglaProject(MaglaEntity):
         timeline.build(project.shots)
         timeline.otio.write_to_file("{0}_edit.fcpxml".format(project.name))
     """
-    SCHEMA = Project
+    __schema__ = Project
 
     def __init__(self, data=None, **kwargs):
         """Initialize with given data.
@@ -118,7 +118,7 @@ class MaglaProject(MaglaEntity):
         """
         if isinstance(data, str):
             data = {"name": data}
-        super(MaglaProject, self).__init__(self.SCHEMA, data or dict(kwargs))
+        super(MaglaProject, self).__init__(data or dict(kwargs))
 
     @property
     def id(self):
@@ -191,8 +191,7 @@ class MaglaProject(MaglaEntity):
         magla.core.settings_2d.MaglaSettings2D
             The `MaglaSettings2D` entity set for this project
         """
-        r = self.data.record.settings_2d or []
-        return [self.from_record(a) for a in r]
+        return self.data.record.settings_2d
 
     @property
     def shots(self):

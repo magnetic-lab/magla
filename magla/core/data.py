@@ -9,7 +9,7 @@ from pprint import pformat
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..utils import dict_to_record, record_to_dict, otio_to_dict
+from ..utils import apply_dict_to_record, record_to_dict, otio_to_dict
 from .errors import MaglaError
 
 
@@ -32,11 +32,11 @@ class CustomDict(MutableMapping):
         # getting
         data["key"]
         data.key
-        
+
         # setting
         data["key"] = "new_value"
         data.key = "new_value"
-        
+
         # traditional dict methods also available
         data.update({"key":"new_value"})
         ```
@@ -208,7 +208,7 @@ class MaglaData(CustomDict):
             The returned record from the session query (containing data directly from backend)
         """
         return self.__record
-    
+
     def dict(self):
         return self._store
 
@@ -269,7 +269,7 @@ class MaglaData(CustomDict):
             The record retrieved from the update
         """
         temp = self.__record
-        self.__record = dict_to_record(self.__record, self._store, otio_as_dict=True)
+        self.__record = apply_dict_to_record(self.__record, self._store, otio_as_dict=True)
         self.session.commit()
         self.__record = temp
 
