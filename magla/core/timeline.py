@@ -141,7 +141,6 @@ class MaglaTimeline(MaglaEntity):
             self.data.otio.tracks[shot.track_index-1].extend([gap, shot.otio])
         else:
             self.data.otio.tracks[shot.track_index-1].append(shot.otio)
-	self.data.push()
 
     def __insert_shot(self, shot):
         """Insert an `opentimelineio.schema.Clip` by splitting the occupying `Gap`.
