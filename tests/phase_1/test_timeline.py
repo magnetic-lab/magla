@@ -8,6 +8,8 @@ from magla.utils import random_string
 
 
 class TestTimeline(MaglaEntityTestFixture):
+    
+    _repr_string = "<Timeline {this.id}: name={this.otio.name}, label={this.label}, user={this.user}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Timeline"))
     def seed_timeline(self, request, entity_test_fixture):
@@ -37,3 +39,8 @@ class TestTimeline(MaglaEntityTestFixture):
         confirmation_user_id = MaglaTimeline(id=seed_timeline.id).user.id
         self.reset(seed_timeline)
         assert confirmation_user_id == new_user_id
+
+    def test_object_string_repr(self, seed_timeline):
+        assert str(seed_timeline) == self._repr_string.format(
+            this=seed_timeline
+        )

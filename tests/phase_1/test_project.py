@@ -11,6 +11,8 @@ from magla.utils import random_string, otio_to_dict, otio_to_dict
 
 
 class TestProject(MaglaEntityTestFixture):
+    
+    _repr_string = "<Project {this.id}: directory_id={this.directory.id}, name={this.name}, settings={this.settings}, timeline_id={this.timeline.id}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Project"))
     def seed_project(self, request, entity_test_fixture):
@@ -87,3 +89,8 @@ class TestProject(MaglaEntityTestFixture):
         backend_data = seed_project.timeline.dict(otio_as_dict=True)
         seed_data = self.get_seed_data("Timeline", seed_project.timeline.id-1)
         assert backend_data == seed_data
+
+    def test_object_string_repr(self, seed_project):
+        assert str(seed_project) == self._repr_string.format(
+            this=seed_project
+        )

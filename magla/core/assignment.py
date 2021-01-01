@@ -26,11 +26,12 @@ class MaglaAssignment(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        super(MaglaAssignment, self).__init__(self.SCHEMA, data or dict(kwargs))
-        
+        super(MaglaAssignment, self).__init__(
+            self.SCHEMA, data or dict(kwargs))
+
     def __repr__(self):
-        return "<Assignment {this.id}: {this.shot_version}, {this.user}>".format(this=self)
-        
+        return "<Assignment {this.id}: shot_version={this.shot_version}, user={this.user}>".format(this=self)
+
     def __str__(self):
         return self.__repr__()
 
@@ -44,8 +45,8 @@ class MaglaAssignment(MaglaEntity):
             Postgres column id
         """
         return self.data.id
-    # SQAlchemy relationship back-references
 
+    # SQAlchemy relationship back-references
     @property
     def shot_version(self):
         """Retrieve related `MaglaShotVersion` back-reference.
@@ -56,8 +57,6 @@ class MaglaAssignment(MaglaEntity):
             The `MaglaShotVersion` that was initially created for this assignment
         """
         r = self.data.record.shot_version
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     @property
@@ -70,8 +69,6 @@ class MaglaAssignment(MaglaEntity):
             The `MaglaUser` this assignment belongs to
         """
         r = self.data.record.user
-        if not r:
-            return None
         return MaglaEntity.from_record(r)
 
     # MaglaAssignment-specific methods

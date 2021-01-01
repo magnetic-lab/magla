@@ -5,6 +5,8 @@ from magla.test import MaglaEntityTestFixture
 
 
 class TestToolConfig(MaglaEntityTestFixture):
+    
+    _repr_string = "<ToolConfig {this.id}: copy_dict={this.copy_dict}, directory_id={this.directory.id}, env={this.env}, project_id={this.project.id}, tool_version_id={this.tool_version.id}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ToolConfig"))
     def seed_tool_config(self, request, entity_test_fixture):
@@ -54,3 +56,8 @@ class TestToolConfig(MaglaEntityTestFixture):
     def test_can_build_env(self, seed_tool_config):
         # TODO: need to test the contents of env
         assert seed_tool_config.build_env()
+
+    def test_object_string_repr(self, seed_tool_config):
+        assert str(seed_tool_config) == self._repr_string.format(
+            this=seed_tool_config
+        )

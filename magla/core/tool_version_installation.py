@@ -27,6 +27,12 @@ class MaglaToolVersionInstallation(MaglaEntity):
         :raise MaglaToolVersionInstallationNameNotFound: No tool name, or nicknames found
         """
         super(MaglaToolVersionInstallation, self).__init__(self.SCHEMA, data or dict(kwargs))
+    
+    def __repr__(self):
+        return "<ToolVersionInstallation {this.id}: directory={this.directory}, tool_version={this.tool_version.string}>".format(this=self)
+        
+    def __str__(self):
+        return self.__repr__()
 
     @property
     def id(self):

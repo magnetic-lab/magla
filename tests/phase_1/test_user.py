@@ -1,5 +1,6 @@
 """Testing for `magla.core.seed_user`"""
 import string
+import getpass
 
 import pytest
 from magla.core.user import MaglaUser
@@ -8,6 +9,8 @@ from magla.utils import random_string
 
 
 class TestUser(MaglaEntityTestFixture):
+    
+    _repr_string = "<User {this.id}: email={this.email}, first_name={this.first_name}, last_name={this.last_name}, nickname={this.nickname}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("User"))
     def seed_user(self, request, entity_test_fixture):
@@ -79,5 +82,10 @@ class TestUser(MaglaEntityTestFixture):
         random_nickname = random_string(string.ascii_letters, 10)
         assert seed_user.directory(random_nickname) == None
 
-    def test_can_retrieve_null_permissions(self, seed_user):
-        assert seed_user.permissions() == {}
+    def test_object_string_repr(self, seed_user):
+        assert str(seed_user) == self._repr_string.format(
+            this=seed_user
+        )
+    
+    def test_can_retrieve_current_os_user(self):
+        assert MaglaUser.current() == getpass.getuser()

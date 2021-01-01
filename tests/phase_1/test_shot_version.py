@@ -9,6 +9,8 @@ from magla.utils import random_string
 
 
 class TestShotVersion(MaglaEntityTestFixture):
+    
+    _repr_string = "<ShotVersion {this.id}: directory={this.directory}, full_name={this.full_name}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ShotVersion"))
     def seed_shot_version(self, request, entity_test_fixture):
@@ -58,3 +60,8 @@ class TestShotVersion(MaglaEntityTestFixture):
     def test_can_generate_full_name(self, seed_shot_version):
         assert seed_shot_version.full_name == "{sv.project.name}_{sv.shot.name}_v{sv.num:03d}".format(
             sv=seed_shot_version)
+    
+    def test_object_string_repr(self, seed_shot_version):
+        assert str(seed_shot_version) == self._repr_string.format(
+            this=seed_shot_version
+        )

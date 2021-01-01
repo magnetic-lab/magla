@@ -34,7 +34,10 @@ class MaglaTimeline(MaglaEntity):
         super(MaglaTimeline, self).__init__(self.SCHEMA, data or dict(kwargs))
 
     def __repr__(self):
-        return self.__str__()
+        return "<Timeline {this.id}: name={this.otio.name}, label={this.label}, user={this.user}>".format(this=self)
+        
+    def __str__(self):
+        return self.__repr__()
 
     @property
     def id(self):

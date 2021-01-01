@@ -18,6 +18,10 @@ from .timeline import MaglaTimeline as Timeline
 from .tool import MaglaTool as Tool
 from .tool_config import MaglaToolConfig as ToolConfig
 from .tool_version import MaglaToolVersion as ToolVersion
-from .tool_version_installation import \
-    MaglaToolVersionInstallation as ToolVersionInstallation
+from .tool_version_installation import MaglaToolVersionInstallation as ToolVersionInstallation
 from .user import MaglaUser as User
+
+from ..utils import get_machine_uuid, write_machine_uuid
+
+if not get_machine_uuid():
+    write_machine_uuid()

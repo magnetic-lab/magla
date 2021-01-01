@@ -8,6 +8,8 @@ from magla.utils import random_string
 
 
 class TestToolVersion(MaglaEntityTestFixture):
+    
+    _repr_string = "<ToolVersion {this.id}: file_extension={this.file_extension}, string={this.string}, tool={this.tool}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ToolVersion"))
     def seed_tool_version(self, request, entity_test_fixture):

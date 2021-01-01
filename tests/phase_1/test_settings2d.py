@@ -9,6 +9,8 @@ from magla.utils import random_string
 
 
 class TestSettings2D(MaglaEntityTestFixture):
+    
+    _repr_string = "<Settings2D {this.id}: color_profile={this.color_profile}, height={this.height}, label={this.label}, project_id={this.project.id}, rate={this.rate}, width={this.width}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Settings2D"))
     def seed_settings_2d(self, request, entity_test_fixture):
@@ -60,3 +62,8 @@ class TestSettings2D(MaglaEntityTestFixture):
         seed_data = self.get_seed_data("Project", seed_settings_2d.project.id-1)
         self.reset(seed_settings_2d)
         assert backend_data == seed_data
+
+    def test_object_string_repr(self, seed_settings_2d):
+        assert str(seed_settings_2d) == self._repr_string.format(
+            this=seed_settings_2d
+        )

@@ -2,9 +2,52 @@
 import os
 
 from magla import Config, Entity
+from magla.utils import otio, write_machine_uuid, get_machine_uuid
+
+class MaglaTestFixture:
+    
+    _seed_data = Config(os.path.join(os.environ["MAGLA_TEST_DIR"], "seed_data.yaml"))
+    _machine_uuid_backup = get_machine_uuid()
+    
+    @classmethod
+    def get_seed_data(cls, entity_type, index=None):
+        """Retrieve either a specific seed data dict or all seed data tuples by entity type.
+
+        Parameters
+        ----------
+        entity_type : str
+            The `magla` sub-entity type (eg. `Project`, `ToolVersion`) to retrieve seed data for.
+        index : int, optional
+            The specific index/id of the seed data instance to retrieve, by default None
+
+        Returns
+        -------
+        list or dict
+            Either the specific data dict or the entire list of (`data`, `expected_result`) tuples.
+        """
+        if index is not None:
+            # return seed data dict without `expected_result` for instance specified by index
+            seed_data_dict = cls._seed_data.load().get(entity_type)[index][0]
+            return seed_data_dict
+        else:
+            # return all seed data tuples for given entity type
+            seed_data_tup_list = []
+            for seed_data_tup in cls._seed_data.load().get(entity_type):
+                seed_data_dict, expected_result = seed_data_tup
+                seed_data_tup_list.append([seed_data_dict, True])
+            return seed_data_tup_list
+
+    @classmethod
+    def seed_data(cls, entity_type):
+        return cls._seed_data.load().get(entity_type, [])
+    
+    @classmethod
+    def seed_otio(cls):
+        return otio.adapters.read_from_file(
+            os.path.join(os.environ["MAGLA_TEST_DIR"], "test_project.otio"))
 
 
-class MaglaEntityTestFixture:
+class MaglaEntityTestFixture(MaglaTestFixture):
     """This class should be inherited by your test-cases, then served via startup methods.
 
         Example instantiation within a `pytest` fixture (conftest.py):
@@ -44,41 +87,11 @@ class MaglaEntityTestFixture:
             assert confirmation.nickname == random_nickname
         ```
     """
-    _seed_data = Config(os.environ["MAGLA_TEST_SEED_DATA"]).dict()
-
-    @classmethod
-    def get_seed_data(cls, entity_type, index=None):
-        """Retrieve either a specific seed data dict or all seed data tuples by entity type.
-
-        Parameters
-        ----------
-        entity_type : str
-            The `magla` sub-entity type (eg. `Project`, `ToolVersion`) to retrieve seed data for.
-        index : int, optional
-            The specific index/id of the seed data instance to retrieve, by default None
-
-        Returns
-        -------
-        list or dict
-            Either the specific data dict or the entire list of (`data`, `expected_result`) tuples.
-        """
-        if index is not None:
-            # return seed data dict without `expected_result` for instance specified by index
-            seed_data_dict = Config(os.environ["MAGLA_TEST_SEED_DATA"]).dict().get(entity_type)[index][0]
-            return seed_data_dict
-        else:
-            # return all seed data tuples for given entity type
-            seed_data_tup_list = []
-            for seed_data_tup in Config(os.environ["MAGLA_TEST_SEED_DATA"]).dict().get(entity_type):
-                seed_data_dict, expected_result = seed_data_tup
-                seed_data_tup_list.append([seed_data_dict, True])
-            return seed_data_tup_list
-
     @classmethod
     def create_entity(cls, subentity_type):
         # this method is essentially a replacement for `magla.Root` for creation
         entity = Entity.type(subentity_type)
-        seed_data_list = Config(os.environ["MAGLA_TEST_SEED_DATA"]).dict().get(subentity_type, [])
+        seed_data_list = cls._seed_data.load().get(subentity_type, [])
         for seed_data_tup in seed_data_list:
             data, expected_result = seed_data_tup
             # data = utils.otio_to_dict(data)
@@ -88,13 +101,15 @@ class MaglaEntityTestFixture:
 
     @classmethod 
     def create_all_seed_records(cls):
-        for type_ in Config(os.environ["MAGLA_TEST_SEED_DATA"]).dict():
+        for type_ in cls._seed_data.load():
             cls.create_entity(type_)
 
     @classmethod
     def start(cls):
         """Modify backend dialect to sqlite for testing, then make connection."""
         Entity.connect()
+        # for testing, we overwrite `uuid` temporarily with our seed machine data
+        write_machine_uuid(cls.get_seed_data("Machine", 0)["uuid"])
         cls.create_all_seed_records()
 
     @classmethod
@@ -102,10 +117,7 @@ class MaglaEntityTestFixture:
         Entity._orm.session.close()
         if drop_tables:
             Entity._orm._drop_all_tables()
-
-    @classmethod
-    def seed_data(cls, entity_type):
-        return Config(os.environ["MAGLA_TEST_SEED_DATA"]).dict().get(entity_type, [])
+        write_machine_uuid(cls._machine_uuid_backup)
 
     @classmethod
     def reset(cls, magla_subentity):
