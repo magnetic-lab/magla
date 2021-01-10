@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -15,8 +15,8 @@ class Directory(MaglaORM._Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     label = Column(String)
     path = Column(String)
-    tree = Column(JSON)
-    bookmarks = Column(JSON)
+    tree = Column(JSONB)
+    bookmarks = Column(JSONB)
 
     machine = relationship("Machine", uselist=False, back_populates="directories")
     user = relationship("User", uselist=False, back_populates="directories")

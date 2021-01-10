@@ -2,6 +2,7 @@
 import getpass
 
 from ..db.user import User
+from .flask_utils import FlaskLoginUser
 from .entity import MaglaEntity
 from .errors import MaglaError
 
@@ -10,7 +11,7 @@ class MaglaUserError(MaglaError):
     """An error accured preventing MaglaUser to continue."""
 
 
-class MaglaUser(MaglaEntity):
+class MaglaUser(MaglaEntity, FlaskLoginUser):
     """Provide interface to user details and privileges."""
     __schema__ = User
 
@@ -83,6 +84,17 @@ class MaglaUser(MaglaEntity):
             email of this user
         """
         return self.data.email
+    
+    @property
+    def active(self):
+        """Retrieve active flag from data.
+
+        Returns
+        -------
+        str
+            flag for whether user is currently active
+        """
+        return self.data.active
 
     # SQAlchemy relationship back-references
     @property

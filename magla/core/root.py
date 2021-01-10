@@ -5,6 +5,7 @@ here is creating and commiting `SQLAlchemy` objects to `ORM.session` using compo
 creation methods for convenience.
 """
 import os
+import psycopg2
 import re
 import shutil
 import sys
@@ -593,7 +594,7 @@ class MaglaRoot(object):
         new_user = self.create(MaglaUser, data)
         # create default home directory for user
         machine = MaglaMachine()
-        new_directory = self.create(MaglaDirectory, {
+        self.create(MaglaDirectory, {
             "machine_id": machine.id,
             "user_id": new_user.id,
             "label": "default",
@@ -604,7 +605,7 @@ class MaglaRoot(object):
                 "id": new_user.id,
                 "machine_id": machine.id
             })
-        except EntityAlreadyExistsError:
+        except:
             pass
         return new_user
 
