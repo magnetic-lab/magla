@@ -10,7 +10,7 @@ from magla.utils import random_string
 
 class TestUser(MaglaEntityTestFixture):
     
-    _repr_string = "<User {this.id}: email={this.email}, first_name={this.first_name}, last_name={this.last_name}, nickname={this.nickname}>"
+    _repr_string = "<User {this.id}: active={this.active}, email={this.email}, first_name={this.first_name}, last_name={this.last_name}, nickname={this.nickname}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("User"))
     def seed_user(self, request, entity_test_fixture):

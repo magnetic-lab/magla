@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 
 from ..db.orm import MaglaORM
 
@@ -11,4 +11,4 @@ class Dependency(MaglaORM._Base):
 
     id = Column(Integer, primary_key=True)
     entity_type = Column(String)
-    package = Column(JSON)
+    package = Column(JSONB)

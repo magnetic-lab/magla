@@ -21,7 +21,7 @@ class MaglaProject(MaglaEntity):
     A project consists of:
         - A root directory located on a machine within the current facility
         - A collection of child `MaglaShot`, `MaglaShotVersion`, `MaglaToolConfig` entities
-        - An `opentimelineio.schema.Timeline` object which persists in the backend as `JSON`
+        - An `opentimelineio.schema.Timeline` object which persists in the backend as `JSONB`
         - User-defined settings containing python string-formatting tokens
 
     Defining project settings:

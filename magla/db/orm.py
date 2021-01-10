@@ -25,7 +25,7 @@ class MaglaORM(object):
     """
     # `postgres` connection string variables
     CONFIG = {
-        "dialect": "sqlite",
+        "dialect": "postgres",
         "username": os.getenv("MAGLA_DB_USERNAME"),
         "password": os.getenv("MAGLA_DB_PASSWORD"),
         "hostname": os.getenv("MAGLA_DB_HOSTNAME"),
@@ -76,6 +76,7 @@ class MaglaORM(object):
     @classmethod
     def _construct_session(cls, *args, **kwargs):
         """Construct session-factory."""
+        print("session constructed")
         # TODO: include test coverage for constructing sessions with args/kwargs
         cls._Session = cls.sessionmaker(*args, **kwargs)
 

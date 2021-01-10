@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Assignments connect `MaglaUser` to `MaglaShotVersion`. 
 
 In the `magla` ecosystem versions are considered sacred and can never be assigned to multiple
