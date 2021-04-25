@@ -14,6 +14,7 @@ import opentimelineio as otio
 from ..utils import otio_to_dict, otio_to_dict, write_machine_uuid
 from .assignment import MaglaAssignment
 from .context import MaglaContext
+from .config import MaglaConfig
 from .data import NoRecordFoundError
 from .directory import MaglaDirectory
 from .entity import MaglaEntity
@@ -168,6 +169,16 @@ class MaglaRoot(object):
             data = {"name": data}
         data.update(kwargs)
         return self.create(MaglaFacility, data)
+
+    def create_from_seed_data(self, seed_data_path):
+        seed_data = MaglaConfig(seed_data_path).load()
+        for type_, seed_tup_list in seed_data.items():
+            for seed_tuple in seed_tup_list:
+                seed_dict, expected_ressult = seed_tuple
+                model = self.orm.get_model(type_)
+                entity = MaglaEntity.type(type_)
+                self.create(entity, seed_dict)
+        return seed_data
 
     def create_machine(self, facility_id):
         """Create record for new `MaglaMachine` type.
@@ -690,10 +701,4 @@ class MaglaRoot(object):
         assignment = MaglaAssignment(data or dict(kwargs))
         self.delete(assignment.data.record)
 
-    @staticmethod
-    def create_from_seed_data(seed_data_path):
-        from ..test import MaglaEntityTestFixture
-        MaglaEntity.connect()
-        MaglaEntityTestFixture.create_all_seed_records(seed_data_path)
-        return MaglaEntityTestFixture.seed_data(seed_data_path=seed_data_path)
 
