@@ -129,28 +129,30 @@ class MaglaORM(object):
         """
         return self.session.query(entity).filter_by(**filter_kwargs)
 
-    def all(self, entity=None):
+    def all(self, entity):
         """Retrieve all columns from entity's table.
 
         Parameters
         ----------
-        entity : magla.core.entity.MaglaEntity, optional
-            The specific sub-entity type to query, by default None
+        entity : magla.core.entity.MaglaEntity
+            The specific sub-entity type to query
 
         Returns
         -------
         list
             List of `MaglaEntity` objects instantiated from each record.
         """
-        entity = entity or self.entity
         return [entity.from_record(record) for record in self.query(entity).all()]
 
-    def one(self, entity=None, **filter_kwargs):
+    def get_model(self, table_name):
+        return self._Base._decl_class_registry.get(table_name)
+
+    def one(self, entity, **filter_kwargs):
         """Retrieve the first found record.
 
         Parameters
         ----------
-        entity : magla.core.entity.MaglaEntity, optional
+        entity : magla.core.entity.MaglaEntity
             The specific sub-entity type to query, by default None
 
         Returns
@@ -158,7 +160,6 @@ class MaglaORM(object):
         magla.core.entity.MaglaEntity
             The found `MaglaEntity` or None
         """
-        entity = entity or self.entity
         record = self.query(entity, **filter_kwargs)
         return entity.from_record(record.first())
 
@@ -210,5 +211,5 @@ class MaglaORM(object):
         """
         data = data or {}
         data.update(dict(filter_kwargs))
-        entity = entity or self.entity
+        entity = entity
         return self._query(entity.__schema__, **data)

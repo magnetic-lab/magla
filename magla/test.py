@@ -2,6 +2,8 @@
 import configparser
 import os
 
+import opentimelineio as otio
+
 from magla import Config, Entity
 
 
@@ -95,10 +97,11 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         ```
     """
     @classmethod
-    def create_entity(cls, subentity_type):
+    def create_entity(cls, subentity_type, seed_data=None):
         # this method is essentially a replacement for `magla.Root` for creation
         entity = Entity.type(subentity_type)
-        seed_data_list = cls._seed_data.load().get(subentity_type, [])
+        seed_data = seed_data or cls._seed_data.load()
+        seed_data_list = seed_data.get(subentity_type, [])
         for seed_data_tup in seed_data_list:
             data, expected_result = seed_data_tup
             # data = utils.otio_to_dict(data)
@@ -113,7 +116,7 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         else:
             seed_data = cls._seed_data.load()
         for type_ in seed_data:
-            cls.create_entity(type_)
+            cls.create_entity(type_, seed_data)
 
     @classmethod
     def start(cls):
