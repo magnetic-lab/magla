@@ -3,8 +3,6 @@ import configparser
 import os
 
 from magla import Config, Entity
-from magla.db import drop_database
-from magla.utils import otio, write_machine_uuid, get_machine_uuid
 
 
 class MaglaTestFixture:
@@ -43,8 +41,11 @@ class MaglaTestFixture:
             return seed_data_tup_list
 
     @classmethod
-    def seed_data(cls, entity_type=None):
-        seed_data = cls._seed_data.load()
+    def seed_data(cls, entity_type=None, seed_data_path=None):
+        if seed_data_path:
+            seed_data = Config(seed_data_path).load()
+        else:
+            seed_data = cls._seed_data.load()
         return seed_data.get(entity_type, []) if entity_type else seed_data
 
     @classmethod
@@ -106,8 +107,12 @@ class MaglaEntityTestFixture(MaglaTestFixture):
             Entity._orm.session.commit()
 
     @classmethod
-    def create_all_seed_records(cls):
-        for type_ in cls._seed_data.load():
+    def create_all_seed_records(cls, seed_data_path=None):
+        if seed_data_path:
+            seed_data = Config(seed_data_path).load()
+        else:
+            seed_data = cls._seed_data.load()
+        for type_ in seed_data:
             cls.create_entity(type_)
 
     @classmethod
@@ -117,7 +122,6 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         # for testing, we overwrite `uuid` temporarily with our seed machine data
         cls.__magla_machine_data_dir_backup = os.environ["MAGLA_MACHINE_CONFIG_DIR"]
         os.environ["MAGLA_MACHINE_CONFIG_DIR"] = os.path.join(os.environ["MAGLA_TEST_DIR"], "magla_machine")
-        cls.create_all_seed_records()
 
     @classmethod
     def end(cls, drop_tables):
