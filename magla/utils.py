@@ -67,6 +67,7 @@ def write_machine_uuid(string=None, makefile=True):
         os.makedirs(os.environ["MAGLA_MACHINE_CONFIG_DIR"])
     with open(os.path.join(os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini"), "w+") as fo:
         machine_config.write(fo)
+    return machine_config["DEFAULT"]["uuid"]
 
 
 def otio_to_dict(target):
