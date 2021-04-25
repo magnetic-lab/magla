@@ -8,7 +8,6 @@ import os
 import re
 import shutil
 import sys
-import uuid
 
 import opentimelineio as otio
 
@@ -690,3 +689,11 @@ class MaglaRoot(object):
     def delete_assignment(self, data=None, **kwargs):
         assignment = MaglaAssignment(data or dict(kwargs))
         self.delete(assignment.data.record)
+
+    @staticmethod
+    def create_from_seed_data(seed_data_path):
+        from ..test import MaglaEntityTestFixture
+        MaglaEntity.connect()
+        MaglaEntityTestFixture.create_all_seed_records(seed_data_path)
+        return MaglaEntityTestFixture.seed_data(seed_data_path=seed_data_path)
+
