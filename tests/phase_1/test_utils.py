@@ -74,8 +74,4 @@ class TestUtils:
         proc = utils.open_directory_location(os.environ["MAGLA_MACHINE_CONFIG_DIR"])
         assert proc
         proc.kill()
-    
-    def test_can_get_class_by_tablename(self):
-        with open(os.path.join(os.environ["MAGLA_TEST_DIR"], "table_names.yml"), "r") as table_names:
-            for table_name in yaml.load(table_names):
-                assert utils.get_class_by_tablename(db.ORM._Base, table_name).__tablename__ == table_name
+
