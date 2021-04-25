@@ -18,10 +18,6 @@ increment - meaning that running this script repeatedly will result in new shot 
 tree structures under the same project.
 """
 import getpass
-import os
-import random
-import string
-import sys
 
 import magla
 
