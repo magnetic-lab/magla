@@ -12,7 +12,7 @@ import uuid
 
 import opentimelineio as otio
 
-from ..utils import otio_to_dict, otio_to_dict
+from ..utils import otio_to_dict, otio_to_dict, write_machine_uuid
 from .assignment import MaglaAssignment
 from .context import MaglaContext
 from .data import NoRecordFoundError
@@ -184,7 +184,7 @@ class MaglaRoot(object):
             `MaglaMachine` object populated with newly created backend data
         """
         return self.create(MaglaMachine, {
-            "uuid": str(uuid.UUID(int=uuid.getnode())),
+            "uuid": write_machine_uuid(),
             "facility_id": MaglaFacility(id=facility_id).data.id
         })
 

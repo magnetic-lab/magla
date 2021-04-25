@@ -172,7 +172,7 @@ modo_tool_config = r.create_tool_config(
 
 # Create Shot
 shot = r.create_shot(
-    project_id=test_project.id, name="test_shot")
+    project_id=test_project.id, name="test_shot_{}".format(len(test_project.shots)))
 
 # Create User
 # `magla` user nickname must match the OS's user name
@@ -185,22 +185,22 @@ assignment = r.create_assignment(
 )
 
 # set user's assignment context
-c = user.context
-c.data.assignment_id = assignment.id
-c.data.push()
+# c = user.context
+# c.data.assignment_id = assignment.id
+# c.data.push()
 # use `all` method to retrieve list of all entity records by entity type.
-r.all(magla.User)
-r.all(magla.ShotVersion)
-r.all(magla.Directory)
+# r.all(magla.User)
+# r.all(magla.ShotVersion)
+# r.all(magla.Directory)
 
 # Building and exporting timelines
-t = test_project.timeline
+# t = test_project.timeline
 # current process is sending list of `MaglaShot` objects to `build` method
-t.build(test_project.shots)
+# t.build(test_project.shots)
 # `MaglaShot` objects include a 'track_index' and 'start_frame_in_parent' property which are
 #  external to `opentimlineio` but used by `magla` for automatic building. This implementation
 #  may change.
-t.otio.to_json_file("test_project.json")
+# t.otio.to_json_file("test_project.json")
 
 # tools can be launched from `MaglaTool` or `MaglaToolVersion` instances
 # houdini_18.tool.start()

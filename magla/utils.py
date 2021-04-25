@@ -67,6 +67,7 @@ def write_machine_uuid(string=None, makefile=True):
         os.makedirs(os.environ["MAGLA_MACHINE_CONFIG_DIR"])
     with open(os.path.join(os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini"), "w+") as fo:
         machine_config.write(fo)
+    return machine_config["DEFAULT"]["uuid"]
 
 
 def otio_to_dict(target):
@@ -229,24 +230,4 @@ def random_string(choices_str, length):
         A random string of characters
     """
     return ''.join(random.choice(str(choices_str)) for _ in range(length))
-
-
-def get_class_by_tablename(base, tablename):
-    """Return class reference mapped to table.
-
-    Parameters
-    ----------
-    base : sqlalchemy.orm.declarative_base
-        The `SQLAlchemy` declarative base instance storing table metadata.
-    tablename : str
-        Name of the table
-
-    Returns
-    -------
-    class
-        The model class associated to given table name.
-    """
-    for c in base._decl_class_registry.values():
-        if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
-            return c
 
