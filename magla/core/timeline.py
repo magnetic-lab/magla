@@ -120,7 +120,7 @@ class MaglaTimeline(MaglaEntity):
         shot.data.track_index = track_index
         # if there's no placement information place it at the end of current last clip.
         clip = track.child_at_time(
-            RTime(shot.start_frame_in_parent, shot.project.settings_2d.rate))
+            RTime(shot.start_frame_in_parent or 0, shot.project.settings_2d.rate))
         if shot.start_frame_in_parent == None or clip:
             shot.data.start_frame_in_parent = int(
                 track.available_range().duration.value)
