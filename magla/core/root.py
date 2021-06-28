@@ -676,15 +676,12 @@ class MaglaRoot(object):
         new_user = self.__create(MaglaUser, data)
         # create default home directory for user
         machine = MaglaMachine()
-        new_directory = self.__create(
-            MaglaDirectory,
-            {
-                "machine_id": machine.id,
-                "user_id": new_user.id,
-                "label": "default",
-                "path": os.path.join(os.path.expanduser("~"), "magla")
-            }
-        )
+        new_directory = self.create(MaglaDirectory, {
+            "machine_id": machine.id,
+            "user_id": new_user.id,
+            "label": "default",
+            "path": os.path.join(os.path.expanduser("~"), "magla")
+        })
         try:
             self.__create(
                 MaglaContext,

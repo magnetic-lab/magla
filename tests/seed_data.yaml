@@ -18,12 +18,14 @@ User:
     last_name: bar
     nickname: foobar
     email: foo@bar.com
+    active: False
   - true
 - - id: 2
     first_name: fizz
     last_name: bazz
-    nickname: foobar
+    nickname: fizzbazz
     email: foo@bar.com
+    active: False
   - true
 Directory:
 - - id: 1

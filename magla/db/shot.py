@@ -1,6 +1,6 @@
 from magla.db import episode, sequence
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -17,7 +17,7 @@ class Shot(MaglaORM._Base):
     episode_id = Column(Integer, ForeignKey("episodes.id"))
     sequence_id = Column(Integer, ForeignKey("sequences.id"))
     name = Column(String)
-    otio = Column(JSON)
+    otio = Column(JSONB)
     track_index = Column(Integer)
     start_frame_in_parent = Column(Integer)
 

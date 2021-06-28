@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -15,6 +15,7 @@ class User(MaglaORM._Base):
     last_name = Column(String)
     nickname = Column(String)
     email = Column(String)
+    active = Column(Boolean)
 
     context = relationship("Context", uselist=False, back_populates="user")
     assignments = relationship("Assignment", back_populates="user")

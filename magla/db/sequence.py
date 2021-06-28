@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -15,7 +15,7 @@ class Sequence(MaglaORM._Base):
     episode_id = Column(Integer, ForeignKey("episodes.id"))
     directory_id = Column(Integer, ForeignKey("directories.id"))
     name = Column(String)
-    otio = Column(JSON)
+    otio = Column(JSONB)
 
     project = relationship("Project", uselist=False, back_populates="sequences")
     episode = relationship("Episode", uselist=False, back_populates="sequences")
