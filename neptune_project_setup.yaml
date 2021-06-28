@@ -1,0 +1,116 @@
+# Create Facility
+facilities:
+  - facility_name: test_facility
+    settings:
+      tool_install_directory_label: "{tool_version.tool.name}_{tool_version.string}"
+# Create Project
+projects:
+  - name: test_project
+    directory: "/mnt/projects/{project.name}"
+    settings:
+      project_directory_tree:
+        - shots: []
+        - audio: []
+        - preproduction:
+            - mood: []
+            - reference: []
+            - edit: []
+      frame_sequence_re: "(\\w+\\W)(\\#+)(.+)"
+      shot_directory: "{shot.project.directory.path}/shots/{shot.name}"
+      shot_directory_tree:
+        - _current:
+            - h265: []
+            - png: []
+            - webm: []
+      shot_version_directory: "{shot_version.shot.directory.path}/{shot_version.num}"
+      shot_version_directory_tree:
+        - _in:
+            - plate: []
+            - subsets: []
+        - _out:
+            - representations:
+                - exr: []
+                - png: []
+                - mov: []
+      shot_version_bookmarks:
+        png_representation: "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
+# Create 2D settings templates
+settings_2d:
+  - label: Full 4K @30FPS
+    width: 4096
+    height: 2048
+    rate: 30
+    project_id: 1
+  - label: Full 4K @60FPS
+    width: 4096
+    height: 2048
+    rate: 60
+    project_id: 1
+# Create Tool, ToolVersion, ToolVersionInstallation, FileType
+tools:
+  - tool_name: natron
+    install_dir: /opt/Natron-2.3.15
+    exe_path: /opt/Natron-2.3.15/bin/natron
+    version_string: 2.3.15
+    file_extension: .ntp
+    machine_id: 
+  - tool_name: houdini
+    install_dir: /opt/hfs18.0.532
+    exe_path: /opt/hfs18.0.532/bin/houdini
+    version_string: 18.0.532
+    file_extension: .hipnc
+  - tool_name: modo
+    install_dir: /opt/Modo14.1v1
+    exe_path: /opt/Modo14.1v1/modo
+    version_string: 14.1v1
+    file_extension: .lxo
+# Create Tool Configs
+tool_configs:
+  - project_name: test_project
+    tool_version_fullname: natron_2_3_15
+    tool_subdir: "{tool_version.full_name}"
+    bookmarks:
+      natron_2_3_15: "{shot_version.full_name}.ntp"
+    directory_tree:
+      - _in:
+        - plate: []
+        - subsets: []
+      - _out:
+        - exr: []
+        - png: []
+        - subsets: []
+  - project_name: test_project
+    tool_subdir: "{tool_version.full_name}"
+    bookmarks:
+      natron_2_3_15: "{shot_version.full_name}.ntp"
+    directory_tree:
+      - _in:
+        - subsets: []
+      - _out:
+        - subsets: []
+  - project_name: test_project
+    tool_subdir: "{tool_version.full_name}"
+    bookmarks:
+      natron_2_3_15: "{shot_version.full_name}.ntp"
+    directory_tree:
+      - _in:
+        - subsets: []
+      - _out:
+        - subsets: []
+# Create Shots
+shots:
+  - shot_name: test_shot
+    project_name: test_project
+  - shot_name: test_shot_BITCHIN
+    project_name: test_project
+# Create Users
+users:
+  - user_nickname: captain
+    user_first_name: Magla
+    user_last_name: Admin
+    user_email: jacob@magla.com
+# create assignments:
+assignments:
+  - shot_name: test_shot
+    user_nickname: captain
+  

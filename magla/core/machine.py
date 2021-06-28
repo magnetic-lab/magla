@@ -119,3 +119,7 @@ class MaglaMachine(MaglaEntity):
         """
         contexts = self.data.record.contexts or []
         return [self.from_record(c) for c in contexts]
+    
+    @staticmethod
+    def generate_uuid():
+        return str(uuid.UUID(int=uuid.getnode()))

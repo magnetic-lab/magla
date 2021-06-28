@@ -40,6 +40,10 @@ class EntityAlreadyExistsError(MaglaRootError):
     """Requested user already exists."""
 
 
+class InsufficientRequiredConfigData(MaglaRootError):
+    """User provided insuffiecient data in the config dict for creation of an entity."""
+
+
 class MaglaRoot(object):
     """Permissions-aware interface for creation and deletion within `magla`."""
 
@@ -96,7 +100,23 @@ class MaglaRoot(object):
             sys.stdout.write("\n\t{src} not found, skipping..".format(
                 src=os.path.basename(src)))
 
-    def create(self, entity, data=None, return_existing=True):
+    def create(self, entity, config, *args, **kwargs):
+        # some entities have their own compound creation methods which must be used instead
+        _compound_creators = {
+            MaglaAssignment: self.__create_assignment,
+            MaglaFacility: self.__create_facility,
+            MaglaProject: self.__create_project,
+            MaglaShot: self.__create_shot,
+            MaglaShotVersion: self.__create_shot_version,
+            MaglaTool: self.__create_tool,
+            MaglaToolConfig: self.__create_tool_config,
+            MaglaToolVersion: self.__create_tool_version
+        }
+        if entity in _compound_creators:
+            return _compound_creators[entity](config)
+        return self.__create(entity, config, *args, **kwargs)
+
+    def __create(self, entity, data=None, return_existing=True, **kwargs):
         """Wrapper for `ORM.create` with configurable return signature.
 
         Parameters
@@ -119,6 +139,8 @@ class MaglaRoot(object):
             Entity with given data already exists
         """
         data = data or {}
+        if kwargs:
+            data.update(dict(kwargs))
         data = otio_to_dict(data)
         query_result = self.orm.query(entity).filter_by(**data).first()
         if query_result:
@@ -129,7 +151,7 @@ class MaglaRoot(object):
             )
         return self.orm.create(entity, data)
 
-    def create_assignment(self, shot_id, user_id):
+    def __create_assignment(self, config):
         """Create new record for `MaglaAssignment` type.
 
         Parameters
@@ -146,13 +168,16 @@ class MaglaRoot(object):
             `MaglaAssignment` object populated with newly created backend data
         """
         shot_version_id = MaglaShot(
-            id=shot_id).version_up(self.version_up).id
-        return self.create(MaglaAssignment, {
-            "shot_version_id": shot_version_id,
-            "user_id": user_id
-        })
+            id=config.get("shot_id")).version_up(self.version_up).id
+        return self.__create(
+            MaglaAssignment,
+            {
+                "shot_version_id": shot_version_id,
+                "user_id": config.get("user_id")
+            }
+        )
 
-    def create_facility(self, data, **kwargs):
+    def __create_facility(self, config):
         """Create record for new `MaglaFacility` type.
 
         Parameters
@@ -165,10 +190,8 @@ class MaglaRoot(object):
         magla.core.facility.Facility
             `MaglaFacility` object populated with newly created backend data
         """
-        if isinstance(data, str):
-            data = {"name": data}
-        data.update(kwargs)
-        return self.create(MaglaFacility, data)
+        # del config["tool_install_directory_label"]
+        return self.__create(MaglaFacility, config)
 
     def create_from_seed_data(self, seed_data_path):
         seed_data = MaglaConfig(seed_data_path).load()
@@ -177,31 +200,30 @@ class MaglaRoot(object):
                 seed_dict, expected_ressult = seed_tuple
                 model = self.orm.get_model(type_)
                 entity = MaglaEntity.type(type_)
-                self.create(entity, seed_dict)
+                self.__create(entity, seed_dict)
         return seed_data
 
-    def create_machine(self, facility_id):
-        """Create record for new `MaglaMachine` type.
+    def create_from_config(self, config_path):
+        _map = {
+            "facilities": self.__create_facility,
+            "projects": self.__create_project,
+            "settings_2d": self.create,
+            "tools": self.__create_tool,
+            "shots": self.__create_shot,
+            "users": self.create,
+            "assignments": self.__create_assignment
+        }
+        config = MaglaConfig(config_path)
+        for type_, data_list in config.load().items():
+            f = _map[type_]
+            for data_dict in data_list:
+                f(data_dict=data_dict)
+        return config.load()
 
-        Parameters
-        ----------
-        facility_id : int
-            The `id` of the `MaglaFacility` this machine belongs to.
-
-        Returns
-        -------
-        magla.core.machine.MaglaMachine
-            `MaglaMachine` object populated with newly created backend data
-        """
-        return self.create(MaglaMachine, {
-            "uuid": write_machine_uuid(),
-            "facility_id": MaglaFacility(id=facility_id).data.id
-        })
-
-    def create_project(self, project_name, project_path, settings, **kwargs):
+    def __create_project(self, config):
         """Create record for new `MaglaProject and associated types.
 
-        associated types created:
+        sub-entities created:
             - `MaglaTimeline`
             - `MaglaDirectory`
 
@@ -209,8 +231,6 @@ class MaglaRoot(object):
         ----------
         project_name : str
             Name for new project
-        project_path : str
-            Path (on server) to the project's directory
         settings : dict
             A dictionary of settings (see 'example.py')
 
@@ -219,28 +239,33 @@ class MaglaRoot(object):
         magla.core.project.MaglaProject
             `MaglaProject` object populated with newly created backend data
         """
-        data = {
-            "name": project_name,
-            "settings": settings
-        }
-        data.update(dict(kwargs))
         # create `projects` entry
-        new_project = self.create(MaglaProject, data)
+        new_project = self.__create(
+            MaglaProject,
+            {
+                "name": config.get("name"),
+                "settings": config.get("settings")
+            }
+        )
         # create `timelines` entry
-        new_timeline = self.create(MaglaTimeline, {
-            "label": "Timeline for `project_id`: {0}".format(new_project.id),
-            "otio": otio.schema.Timeline(name=new_project.name)
-        })
+        new_timeline = self.__create(
+            MaglaTimeline,
+            {
+                "label": "Timeline for `project_id`: {0}".format(new_project.id),
+                "otio": otio.schema.Timeline(name=new_project.name)
+            }
+        )
         # set project's `timeline_id` relationship
         new_project.data.timeline_id = new_timeline.id
-        # generate the `shot_version` path from `custom_project_settings`
-        project_settings_project_dir = new_project.settings["project_directory"]
         # create `directories` entry
-        new_directory = self.create(MaglaDirectory, {
-            "path": project_path or project_settings_project_dir.format(project=new_project),
-            "tree": settings.get("project_directory_tree", []),
-            "machine_id": MaglaMachine().id
-        })
+        new_directory = self.__create(
+            MaglaDirectory,
+            {
+                "path": config.get("settings").get("project_directory").format(project=new_project),
+                "tree": config.get("settings").get("project_directory_tree", []),
+                "machine_id": config.get("machine_id", MaglaMachine().id)
+            }
+        )
         # set project's `directory_id` relationship
         new_project.data.directory_id = new_directory.id
         # push changes to DB
@@ -249,10 +274,10 @@ class MaglaRoot(object):
         new_project.directory.make_tree()
         return new_project
 
-    def create_shot(self, project_id, name, machine_id=None):
+    def __create_shot(self, config):
         """Create record for new `MaglaShot` and associated types.
 
-        associated types created:
+        sub-entities created:
             - `MaglaDirectory`
             - `MaglaShotVersion`
 
@@ -268,37 +293,55 @@ class MaglaRoot(object):
         magla.core.shot.MaglaShot
             `MaglaShot` object populated with newly created backend data
         """
-        project = MaglaProject(id=project_id)
+        if "project_id" in config:
+            project = MaglaProject(id=config.get("project_id"))
+        elif "project_name" in config:
+            project = MaglaProject(name=config.get("project_name"))
+        else:
+            raise InsufficientRequiredConfigData(
+                "No valid 'project_id' or 'project_name' given.")
+
         try:
-            new_shot = MaglaShot(name=name)
+            new_shot = MaglaShot(name=config.get("name"))
         except NoRecordFoundError:
             pass
         finally:
-            new_shot = new_shot = self.create(MaglaShot, {
-                "project_id": project.id,
-                "name": name,
-                "otio": otio_to_dict(otio.schema.Clip(name=name))
-            })
+            new_shot = self.__create(
+                MaglaShot,
+                {
+                    "project_id": project.id,
+                    "name": config.get("name"),
+                    "otio": otio_to_dict(otio.schema.Clip(name=config.get("name")))
+                }
+            )
             # generate the `shot` path from `custom_project_settings`
             project_settings_shot_dir = new_shot.project.settings["shot_directory"]
-            new_directory = self.create(MaglaDirectory, {
-                "path": project_settings_shot_dir.format(shot=new_shot),
-                "tree": project.settings.get("shot_directory_tree", []),
-                "machine_id": MaglaMachine(machine_id).id
-            })
+            new_directory = self.__create(
+                MaglaDirectory,
+                {
+                    "path": project_settings_shot_dir.format(shot=new_shot),
+                    "tree": project.settings.get("shot_directory_tree", []),
+                    "machine_id": MaglaMachine().id
+                }
+            )
             new_shot.data.directory_id = new_directory.id
             new_shot.data.push()
         # do not use len(new_shot.versions) - too slow!
         if new_shot.latest_num < 1:
             # create initial template version 0
-            self.create_shot_version(new_shot, 0)
+            self.__create_shot_version(
+                {
+                    "shot_id": new_shot.id,
+                    "num": 0
+                }
+            )
         new_shot.directory.make_tree()
         return new_shot
 
-    def create_shot_version(self, shot, num):
+    def __create_shot_version(self, config):
         """Create record for new `MaglaShotVersion` and associated types.
 
-        associated types created:
+        sub-entities created:
             - `MaglaDirectory`
 
         Parameters
@@ -313,10 +356,17 @@ class MaglaRoot(object):
         magla.core.shot_version.MaglaShotVersion
             `MaglaShotVersion` object populated with newly created backend data
         """
+        if "shot_id" in config:
+            shot = MaglaShot(id=config.get("shot_id"))
+        elif "shot_name" in config:
+            shot = MaglaShot(name=config.get("shot_name"))
+        else:
+            raise InsufficientRequiredConfigData(
+                "No valid 'shot_id' or 'shot_name' given.")
         # create new shot version
-        new_shot_version = self.create(MaglaShotVersion, {
+        new_shot_version = self.__create(MaglaShotVersion, {
             "shot_id": shot.id,
-            "num": num
+            "num": config.get("num", shot.latest_num+1)
         })
 
         # First we must retrieve and append all tool subtree information for current `Project`
@@ -337,13 +387,16 @@ class MaglaRoot(object):
         # apply `ToolConfig` trees
         # for tool_config in shot.project.tool_configs:
         # then create a `Directory` record
-        new_directory = self.create(MaglaDirectory, {
-            "path": shot.project.settings["shot_version_directory"].format(
-                shot_version=new_shot_version),
-            "machine_id": MaglaMachine().id,
-            "tree": tree,
-            "bookmarks": bookmarks
-        })
+        new_directory = self.__create(
+            MaglaDirectory,
+            {
+                "path": shot.project.settings["shot_version_directory"].format(
+                    shot_version=new_shot_version),
+                "machine_id": MaglaMachine().id,
+                "tree": tree,
+                "bookmarks": bookmarks
+            }
+        )
         new_shot_version.data.directory_id = new_directory.id
         # TODO: need to streamline data pushing, this is too many pushes
         new_shot_version.data.push()
@@ -381,17 +434,10 @@ class MaglaRoot(object):
         new_shot_version.directory.make_tree()
         return new_shot_version
 
-    def create_tool(
-            self,
-            tool_name,
-            install_dir,
-            exe_path,
-            version_string,
-            file_extension,
-            machine_id=None):
+    def __create_tool(self, config):
         """Create record for new `MaglaTool`and associated types.
 
-        associated types created:
+        sub-entities created:
             - `MaglaToolVersion`
             - `MaglaToolVersionInstallation`
             - `MaglaDirectory`
@@ -418,58 +464,63 @@ class MaglaRoot(object):
         """
         # check if given `tool_name` already exists
         try:
-            tool_obj = MaglaTool(name=tool_name)
+            tool_obj = MaglaTool(name=config.get("name"))
             tool_id = tool_obj.data.id
         except NoRecordFoundError:
-            tool_id = self.create(MaglaTool, {
-                "name": tool_name
-            }).data.id
+            _tool = self.__create(
+                MaglaTool,
+                {
+                    "name": config.get("name")
+                }
+            )
+            tool_id = _tool.data.id
 
         # check if a `tool_versions` record already exists for given `version_string`
         try:
             tool_version = MaglaToolVersion(
-                string=version_string, tool_id=tool_id)
+                string=config.get("version_string"), tool_id=tool_id)
         except NoRecordFoundError:
-            tool_version = self.create(MaglaToolVersion, {
-                "string": version_string,
-                "tool_id": tool_id,
-                "file_extension": file_extension
-            })
+            tool_version = self.__create_tool_version(
+                {
+                    "string": config.get("version_string"),
+                    "tool_id": tool_id,
+                    "file_extension": config.get("file_extension")
+                }
+            )
 
         # check if a `tool_version_installations` record already exists for given `install_dir`
         try:
             tool_version_installation = MaglaToolVersionInstallation(
-                directory_id=MaglaDirectory(machine_id=MaglaMachine().id, path=install_dir).id)
+                directory_id=MaglaDirectory(machine_id=MaglaMachine().id, path=config.get("install_dir")).id)
         except NoRecordFoundError:
-            if machine_id:
-                machine = MaglaMachine(id=machine_id)
+            if config.get("machine_id"):
+                machine = MaglaMachine(id=config.get("machine_id"))
             else:
                 machine = MaglaMachine()
             # create/retrieve a MaglaDirectory object required for record creation
-            install_directory = self.create(MaglaDirectory, {
-                "path": install_dir,
-                "machine_id": machine.id,
-                "label": machine.facility.settings["tool_install_directory_label"].format(
-                    tool_version=tool_version),
-                "bookmarks": {
-                    "exe": exe_path
+            install_directory = self.__create(
+                MaglaDirectory,
+                {
+                    "path": config.get("install_dir", os.getenv("MAGLA_TOOL_INSTALL_DIR")),
+                    "machine_id": machine.id,
+                    "label": machine.facility.settings["tool_install_directory_label"].format(
+                        tool_version=tool_version),
+                    "bookmarks": {
+                        "exe": config.get("exe_path")
+                    }
                 }
-            })
-            tool_version_installation = self.create(MaglaToolVersionInstallation, {
-                "tool_version_id": tool_version.id,
-                "directory_id": install_directory.id
-            })
+            )
+            # create tool version installation record
+            self.__create(
+                MaglaToolVersionInstallation,
+                {
+                    "tool_version_id": tool_version.id,
+                    "directory_id": install_directory.id
+                }
+            )
         return tool_version
 
-    def create_tool_config(
-            self,
-            tool_version_id,
-            project_id,
-            machine_id=None,
-            tool_subdir=None,
-            directory_tree=None,
-            bookmarks=None,
-            **kwargs):
+    def __create_tool_config(self, config):
         """Create new record for `MaglaToolConfig` type.
 
         Parameters
@@ -513,79 +564,101 @@ class MaglaRoot(object):
         magla.core.tool_config.ToolConfig
             `ToolConfig` object populated with newly created backend data
         """
-        directory_tree = directory_tree or []
-        project = MaglaProject(id=project_id)
-        tool_version = MaglaToolVersion(id=tool_version_id)
-        tool_subdir = tool_subdir or "{tool_version.full_name}"
+        # validate
+        if "project_id" in config:
+            project = MaglaProject(id=config.get("project_id"))
+        elif "project_name" in config:
+            project = MaglaProject(name=config.get("project_name"))
+        else:
+            raise InsufficientRequiredConfigData(
+                "No valid 'project_id' or 'project_name' given.")
+        if "tool_version_id" in config:
+            tool_version = MaglaToolVersion(id=config.get("tool_version_id"))
+        elif "tool_version_full_name" in config:
+            tool_version = MaglaToolVersion(
+                full_name=config.get("tool_version_full_name"))
+        else:
+            raise InsufficientRequiredConfigData(
+                "No valid 'tool_version_id' or 'tool_version_full_name' given.")
 
+        directory_tree = config.get("directory_tree", [])
+        tool_subdir = config.get("tool_subdir", "{tool_version.full_name}")
         # format the `ToolConfig` tool-specific bookmark keys
         formatted_keys_dict = {}
-        for key, val in bookmarks.items():
+        for key, val in config.get("bookmarks", {}).items():
             formatted_keys_dict[key.format(tool_version=tool_version)] = val
         bookmarks = formatted_keys_dict
-
         # create MaglaDirectory for the tool's shot_version subdirectory
         tool_subdir_abspath = os.path.join(
             project.settings["shot_version_directory"],
             tool_subdir.format(tool_version=tool_version, project=project))
-        directory = self.create(MaglaDirectory, {
-            "machine_id": machine_id or MaglaMachine().id,
-            "label": "{tool_version.full_name} subdirectory.".format(
-                tool_version=tool_version),
-            "path": tool_subdir_abspath,
-            "tree": directory_tree,
-            "bookmarks": bookmarks
-        })
-        data = {
-            "tool_version_id": tool_version_id,
-            "project_id": project_id,
-            "directory_id": directory.id
-        }
-        data.update(dict(kwargs))
-        return self.create(MaglaToolConfig, data)
+        directory = self.__create(
+            MaglaDirectory,
+            {
+                "machine_id": MaglaMachine().id,
+                "label": "{tool_version.full_name} subdirectory.".format(
+                    tool_version=tool_version),
+                "path": tool_subdir_abspath,
+                "tree": directory_tree,
+                "bookmarks": bookmarks
+            }
+        )
+        return self.__create(
+            MaglaToolConfig,
+            {
+                "tool_version_id": tool_version.id,
+                "project_id": project.id,
+                "directory_id": directory.id
+            }
+        )
 
-    def create_tool_version(self,
-                            tool_id,
-                            version_string,
-                            install_dir,
-                            exe_path,
-                            machine_id=None,
-                            file_extension=None):
-        machine_id = machine_id or MaglaMachine().id
+    def __create_tool_version(self, config):
+        machine_id = MaglaMachine().id
         # check if a `tool_versions` record already exists for given `version_string`
         try:
             tool_version = MaglaToolVersion(
-                string=version_string, tool_id=tool_id)
+                string=config.get("version_string"), tool_id=config.get("tool_id"))
         except NoRecordFoundError:
-            tool_version = self.create(MaglaToolVersion, {
-                "string": version_string,
-                "tool_id": tool_id,
-                "file_extension": file_extension or MaglaTool(id=tool_id).latest.file_extension,
-            })
+            tool_version = self.__create(
+                MaglaToolVersion,
+                {
+                    "string": config.get("version_string"),
+                    "tool_id": config.get("tool_id"),
+                    "file_extension": config.get("file_extension")
+                    or MaglaTool(id=config.get("tool_id")).latest.file_extension,
+                }
+            )
         # check if a `tool_version_installations` record already exists for given `install_dir`
         try:
             tool_version_installation = MaglaToolVersionInstallation(
-                directory_id=MaglaDirectory(machine_id=machine_id, path=install_dir).id)
+                directory_id=MaglaDirectory(
+                    machine_id=machine_id, path=config.get("install_dir")).id)
         except NoRecordFoundError:
             machine = MaglaMachine(id=machine_id)
             # create/retrieve a MaglaDirectory object required for record creation
-            install_directory = self.create(MaglaDirectory, {
-                "path": install_dir,
-                "machine_id": machine.id,
-                "label": machine.facility.settings["tool_install_directory_label"].format(
-                    tool_version=tool_version),
-                "bookmarks": {
-                    "exe": exe_path
+            install_directory = self.__create(
+                MaglaDirectory,
+                {
+                    "path": config.get("install_dir"),
+                    "machine_id": machine.id,
+                    "label": machine.facility.settings["tool_install_directory_label"].format(
+                        tool_version=tool_version),
+                    "bookmarks": {
+                        "exe": config.get("exe_path")
+                    }
                 }
-            })
-            tool_version_installation = self.create(MaglaToolVersionInstallation, {
-                "tool_version_id": tool_version.id,
-                "directory_id": install_directory.id
-            })
+            )
+            tool_version_installation = self.__create(
+                MaglaToolVersionInstallation,
+                {
+                    "tool_version_id": tool_version.id,
+                    "directory_id": install_directory.id
+                }
+            )
 
         return tool_version
 
-    def create_user(self, data):
+    def __create_user(self, data):
         """Create new record for `MaglaUser` type.
 
         Parameters
@@ -600,20 +673,26 @@ class MaglaRoot(object):
         """
         if isinstance(data, str):
             data = {"nickname": data}
-        new_user = self.create(MaglaUser, data)
+        new_user = self.__create(MaglaUser, data)
         # create default home directory for user
         machine = MaglaMachine()
-        new_directory = self.create(MaglaDirectory, {
-            "machine_id": machine.id,
-            "user_id": new_user.id,
-            "label": "default",
-            "path": os.path.join(os.path.expanduser("~"), "magla")
-        })
+        new_directory = self.__create(
+            MaglaDirectory,
+            {
+                "machine_id": machine.id,
+                "user_id": new_user.id,
+                "label": "default",
+                "path": os.path.join(os.path.expanduser("~"), "magla")
+            }
+        )
         try:
-            self.create(MaglaContext, {
-                "id": new_user.id,
-                "machine_id": machine.id
-            })
+            self.__create(
+                MaglaContext,
+                {
+                    "id": new_user.id,
+                    "machine_id": machine.id
+                }
+            )
         except EntityAlreadyExistsError:
             pass
         return new_user
@@ -637,7 +716,12 @@ class MaglaRoot(object):
         """
         shot = MaglaShot(id=shot_id)
         prev_shot_version = shot.version(num-1)
-        new_shot_version = self.create_shot_version(shot, num)
+        new_shot_version = self.__create_shot_version(
+            {
+                "shot_id": shot_id,
+                "num": num
+            }
+        )
         sys.stdout.write("\n{shot_version.project.name} shot {shot_version.shot.name} v{shot_version.num:03d} created successfully.".format(
             shot_version=new_shot_version))
         sys.stdout.write("\nCopying bookmarks...")
@@ -700,5 +784,3 @@ class MaglaRoot(object):
     def delete_assignment(self, data=None, **kwargs):
         assignment = MaglaAssignment(data or dict(kwargs))
         self.delete(assignment.data.record)
-
-
