@@ -33,7 +33,7 @@ def get_machine_uuid(path=None):
     """
     machine_config = configparser.ConfigParser()
     machine_ini = path or os.path.join(
-        os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini")
+        os.getenv("MAGLA_MACHINE_CONFIG_DIR"), "machine.ini")
     if not os.path.isfile(machine_ini):
         raise MachineConfigNotFoundError(machine_ini)
     machine_config.read(machine_ini)

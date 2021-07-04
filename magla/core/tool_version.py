@@ -3,12 +3,7 @@
 
 TODO: Implement `MaglaExtension` object/records to replace the `file_extension` property
 """
-import getpass
-import logging
-import os
-
 from ..db.tool_version import ToolVersion
-from .data import MaglaData
 from .entity import MaglaEntity
 from .errors import MaglaError
 
@@ -32,7 +27,7 @@ class MaglaToolVersion(MaglaEntity):
         super(MaglaToolVersion, self).__init__(data or dict(kwargs))
 
     def __repr__(self):
-        return "<ToolVersion {this.id}: file_extension={this.file_extension}, string={this.string}, tool={this.tool}>".format(this=self)
+        return "<ToolVersion {this.id}: file_extension={this.file_extension}, vstring={this.vstring}, tool={this.tool}>".format(this=self)
 
     def __str__(self):
         return self.__repr__()
@@ -49,7 +44,7 @@ class MaglaToolVersion(MaglaEntity):
         return self.data.id
 
     @property
-    def string(self):
+    def vstring(self):
         """Retrieve string from data.
 
         Returns
@@ -57,7 +52,7 @@ class MaglaToolVersion(MaglaEntity):
         str
             The version-string representation of this tool version
         """
-        return self.data.string
+        return self.data.vstring
 
     @property
     def file_extension(self):
@@ -108,7 +103,7 @@ class MaglaToolVersion(MaglaEntity):
 
     # MaglaToolVersion-specific methods ____________________________________________________________
     @property
-    def full_name(self):
+    def fullname(self):
         """Generate a name for this tool-version using the shot name and version number.
 
         Returns
@@ -116,7 +111,7 @@ class MaglaToolVersion(MaglaEntity):
         str
             'shot_name_vXXX'
         """
-        return "{this.tool.name}_{this.string}".format(this=self)
+        return "{this.tool.name}_{this.vstring}".format(this=self)
 
     def installation(self, machine_id):
         """Retrieve a specific installation of this tool on the given machine
@@ -141,3 +136,9 @@ class MaglaToolVersion(MaglaEntity):
 
     def start(self):
         self.tool.start(self.id)
+
+    @classmethod
+    def from_fullname(cls, fullname):
+        tool_name, tool_version_string = fullname.split("-")
+        Tool = cls.type("Tool")
+        return cls(tool_id=Tool(name=tool_name).id, vstring=tool_version_string)

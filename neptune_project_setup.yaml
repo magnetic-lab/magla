@@ -1,10 +1,27 @@
 # Create Facility
-facilities:
-  - facility_name: test_facility
+Facility:
+  - name: test_facility
     settings:
-      tool_install_directory_label: "{tool_version.tool.name}_{tool_version.string}"
+      tool_install_directory_label: "{tool_version.tool.name}_{tool_version.vstring}"
+# Create Tool, ToolVersion, ToolVersionInstallation, FileType
+Tool:
+  - name: natron
+    install_dir: /opt/Natron-2.3.15
+    exe_path: /opt/Natron-2.3.15/bin/natron
+    vstring: 2.3.15
+    file_extension: .ntp
+  - name: houdini
+    install_dir: /opt/hfs18.0.532
+    exe_path: /opt/hfs18.0.532/bin/houdini
+    vstring: 18.0.532
+    file_extension: .hipnc
+  - name: modo
+    install_dir: /opt/Modo14.1v1
+    exe_path: /opt/Modo14.1v1/modo
+    vstring: 14.1v1
+    file_extension: .lxo
 # Create Project
-projects:
+Project:
   - name: test_project
     directory: "/mnt/projects/{project.name}"
     settings:
@@ -33,9 +50,9 @@ projects:
                 - png: []
                 - mov: []
       shot_version_bookmarks:
-        png_representation: "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
+        png_representation: "representations/png_sequence/_out/png/{shot_version.fullname}.####.png"
 # Create 2D settings templates
-settings_2d:
+Settings2D:
   - label: Full 4K @30FPS
     width: 4096
     height: 2048
@@ -45,32 +62,13 @@ settings_2d:
     width: 4096
     height: 2048
     rate: 60
-    project_id: 1
-# Create Tool, ToolVersion, ToolVersionInstallation, FileType
-tools:
-  - tool_name: natron
-    install_dir: /opt/Natron-2.3.15
-    exe_path: /opt/Natron-2.3.15/bin/natron
-    version_string: 2.3.15
-    file_extension: .ntp
-    machine_id: 
-  - tool_name: houdini
-    install_dir: /opt/hfs18.0.532
-    exe_path: /opt/hfs18.0.532/bin/houdini
-    version_string: 18.0.532
-    file_extension: .hipnc
-  - tool_name: modo
-    install_dir: /opt/Modo14.1v1
-    exe_path: /opt/Modo14.1v1/modo
-    version_string: 14.1v1
-    file_extension: .lxo
 # Create Tool Configs
-tool_configs:
+ToolConfig:
   - project_name: test_project
-    tool_version_fullname: natron_2_3_15
-    tool_subdir: "{tool_version.full_name}"
+    tool_version_fullname: natron-2.3.15
+    tool_subdir: "{tool_version.fullname}"
     bookmarks:
-      natron_2_3_15: "{shot_version.full_name}.ntp"
+      natron_2_3_15: "{shot_version.fullname}.ntp"
     directory_tree:
       - _in:
         - plate: []
@@ -79,38 +77,20 @@ tool_configs:
         - exr: []
         - png: []
         - subsets: []
-  - project_name: test_project
-    tool_subdir: "{tool_version.full_name}"
-    bookmarks:
-      natron_2_3_15: "{shot_version.full_name}.ntp"
-    directory_tree:
-      - _in:
-        - subsets: []
-      - _out:
-        - subsets: []
-  - project_name: test_project
-    tool_subdir: "{tool_version.full_name}"
-    bookmarks:
-      natron_2_3_15: "{shot_version.full_name}.ntp"
-    directory_tree:
-      - _in:
-        - subsets: []
-      - _out:
-        - subsets: []
 # Create Shots
-shots:
-  - shot_name: test_shot
+Shot:
+  - name: test_shot
     project_name: test_project
-  - shot_name: test_shot_BITCHIN
+  - name: test_shot_BITCHIN
     project_name: test_project
 # Create Users
-users:
-  - user_nickname: captain
-    user_first_name: Magla
-    user_last_name: Admin
-    user_email: jacob@magla.com
+User:
+  - nickname: captain
+    first_name: Magla
+    last_name: Admin
+    email: jacob@magla.com
 # create assignments:
-assignments:
-  - shot_name: test_shot
+Assignment:
+  - shot_id: 1
     user_nickname: captain
   

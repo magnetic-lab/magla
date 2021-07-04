@@ -10,7 +10,7 @@ the current MAC address. Keep in mind this method is not 100% reliable but more 
 import uuid
 
 from ..db.machine import Machine
-from ..utils import get_machine_uuid
+from ..utils import generate_machine_uuid, get_machine_uuid, write_machine_uuid
 from .entity import MaglaEntity
 from .errors import MaglaError
 
@@ -31,10 +31,9 @@ class MaglaMachine(MaglaEntity):
         data : dict
             Data to query for matching backend record
         """
-        if not data and not kwargs:
-            data = {"uuid": get_machine_uuid()}
-        elif isinstance(data, uuid.UUID) or isinstance(data, str):
-            data = {"uuid": str(data)}
+        data = data or {}
+        if not data or (isinstance(data, dict) and "uuid" not in data):
+            data["uuid"] = get_machine_uuid() or self.reset_local_uuid()
         super(MaglaMachine, self).__init__(data or dict(kwargs))
 
     @property
@@ -123,3 +122,11 @@ class MaglaMachine(MaglaEntity):
     @staticmethod
     def generate_uuid():
         return str(uuid.UUID(int=uuid.getnode()))
+
+    @staticmethod
+    def get_local_uuid():
+        return get_machine_uuid()
+    
+    @staticmethod
+    def reset_local_uuid(uuid=None):
+        return write_machine_uuid(uuid or generate_machine_uuid())

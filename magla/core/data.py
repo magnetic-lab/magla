@@ -253,7 +253,9 @@ class MaglaData(CustomDict):
         record = self.session.query(self._schema).filter_by(**query_dict).first()
         if not record:
             raise NoRecordFoundError(
-                "No record found for: {}".format(query_dict))
+                "No record found for: {schema} {query_dict}".format(
+                    schema=self._schema,
+                    query_dict=query_dict))
         # apply to current state
         self.__record = record
         backend_data = record_to_dict(record, otio_as_dict=False)

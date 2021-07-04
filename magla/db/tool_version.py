@@ -10,7 +10,7 @@ class ToolVersion(MaglaORM._Base):
     __entity_name__ = "ToolVersion"
 
     id = Column(Integer, primary_key=True)
-    string = Column(String)
+    vstring = Column(String)
     tool_id = Column(Integer, ForeignKey("tools.id"))
     file_types_id = Column(Integer, ForeignKey("file_types.id"))
     file_extension = Column(String)

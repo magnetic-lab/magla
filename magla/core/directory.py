@@ -92,7 +92,7 @@ class MaglaDirectory(MaglaEntity):
         super(MaglaDirectory, self).__init__(data or dict(kwargs))
 
     def __repr__(self):
-        return self.path
+        return str(self.path)
 
     def __str__(self):
         return self.__repr__()

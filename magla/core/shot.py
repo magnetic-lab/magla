@@ -221,7 +221,7 @@ class MaglaShot(MaglaEntity):
         magla.core.shot_version.MaglaShotVersion
             The newly created `MaglaShotVersion` object
         """
-        new_version = magla_root_callback(self.id, self.latest_num + 1)
+        new_version = magla_root_callback(self.id)
         return new_version
 
     def set_media_reference(self, shot_version):

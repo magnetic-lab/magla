@@ -25,7 +25,7 @@ class MaglaShotVersion(MaglaEntity):
         super(MaglaShotVersion, self).__init__(data or dict(kwargs))
 
     def __repr__(self):
-        return "<ShotVersion {this.id}: directory={this.directory}, full_name={this.full_name}>". \
+        return "<ShotVersion {this.id}: directory={this.directory}, fullname={this.fullname}>". \
             format(this=self)
 
     def __str__(self):
@@ -136,7 +136,7 @@ class MaglaShotVersion(MaglaEntity):
             version_num=self.num)
 
     @property
-    def full_name(self):
+    def fullname(self):
         """Generate a name prepended with project name.
 
         Returns
