@@ -44,7 +44,7 @@ class TestUtils:
             
     def test_can_generate_machine_uuid(self):
         uuid_ = utils.generate_machine_uuid()
-        assert isinstance(uuid_, uuid.UUID) and len(str(uuid_)) == 36
+        assert isinstance(uuid_, str) and len(str(uuid_)) == 36
     
     def test_can_write_machine_uuid(self):
         temp_machine_config_dir = os.path.join(tempfile.gettempdir(), "temp_machine_config")

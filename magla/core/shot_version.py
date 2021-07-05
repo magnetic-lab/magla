@@ -131,6 +131,7 @@ class MaglaShotVersion(MaglaEntity):
         str
             Name of the shot combined with the version number
         """
+        # TODO: make num padding configurable
         return "{shot_name}_v{version_num:03d}".format(
             shot_name=self.shot.name,
             version_num=self.num)

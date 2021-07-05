@@ -1,16 +1,12 @@
 """Testing for `magla.core.assignment`"""
-import random
-import string
-
 import pytest
 from magla.core.assignment import MaglaAssignment
 from magla.test import MaglaEntityTestFixture
-from magla.utils import random_string
 
 
 class TestAssignment(MaglaEntityTestFixture):
 
-    _repr_string = "<Assignment {this.id}: shot_version=<ShotVersion {this.shot_version.id}: directory={this.shot_version.directory}, full_name={this.shot_version.full_name}>, user=<User {this.user.id}: email={this.user.email}, first_name={this.user.first_name}, last_name={this.user.last_name}, nickname={this.user.nickname}>>"
+    _repr_string = "<Assignment {this.id}: shot_version=<ShotVersion {this.shot_version.id}: directory={this.shot_version.directory}, fullname={this.shot_version.fullname}>, user=<User {this.user.id}: active={this.user.active}, email={this.user.email}, first_name={this.user.first_name}, last_name={this.user.last_name}, nickname={this.user.nickname}>>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("Assignment"))
     def seed_assignment(self, request, entity_test_fixture):

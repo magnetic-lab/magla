@@ -141,3 +141,4 @@ class MaglaEntityTestFixture(MaglaTestFixture):
         magla_subentity.data.update(reset_data)
         magla_subentity.data.push()
         magla_subentity.data.pull()
+        return magla_subentity

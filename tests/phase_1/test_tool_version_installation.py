@@ -6,7 +6,7 @@ from magla.test import MaglaEntityTestFixture
 
 class TestToolVersionInstallation(MaglaEntityTestFixture):
     
-    _repr_string = "<ToolVersionInstallation {this.id}: directory={this.directory}, tool_version={this.tool_version.string}>"
+    _repr_string = "<ToolVersionInstallation {this.id}: directory={this.directory}, tool_version={this.tool_version.vstring}>"
     
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ToolVersionInstallation"))
     def seed_tool_version_installation(self, request, entity_test_fixture):

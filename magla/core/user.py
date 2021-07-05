@@ -40,6 +40,17 @@ class MaglaUser(MaglaEntity, FlaskLoginUser):
             Postgres column id
         """
         return self.data.id
+    
+    @property
+    def active(self):
+        """Retrieve 'active' status from data
+
+        Returns
+        -------
+        bool
+            whether user is active or not
+        """
+        return self.data.active
 
     @property
     def nickname(self):

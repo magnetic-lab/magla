@@ -3,12 +3,12 @@ Facility:
 - - id: 1
     name: test_facility
     settings:
-      tool_install_directory_label: "{tool_version.tool.name}_{tool_version.string}"
+      tool_install_directory_label: "{tool_version.tool.name}_{tool_version.vstring}"
   - true
 Machine:
 - - id: 1
     facility_id: 1
-    uuid: 00000000-0000-0000-0000-7946f8ba868d
+    uuid: 00000000-0000-0000-0000-ebc7c8696dd6
     name: test_machine
     ip_address: null
   - true
@@ -204,7 +204,7 @@ Project:
           - png: []
           - mov: []
       shot_version_bookmarks:
-        png_representation: representations/png_sequence/_out/png/{shot_version.full_name}.####.png
+        png_representation: representations/png_sequence/_out/png/{shot_version.fullname}.####.png
   - true
 Settings2D:
 - - id: 1
@@ -307,11 +307,11 @@ Context:
   - true
 - - id: 2
     machine_id: 1
-    assignment_id: 1
+    assignment_id: null
   - true
 ToolVersion:
 - - id: 1
-    string: 2.3.15
+    vstring: 2.3.15
     tool_id: 1
     file_extension: ""
     file_types_id: null

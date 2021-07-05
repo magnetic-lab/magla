@@ -76,7 +76,7 @@ class MaglaProject(MaglaEntity):
                             }]
                         }],
                 "shot_version_bookmarks": {
-                    "png_representation": "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
+                    "png_representation": "representations/png_sequence/_out/png/{shot_version.fullname}.####.png"
                 }
             },
             settings_2d_id=settings_2d.id
@@ -85,7 +85,7 @@ class MaglaProject(MaglaEntity):
 
     Notice the use of string-formatting tokens in some of the strings. For now the above token
     variable-injection must be followed - so a token varibale starting with for example,
-    'shot_version.full_name' means a `MaglaShotVersion` object will be injected for that setting.
+    'shot_version.fullname' means a `MaglaShotVersion` object will be injected for that setting.
 
     `opentimelineio` data:
     --------------------------------------------

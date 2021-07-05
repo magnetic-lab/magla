@@ -10,7 +10,7 @@ from magla.utils import random_string
 
 class TestToolVersion(MaglaEntityTestFixture):
     
-    _repr_string = "<ToolVersion {this.id}: file_extension={this.file_extension}, string={this.string}, tool={this.tool}>"
+    _repr_string = "<ToolVersion {this.id}: file_extension={this.file_extension}, vstring={this.vstring}, tool={this.tool}>"
 
     @pytest.fixture(scope="class", params=MaglaEntityTestFixture.seed_data("ToolVersion"))
     def seed_tool_version(self, request, entity_test_fixture):
@@ -19,9 +19,9 @@ class TestToolVersion(MaglaEntityTestFixture):
 
     def test_can_update_string(self, seed_tool_version):
         random_tool_version_string = random_string(string.ascii_letters, 6)
-        seed_tool_version.data.string = random_tool_version_string
+        seed_tool_version.data.vstring = random_tool_version_string
         seed_tool_version.data.push()
-        tool_version_string = MaglaToolVersion(id=seed_tool_version.id).string
+        tool_version_string = MaglaToolVersion(id=seed_tool_version.id).vstring
         self.reset(seed_tool_version)
         assert tool_version_string == random_tool_version_string
 
@@ -45,9 +45,9 @@ class TestToolVersion(MaglaEntityTestFixture):
         # TODO: should this test check the directories' data too?
         assert seed_tool_version.installations
 
-    def test_can_generate_full_name(self, seed_tool_version):
-        assert seed_tool_version.full_name == "{}_{}".format(
-            seed_tool_version.tool.name, seed_tool_version.string)
+    def test_can_generate_fullname(self, seed_tool_version):
+        assert seed_tool_version.fullname == "{}_{}".format(
+            seed_tool_version.tool.name, seed_tool_version.vstring)
 
     def test_object_string_repr(self, seed_tool_version):
         assert str(seed_tool_version) == self._repr_string.format(

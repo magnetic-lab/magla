@@ -69,8 +69,8 @@ class TestShot(MaglaEntityTestFixture):
         from_seed_data = self.get_seed_data("ShotVersion", seed_shot.versions[0].id-1)
         assert backend_data == from_seed_data
     
-    def test_can_generate_full_name(self, seed_shot):
-        assert seed_shot.full_name == "{}_{}".format(seed_shot.project.name, seed_shot.name)
+    def test_can_generate_fullname(self, seed_shot):
+        assert seed_shot.fullname == "{}_{}".format(seed_shot.project.name, seed_shot.name)
 
     def test_can_retrieve_latest_num(self, seed_shot):
         seed_data, expected_result = self.get_seed_data("ShotVersion")[-1]

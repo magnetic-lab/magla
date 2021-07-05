@@ -152,12 +152,12 @@ class MaglaTool(MaglaEntity):
         assignment = assignment or user.assignments[-1]
 
         # establish the tool-specific project file to be opened
-        project_file = tool_config.directory.bookmark(tool_config.tool_version.full_name).format(
+        project_file = tool_config.directory.bookmark(tool_config.tool_version.fullname).format(
             shot_version=assignment.shot_version)
         cmd_list.append(project_file)
 
         # TODO: replace with `logging`
-        sys.stdout.write("\n\nStarting {tool.name} {tool_version.string}:\n{assignment} ...\n\n".format(
+        sys.stdout.write("\n\nStarting {tool.name} {tool_version.vstring}:\n{assignment} ...\n\n".format(
             assignment=pformat({
                 "Project": assignment.shot_version.project.name,
                 "Shot": assignment.shot.name,

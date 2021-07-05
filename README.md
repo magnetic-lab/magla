@@ -98,7 +98,7 @@ user = r.create_user(getpass.getuser())
 
 # create Facility
 facility = r.create_facility("test_facility",
-	settings={"tool_install_directory_label": "{tool_version.tool.name}_{tool_version.string}"})
+	settings={"tool_install_directory_label": "{tool_version.tool.name}_{tool_version.vstring}"})
 ```
 The above creates a new `Postgres` column in the 'facilities' table and returns a `MaglaFacility` object pre-populated with data in the '<MaglaEntity>.data' property.
 
@@ -141,7 +141,7 @@ test_project = r.create_project("test", "/mnt/projects/test",
             }],
         "shot_version_bookmarks": {
             "representations": {
-                "png_sequence": "{shot_version.directory.path}/_out/png/{shot_version.full_name}.####.png"
+                "png_sequence": "{shot_version.directory.path}/_out/png/{shot_version.fullname}.####.png"
             }
         }
     },

@@ -33,7 +33,7 @@ class MaglaMachine(MaglaEntity):
         """
         data = data or {}
         if not data or (isinstance(data, dict) and "uuid" not in data):
-            data["uuid"] = get_machine_uuid() or self.reset_local_uuid()
+            data["uuid"] = get_machine_uuid() or str(self.reset_local_uuid())
         super(MaglaMachine, self).__init__(data or dict(kwargs))
 
     @property

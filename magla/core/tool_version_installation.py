@@ -29,7 +29,7 @@ class MaglaToolVersionInstallation(MaglaEntity):
         super(MaglaToolVersionInstallation, self).__init__(data or dict(kwargs))
 
     def __repr__(self):
-        return "<ToolVersionInstallation {this.id}: directory={this.directory}, tool_version={this.tool_version.string}>".format(this=self)
+        return "<ToolVersionInstallation {this.id}: directory={this.directory}, tool_version={this.tool_version.vstring}>".format(this=self)
 
     def __str__(self):
         return self.__repr__()

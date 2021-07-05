@@ -70,12 +70,12 @@ class MaglaDirectory(MaglaEntity):
             example:
             ```
             shot_version_bookmarks = {
-                "ocio": "_in/color/{shot_version.full_name}.ocio",
+                "ocio": "_in/color/{shot_version.fullname}.ocio",
                 "luts": "_in/color/luts",
                 "representations": {
-                    "png_sequence": "_out/png/{shot_version.full_name}.####.png",
-                    "youtube_mov": "_out/png/{shot_version.full_name}.mov",
-                    "exr_sequence": "_out/png/{shot_version.full_name}.####.exr"
+                    "png_sequence": "_out/png/{shot_version.fullname}.####.png",
+                    "youtube_mov": "_out/png/{shot_version.fullname}.mov",
+                    "exr_sequence": "_out/png/{shot_version.fullname}.####.exr"
                 }
             ```
     """

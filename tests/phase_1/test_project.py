@@ -71,7 +71,7 @@ class TestProject(MaglaEntityTestFixture):
             and len(timeline.otio.tracks[0]) == 1 \
                 and timeline_clip_otio == shot_otio
 
-    def test_can_retrieve_shot_by_full_name(self, seed_project):
+    def test_can_retrieve_shot_by_fullname(self, seed_project):
         seed_data = self.get_seed_data("Shot", seed_project.shots[0].id-1)
         backend_data = seed_project.shot(seed_data["name"]).dict(otio_as_dict=True)
         assert backend_data == seed_data

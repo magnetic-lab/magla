@@ -29,7 +29,7 @@ facility = r.create(
         "name": "Test Facility",
         "settings":
             {
-                "tool_install_directory_label": "{tool_version.tool.name}_{tool_version.string}"
+                "tool_install_directory_label": "{tool_version.tool.name}_{tool_version.vstring}"
             }
     }
 )
@@ -82,7 +82,7 @@ test_project = r.create(
                      }]
                  }],
             "shot_version_bookmarks": {
-                "png_representation": "representations/png_sequence/_out/png/{shot_version.full_name}.####.png"
+                "png_representation": "representations/png_sequence/_out/png/{shot_version.fullname}.####.png"
             }
         }
     }
@@ -118,9 +118,9 @@ natron_tool_config = r.create(
     {
         "tool_version_id": natron_2.id,
         "project_id": test_project.id,
-        "tool_subdir": "{tool_version.full_name}",
+        "tool_subdir": "{tool_version.fullname}",
         "bookmarks": {
-            "{tool_version.full_name}": "{shot_version.full_name}.ntp"
+            "{tool_version.fullname}": "{shot_version.fullname}.ntp"
         },
         "directory_tree": [
             {"_in": [
@@ -151,9 +151,9 @@ houdini_tool_config = r.create(
     {
         "tool_version_id": houdini_18.id,
         "project_id": test_project.id,
-        "tool_subdir": "{tool_version.full_name}",
+        "tool_subdir": "{tool_version.fullname}",
         "bookmarks": {
-            "{tool_version.full_name}": "{shot_version.full_name}.hipnc"
+            "{tool_version.fullname}": "{shot_version.fullname}.hipnc"
         },
         "directory_tree": [
             {"_in": [
@@ -194,9 +194,9 @@ modo_tool_config = r.create(
     {
         "tool_version_id": modo_14_1v1.id,
         "project_id": test_project.id,
-        "tool_subdir": "{tool_version.full_name}",
+        "tool_subdir": "{tool_version.fullname}",
         "bookmarks": {
-            "{tool_version.full_name}": "{shot_version.full_name}.lxo"
+            "{tool_version.fullname}": "{shot_version.fullname}.lxo"
         },
         "directory_tree": [
             {"_in": [

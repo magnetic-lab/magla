@@ -37,7 +37,7 @@ def get_machine_uuid(path=None):
     if not os.path.isfile(machine_ini):
         raise MachineConfigNotFoundError(machine_ini)
     machine_config.read(machine_ini)
-    return machine_config["DEFAULT"].get("uuid")
+    return str(machine_config["DEFAULT"].get("uuid"))
 
 
 def generate_machine_uuid():
@@ -48,21 +48,21 @@ def generate_machine_uuid():
     str
         Unique string
     """
-    return uuid.UUID(int=uuid.getnode())
+    return str(uuid.UUID(int=uuid.getnode()))
 
 
-def write_machine_uuid(string=None, makefile=True):
-    """Create and write UUID string to the current machine's `machine.ini` file.
+def write_machine_uuid(uuid_string=None, makefile=True):
+    """Create and write UUID uuid_string to the current machine's `machine.ini` file.
 
     Parameters
     ----------
-    string : str, optional
+    uuid_string : str, optional
         the unique id to use for current machine, by default None
     makefile : bool, optional
         flag for creating `machine.ini` if it doesn't exist, by default True
     """
     machine_config = configparser.ConfigParser()
-    machine_config["DEFAULT"]["uuid"] = string or str(generate_machine_uuid())
+    machine_config["DEFAULT"]["uuid"] = uuid_string or generate_machine_uuid()
     if not os.path.isdir(os.environ["MAGLA_MACHINE_CONFIG_DIR"]):
         os.makedirs(os.environ["MAGLA_MACHINE_CONFIG_DIR"])
     with open(os.path.join(os.environ["MAGLA_MACHINE_CONFIG_DIR"], "machine.ini"), "w+") as fo:

@@ -45,7 +45,7 @@ class MaglaToolVersion(MaglaEntity):
 
     @property
     def vstring(self):
-        """Retrieve string from data.
+        """Retrieve vstring from data.
 
         Returns
         -------

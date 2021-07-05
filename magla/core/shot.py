@@ -174,7 +174,7 @@ class MaglaShot(MaglaEntity):
         return MaglaShotVersion(shot_id=self.data.id, num=num)
 
     @property
-    def full_name(self):
+    def fullname(self):
         """Convenience method for prefixing the shot's name with the project's name
 
         Returns
