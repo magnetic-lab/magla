@@ -19,6 +19,7 @@ setuptools.setup(
         "PyYAML",
         "psycopg2",
         "pyaaf2",
+        "configparser",
         "sqlalchemy",
         "sqlalchemy-utils==0.36.6; python_version < '3.0'",
         "sqlalchemy-utils>=0.36.6; python_version >= '3.0'"
