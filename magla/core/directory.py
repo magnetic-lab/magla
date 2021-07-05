@@ -137,7 +137,7 @@ class MaglaDirectory(MaglaEntity):
         Returns
         -------
         dict
-            Postgres column tree (JSONB)
+            Postgres column tree (JSON)
         """
         return self.data.tree
 
@@ -148,7 +148,7 @@ class MaglaDirectory(MaglaEntity):
         Returns
         -------
         dict
-            Postgres column bookmarks (JSONB)
+            Postgres column bookmarks (JSON)
         """
         return self.data.bookmarks
 

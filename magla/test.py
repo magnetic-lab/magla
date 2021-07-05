@@ -121,6 +121,7 @@ class MaglaEntityTestFixture(MaglaTestFixture):
     @classmethod
     def start(cls):
         """Modify backend dialect to sqlite for testing, then make connection."""
+        Entity._ORM.CONFIG["dialect"] = "sqlite"
         Entity.connect()
         # for testing, we overwrite `uuid` temporarily with our seed machine data
         cls.__magla_machine_data_dir_backup = os.environ["MAGLA_MACHINE_CONFIG_DIR"]

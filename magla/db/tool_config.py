@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -15,8 +15,8 @@ class ToolConfig(MaglaORM._Base):
     project_id = Column(Integer, ForeignKey("projects.id"))
     tool_version_id = Column(Integer, ForeignKey("tool_versions.id"))
     directory_id = Column(Integer, ForeignKey("directories.id"))
-    env = Column(JSONB)
-    copy_dict = Column(JSONB)
+    env = Column(JSON)
+    copy_dict = Column(JSON)
 
     project = relationship("Project", uselist=False, back_populates="tool_configs")
     tool_version = relationship("ToolVersion", uselist=False, back_populates="tool_config")

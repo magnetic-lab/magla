@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
 from ..db.orm import MaglaORM
@@ -12,6 +12,6 @@ class Facility(MaglaORM._Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    settings = Column(JSONB)
+    settings = Column(JSON)
 
     machines = relationship("Machine", back_populates="facility")
