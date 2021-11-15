@@ -153,6 +153,18 @@ class MaglaProject(MaglaEntity):
         """
         return self.data.settings
 
+    @property
+    def sequences(self):
+        """Shortcut method to retrieve related `MaglaSequence` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.shot.MaglaSequence
+            The `MaglaSequence` list of this project
+        """
+        r = self.data.record.sequences or []
+        return [self.from_record(a) for a in r]
+
     # SQAlchemy relationship back-references
     @property
     def timeline(self):
@@ -181,6 +193,18 @@ class MaglaProject(MaglaEntity):
         if not r:
             return None
         return MaglaEntity.from_record(r)
+    
+    @property
+    def episodes(self):
+        """Shortcut method to retrieve related `MaglaEpisode` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.shot.MaglaEpisode
+            The `MaglaEpisode` list of this project
+        """
+        r = self.data.record.episodes or []
+        return [self.from_record(a) for a in r]
 
     @property
     def settings_2d(self):

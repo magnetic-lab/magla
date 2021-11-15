@@ -1,5 +1,5 @@
 """Entity is the root class connecting `core` objects to their backend equivilent. """
-from pprint import pformat
+from pprint import pprint
 
 from ..db import ORM
 from ..utils import otio_to_dict, record_to_dict
@@ -48,6 +48,7 @@ class MaglaEntity(object):
                                        type_received=type(data)))
 
         self._data = data
+        self.class_name = self.data._schema.__entity_name__
 
     def __str__(self):
         """Overwrite the default string representation.
@@ -64,7 +65,6 @@ class MaglaEntity(object):
         """
         data = self.data.dict()
         id_ = self.id
-        entity_type = self.data._schema.__entity_name__
         keys_n_vals = []
         sorted_keys = list(data.keys())
         sorted_keys.sort()
@@ -74,7 +74,7 @@ class MaglaEntity(object):
             keys_n_vals.append("{key}={val}".format(key=key, val=data[key]))
 
         return "<{entity_type} {id}: {keys_n_vals}>".format(
-            entity_type=entity_type,
+            entity_type=self.class_name,
             id=id_,
             keys_n_vals=", ".join(keys_n_vals))
 
@@ -115,13 +115,19 @@ class MaglaEntity(object):
         dict
             A dictionary representation of this entity with all current properties.
         """
+        result = {}
+        for attribute in self.__schema__._sa_class_manager.keys():
+            if attribute.endswith("_id"):
+                continue
+            result[attribute] = getattr(self, attribute)
+            
         if otio_as_dict:
-            return otio_to_dict(self.data.dict())
-        return self.data.dict()
+            return otio_to_dict(result)
+        return result
 
     def pprint(self):
         """Return a 'pretty-printed' string representation of this entity."""
-        return pformat(self.dict(), width=1)
+        return pprint(self.dict(), width=1)
 
     @property
     def data(self):

@@ -60,7 +60,8 @@ class MaglaRoot(object):
             MaglaShotVersion: self._create_shot_version,
             MaglaTool: self._create_tool,
             MaglaToolConfig: self._create_tool_config,
-            MaglaToolVersion: self._create_tool_version
+            MaglaToolVersion: self._create_tool_version,
+            MaglaUser: self._create_user
         }
 
     def __repr__(self):
@@ -338,7 +339,7 @@ class MaglaRoot(object):
         new_directory = self.__create(
             MaglaDirectory,
             {
-                "path": config.get("directory").format(project=new_project),
+                "path": config.get("path").format(project=new_project),
                 "tree": config.get("settings").get("project_directory_tree", []),
                 "machine_id": config.get("machine_id", MaglaMachine().id)
             }

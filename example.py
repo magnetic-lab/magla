@@ -237,9 +237,9 @@ assignment = r.create(
 )
 
 # set user's assignment context
-# c = user.context
-# c.data.assignment_id = assignment.id
-# c.data.push()
+c = user.context
+c.data.assignment_id = assignment.id
+c.data.push()
 # use `all` method to retrieve list of all entity records by entity type.
 r.all(magla.User)
 r.all(magla.ShotVersion)

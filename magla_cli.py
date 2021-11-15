@@ -60,16 +60,6 @@ if __name__ == "__main__":
         sys.argv.append('--help')
     
     args = parser.parse_args()
-    if args.callback == r.create:
-        args.callback(magla.Entity.type(args.entity), args.config)
-    elif args.callback == r.create_from_config:
-        args.callback(args.config_path)
-    elif args.callback == r.version_up:
-        args.callback(args.shot_id)
-    elif args.callback == r.all:
-        if args.entity:
-            result = args.callback(magla.Entity.type(args.entity))
-        else:
-            result = args.callback()
-        sys.stdout.write(pformat(result))
-        sys.stdout.write("\n")
+    result = args.callback(**{key: val for key, val in vars(args).items() if key is not "callback"})
+    sys.stdout.write(pformat(result))
+    sys.stdout.write("\n")

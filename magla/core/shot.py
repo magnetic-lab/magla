@@ -103,7 +103,7 @@ class MaglaShot(MaglaEntity):
         magla.core.episode.MaglaEpisode
             The `MaglaEpisode` for this shot
         """
-        return MaglaEntity.from_record(self.data.episode.data.record)
+        return MaglaEntity.from_record(self.data.record.episode)
     
     @property
     def sequence(self):
@@ -114,7 +114,7 @@ class MaglaShot(MaglaEntity):
         magla.core.sequence.MaglaSequence
             The `MaglaSequence` for this shot
         """
-        return MaglaEntity.from_record(self.data.sequence.data.record)
+        return MaglaEntity.from_record(self.data.record.sequence)
     
     @property
     def directory(self):

@@ -93,3 +93,7 @@ class MaglaAssignment(MaglaEntity):
             The related `MaglaProject`
         """
         return self.shot.project
+    
+    @property
+    def task(self):
+        return None

@@ -64,6 +64,19 @@ class MaglaToolVersion(MaglaEntity):
             The file-extension to use when searching for openable project files.
         """
         return self.data.file_extension  # TODO: use MaglaFileType instead
+    
+    @property
+    def file_types(self):
+        """Shortcut method to retrieve related `MaglaFileType` back-reference list.
+
+        Returns
+        -------
+        list of magla.core.tool_version.MaglaFileTypes
+            A list of `MaglaFileTypes` objects associated to this tool-version
+        """
+        if not self.data.record.file_types:
+            return []
+        return [self.from_record(a) for a in self.data.record.file_types]
 
     # SQAlchemy relationship back-references
     @property

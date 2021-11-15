@@ -25,13 +25,14 @@ class MaglaORM(object):
     """
     # `postgres` connection string variables
     CONFIG = {
-        "dialect": "postgres",
+        "dialect": "sqlite",
         "username": os.getenv("MAGLA_DB_USERNAME"),
         "password": os.getenv("MAGLA_DB_PASSWORD"),
         "hostname": os.getenv("MAGLA_DB_HOSTNAME"),
         "port": os.getenv("MAGLA_DB_PORT"),
         "db_name": os.getenv("MAGLA_DB_NAME"),
-        "data_dir": os.getenv("MAGLA_DB_DATA_DIR")
+        "data_dir": os.getenv("MAGLA_DB_DATA_DIR"),
+        "sqlite_check_same_thread": False
     }
     _Base = declarative_base()
     _Session = None
@@ -94,7 +95,7 @@ class MaglaORM(object):
     def _construct_sqlite_engine(cls):
         """Construct the engine to be used by `SQLAlchemy`."""
         cls._Engine = create_engine(
-            "sqlite:///{data_dir}/{db_name}".format(**cls.CONFIG)
+            "sqlite:///{data_dir}/{db_name}?check_same_thread={sqlite_check_same_thread}".format(**cls.CONFIG)
         )
 
     @classmethod
