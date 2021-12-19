@@ -13,6 +13,7 @@ class Machine(MaglaORM._Base):
     facility_id = Column(Integer, ForeignKey("facilities.id"))
     uuid = Column(String)  # unique
     name = Column(String)
+    description = Column(String)
     ip_address = Column(String)
 
     facility = relationship("Facility", back_populates="machines")

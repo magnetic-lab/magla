@@ -57,6 +57,17 @@ class MaglaMachine(MaglaEntity):
             Name of the machine - its hostname
         """
         return self.data.name
+    
+    @property
+    def description(self):
+        """Retrieve machine description from data.
+
+        Returns
+        -------
+        str
+            description of the machine
+        """
+        return self.data.description
 
     @property
     def ip_address(self):
