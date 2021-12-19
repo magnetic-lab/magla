@@ -1,29 +1,29 @@
+import os
 import setuptools
 
+INSTALL_REQUIRES = []
+_requirements_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    "requirements.txt"
+)
+if os.path.isfile(_requirements_path):
+    with open(_requirements_path, "r") as rf:
+        INSTALL_REQUIRES = rf.read().splitlines()
+
+LONG_DESCRIPTION = ""
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    LONG_DESCRIPTION = fh.read()
 
 setuptools.setup(
-    name="magla-jacobmartinez3d",
-    version="0.0.181",
+    name="magla",
+    version="0.0.1",
     author="Jacob Martinez",
     author_email="info@magnetic-lab.com",
     description="A free data pipeline for animation and visual-effects freelancers and studios, with an emphasis on dynamically generated `opentimelineio` timelines.",
     license="GNU General Public License v3 or later (GPLv3+)",
     platform="OS Independent",
     py_modules=["magla"],
-    install_requires=[
-        "appdirs",
-        "cmake",
-        "opentimelineio>=0.13",
-        "PyYAML",
-        "psycopg2",
-        "pyaaf2",
-        "configparser",
-        "sqlalchemy",
-        "sqlalchemy-utils==0.36.6; python_version < '3.0'",
-        "sqlalchemy-utils>=0.36.6; python_version >= '3.0'"
-    ],
+    install_requires=INSTALL_REQUIRES,
     extras_require={
         "dev": [
             "flake8",
@@ -31,7 +31,7 @@ setuptools.setup(
             "pytest-cov",
         ]
     },
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://github.com/magnetic-lab/magla",
     packages=setuptools.find_packages(),
@@ -46,6 +46,6 @@ setuptools.setup(
         "Framework :: SQLAlchemy",
         "Topic :: Multimedia :: Video"
     ],
-    python_requires='>=2.7, <=3.9',
+    python_requires='>=2.7, <4',
     keywords="vfx post-production animation editing pipeline opentimelineio sql"
 )
