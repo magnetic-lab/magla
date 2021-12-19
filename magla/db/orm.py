@@ -5,6 +5,7 @@ from `magla`.
 
 To replace with your own backend just keep the below method signatures intact.
 """
+import logging
 import os
 
 from sqlalchemy import create_engine
@@ -37,10 +38,13 @@ class MaglaORM(object):
     _Base = declarative_base()
     _Session = None
     _Engine = None
+    _logger = logging.getLogger(__name__)
 
     def __init__(self):
         """Instantiate and iniliatize DB tables."""
         self._session = None
+        self._logger.debug("{this.__class__.__name__} created.".format(this=self))
+        self._logger.debug(self)
 
     def init(self):
         """Perform `SQLAlchemy` initializations, create filesystem directory for `sqlite` data."""
@@ -77,9 +81,10 @@ class MaglaORM(object):
     @classmethod
     def _construct_session(cls, *args, **kwargs):
         """Construct session-factory."""
-        print("session constructed")
         # TODO: include test coverage for constructing sessions with args/kwargs
         cls._Session = cls.sessionmaker(*args, **kwargs)
+        cls._logger.info("Session created.")
+        cls._logger.debug(cls._Session)
 
     @classmethod
     def _construct_engine(cls):

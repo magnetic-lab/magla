@@ -4,12 +4,11 @@ You may use this file as is for creation, or customize your own creation methods
 here is creating and commiting `SQLAlchemy` objects to `ORM.session` using compound custom
 creation methods for convenience.
 """
-import argparse
 import os
+import platform
 import re
 import shutil
 import sys
-from types import new_class
 
 import opentimelineio as otio
 
@@ -93,6 +92,8 @@ class MaglaRoot(object):
         return db_dump
 
     def create(self, entity, config, *args, **kwargs):
+        if isinstance(entity, MaglaShotVersion):
+            pass
         if entity in self._compound_creators:
             return self._compound_creators[entity](config)
         return self.__create(entity, config, *args, **kwargs)
@@ -287,15 +288,16 @@ class MaglaRoot(object):
         """
         # del config["tool_install_directory_label"]
         new_facility = self.__create(MaglaFacility, config)
-        self.__create(
-            MaglaMachine,
-            {
-                "name": "Default created machine for facility: {facility_name}".format(
-                    facility_name=new_facility.name),
-                "facility_id": new_facility.id,
-                "uuid": MaglaMachine.get_local_uuid() or MaglaMachine.reset_local_uuid()
-            }
-        )
+        # self.__create(
+        #     MaglaMachine,
+        #     {
+        #         "name": platform.node(),
+        #         "description": "Default created machine for facility: {facility_name}".format(
+        #             facility_name=new_facility.name),
+        #         "facility_id": new_facility.id,
+        #         "uuid": MaglaMachine.get_local_uuid() or MaglaMachine.reset_local_uuid()
+        #     }
+        # )
         return new_facility
 
     def _create_project(self, config):
@@ -338,8 +340,9 @@ class MaglaRoot(object):
         # create `directories` entry
         new_directory = self.__create(
             MaglaDirectory,
-            {
-                "path": config.get("path").format(project=new_project),
+            {   
+                "label": "{project.name} Root.".format(project=new_project),
+                "path": config.get("settings").get("project_directory").format(project=new_project),
                 "tree": config.get("settings").get("project_directory_tree", []),
                 "machine_id": config.get("machine_id", MaglaMachine().id)
             }
@@ -397,6 +400,7 @@ class MaglaRoot(object):
             new_directory = self.__create(
                 MaglaDirectory,
                 {
+                    "label": "{shot.name} root.".format(shot=new_shot),
                     "path": project_settings_shot_dir.format(shot=new_shot),
                     "tree": project.settings.get("shot_directory_tree", []),
                     "machine_id": MaglaMachine().id
@@ -442,10 +446,13 @@ class MaglaRoot(object):
             raise InsufficientRequiredConfigData(
                 "No valid 'shot_id' or 'shot_name' given.")
         # create new shot version
-        new_shot_version = self.__create(MaglaShotVersion, {
-            "shot_id": shot.id,
-            "num": config.get("num", shot.latest_num+1)
-        })
+        new_shot_version = self.__create(
+            MaglaShotVersion,
+            {
+                "shot_id": shot.id,
+                "num": config.get("num", shot.latest_num+1)
+            }
+        )
 
         # First we must retrieve and append all tool subtree information for current `Project`
         tree = shot.project.settings.get("shot_version_directory_tree", {})
@@ -456,11 +463,9 @@ class MaglaRoot(object):
             tool_project_file_path = \
                 directory_to_update.bookmark("project_file").format(
                     shot_version=new_shot_version)
-            tool_subdir = \
-                directory_to_update.path.format(shot_version=new_shot_version)
             directory_to_update.data.bookmarks["project_file"] = tool_project_file_path
             directory_to_update.data.push()
-            tree.append({tool_subdir: directory_to_update.tree})
+            tree.append({directory_to_update.basename(): directory_to_update.tree})
 
         # apply `ToolConfig` trees
         # then create a `Directory` record
@@ -470,6 +475,8 @@ class MaglaRoot(object):
                 "path": shot.project.settings["shot_version_directory"].format(
                     shot_version=new_shot_version),
                 "machine_id": MaglaMachine().id,
+                "label": "ShotVersion folder for: {new_shot_version.fullname}".format(
+                    new_shot_version=new_shot_version),
                 "tree": tree,
                 "bookmarks": bookmarks
             }
@@ -541,13 +548,13 @@ class MaglaRoot(object):
         """
         # check if given `tool_name` already exists
         try:
-            tool_obj = MaglaTool(name=config.get("name"))
+            tool_obj = MaglaTool(name=config.get("tool_name"))
             tool_id = tool_obj.data.id
         except NoRecordFoundError:
             _tool = self.__create(
                 MaglaTool,
                 {
-                    "name": config.get("name")
+                    "name": config.get("tool_name")
                 }
             )
             tool_id = _tool.data.id
@@ -658,7 +665,7 @@ class MaglaRoot(object):
                 "No valid 'tool_version_id' or 'tool_version_fullname' given.")
 
         directory_tree = config.get("directory_tree", [])
-        tool_subdir = config.get("tool_subdir", "{tool_version.fullname}")
+        tool_subdir = config.get("tool_subdir", "{tool_version.fullname}").format(tool_version=tool_version)
         # format the `ToolConfig` tool-specific bookmark keys
         formatted_keys_dict = {}
         for key, val in config.get("bookmarks", {}).items():
@@ -755,9 +762,11 @@ class MaglaRoot(object):
         new_directory = self.create(MaglaDirectory, {
             "machine_id": machine.id,
             "user_id": new_user.id,
-            "label": "default",
+            "label": "{user.nickname}'s Home Directory.".format(user=new_user),
             "path": os.path.join(os.path.expanduser("~"), "magla")
         })
+        new_user.data.directory = new_directory
+        new_user.data.push()
         try:
             self.__create(
                 MaglaContext,
