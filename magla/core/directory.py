@@ -139,7 +139,7 @@ class MaglaDirectory(MaglaEntity):
         dict
             Postgres column tree (JSON)
         """
-        return self.data.tree
+        return self.data.tree or []
 
     @property
     def bookmarks(self):
@@ -182,6 +182,9 @@ class MaglaDirectory(MaglaEntity):
         return MaglaEntity.from_record(r)
 
     # MaglaDirectory-specific methods ______________________________________________________________
+    def basename(self):
+        return os.path.basename(self.path)
+        
     def bookmark(self, name):
         """Retrieve and convert given bookmark to absolute path.
         Parameters
@@ -235,7 +238,6 @@ class MaglaDirectory(MaglaEntity):
         for dict_ in sub_tree:
             k, v = list(dict_.items())[0]
             abs_path = os.path.join(root, k)
-            print("making: {}".format(abs_path))
             try:
                 os.makedirs(abs_path, exist_ok=False)
             except OSError as e:
