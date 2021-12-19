@@ -1,5 +1,6 @@
 """Entity is the root class connecting `core` objects to their backend equivilent. """
-from pprint import pprint
+import logging
+from pprint import pprint, pformat
 
 from ..db import ORM
 from ..utils import otio_to_dict, record_to_dict
@@ -22,6 +23,7 @@ class MaglaEntity(object):
     """
     _ORM = ORM
     _orm = None
+    _logger = logging.getLogger(__name__)
 
     def __init__(self, data=None, **kwargs):
         """Initialize with model definition, data, and supplimental kwargs as key-value pairs.
@@ -49,6 +51,8 @@ class MaglaEntity(object):
 
         self._data = data
         self.class_name = self.data._schema.__entity_name__
+        self._logger.debug("{this.class_name} created.".format(this=self))
+        self._logger.debug(self._data)
 
     def __str__(self):
         """Overwrite the default string representation.
@@ -124,6 +128,10 @@ class MaglaEntity(object):
         if otio_as_dict:
             return otio_to_dict(result)
         return result
+
+    def pformat(self):
+        """Return a 'pretty-printed' string representation of this entity."""
+        return pformat(self.dict(), width=1)
 
     def pprint(self):
         """Return a 'pretty-printed' string representation of this entity."""
